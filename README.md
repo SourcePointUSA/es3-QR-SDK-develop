@@ -22,8 +22,8 @@ The following examples are provided:
                 messageDiv: "native_message",
                 pmDiv: "pm",
                 qrId: "qr",
-                qrUrl: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=",
-                pmUrl: "https://tcfv2.de/pm.php",
+                qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
+                pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
                 events: {
                     onConsentReady: function( consentUUID, euconsent, vendorGrants) {
                         console.log('Custom - onConsentReady');
@@ -57,8 +57,8 @@ A complete example has been included in the "example" folder within this reposit
 | `authId`      | `string`   | **optional**. Allows your organization to pass a consent identifier to Sourcepoint to be used with [authenticated consent](https://docs.sourcepoint.com/hc/en-us/articles/4403274791699-Authenticated-consent) .            |
 | `pmDiv`           | `string`   | **Required**. The ID of the `<div>` element designated for the privacy manager.                           |
 | `qrId`            | `string`   | **Required**. The ID of the `<img>` element where the QR code is displayed.                               |
-| `qrUrl`           | `string`   | **Required**. The URL of the QR code generator (no default; must be hosted on your infrastructure).        |
-| `pmUrl`           | `string`   | **Required**. The URL for the privacy manager's second-layer page (no default; must be hosted on your infrastructure). |
+| `qrUrl`           | `string`   | **optional**. The URL of the QR code generator.        |
+| `pmUrl`           | `string`   | **optional**. The URL for the privacy manager's second-layer page  |
 | `gdpr`            | `object`   | **Optional**. Adds GDPR TCF or GDPR Standard messaging campaigns to your configuration.                  |
 | `isSPA`           | `boolean`  | **Optional**. Set to `true` to implement for a single-page application. Shows messages only when `window._sp_.executeMessaging();` is triggered. |
 | `targetingParams` | `object`   | **Optional**. Allows setting arbitrary key/value pairs sent to Sourcepoint servers for decision-making in the scenario builder. Parameters set within U.S. Privacy (Legacy) or GDPR objects override this configuration.  |
