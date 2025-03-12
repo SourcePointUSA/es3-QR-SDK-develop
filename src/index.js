@@ -47,6 +47,10 @@
 	var pmDiv = _sp_.config.pmDiv;
 	var pmId = _sp_.config.pmId;
 
+	var pmId = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.pmId) ? _sp_.config.pmId : 1196474;
+	var buildMessageComponents = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.buildMessageComponents === true) ? true : false;
+	
+
 	var messageId = null;
 	var messageMetaData = null; 
 	var localState = null;
@@ -648,7 +652,6 @@
 	}
 
 	function getConsentStatus(){
-		console.log(consentStatus);
 		if (consentStatus !== null) {
 			if(consentStatus.consentedAll){
 				return;
@@ -674,11 +677,8 @@
 	    
 	   };
 
-	   console.log(params);
 
 	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
-
-	    console.log(res);
 
 	    if(typeof(res.consentStatusData.gdpr) !== undefined){
 	    	hasLocalData = true;
@@ -710,64 +710,68 @@
 	}
 
 	function buildMessage() {
-    	var data = getMessageData();
-    	updateQrUrl(getQrCodeUrl());
+		if(buildMessageComponents){
+			var data = getMessageData();
+    		updateQrUrl(getQrCodeUrl());
 
 	
-	    var allVendorCountElements = document.getElementsByClassName("all_vendor_count");
-	    for (var i = 0; i < allVendorCountElements.length; i++) {
-	        allVendorCountElements[i].innerHTML = data.allVendorCount;
-	    }
+		    var allVendorCountElements = document.getElementsByClassName("all_vendor_count");
+		    for (var i = 0; i < allVendorCountElements.length; i++) {
+		        allVendorCountElements[i].innerHTML = data.allVendorCount;
+		    }
 
-	    var iabVendorCountElements = document.getElementsByClassName("iab_vendor_count");
-	    for (var i = 0; i < iabVendorCountElements.length; i++) {
-	        iabVendorCountElements[i].innerHTML = data.iabVendorCount;
-	    }
+		    var iabVendorCountElements = document.getElementsByClassName("iab_vendor_count");
+		    for (var i = 0; i < iabVendorCountElements.length; i++) {
+		        iabVendorCountElements[i].innerHTML = data.iabVendorCount;
+		    }
 
-	    // Template and containers
-	    var stackTemplate = document.getElementById("stack_template");
-	    if (!stackTemplate) {
-	        console.error("Template with ID 'stack_template' not found.");
-	        return;
-	    }
-	    var templateHTML = stackTemplate.innerHTML;
+		    // Template and containers
+		    var stackTemplate = document.getElementById("stack_template");
+		    if (!stackTemplate) {
+		        console.error("Template with ID 'stack_template' not found.");
+		        return;
+		    }
+		    var templateHTML = stackTemplate.innerHTML;
 
-	    var stacksContainers = document.getElementsByClassName("sp_stacks");
-	    var purposesContainers = document.getElementsByClassName("sp_purposes");
+		    var stacksContainers = document.getElementsByClassName("sp_stacks");
+		    var purposesContainers = document.getElementsByClassName("sp_purposes");
 
-	    // Use DocumentFragment for batch updates
-	    var stacksFragment = document.createDocumentFragment();
-	    var purposesFragment = document.createDocumentFragment();
+		    // Use DocumentFragment for batch updates
+		    var stacksFragment = document.createDocumentFragment();
+		    var purposesFragment = document.createDocumentFragment();
 
-	    for (var j = 0; j < data.categories.length; j++) {
-	        var category = data.categories[j];
+		    for (var j = 0; j < data.categories.length; j++) {
+		        var category = data.categories[j];
 
-	        // Populate template
-	        var newHTML = templateHTML;
-	        newHTML = newHTML.replace("{name}", category.name || "")
-	                         .replace("{description}", category.description || "")
-	                         
-	        var tempDiv = document.createElement("div");
-	        tempDiv.innerHTML = newHTML;
+		        // Populate template
+		        var newHTML = templateHTML;
+		        newHTML = newHTML.replace("{name}", category.name || "")
+		                         .replace("{description}", category.description || "")
+		                         
+		        var tempDiv = document.createElement("div");
+		        tempDiv.innerHTML = newHTML;
 
-	        while (tempDiv.firstChild) {
-	            if (category.type === "IAB_STACK") {
-	                stacksFragment.appendChild(tempDiv.firstChild);
-	            } else if (category.type === "IAB_PURPOSE") {
-	                purposesFragment.appendChild(tempDiv.firstChild);
-	            }
-	        }
-	    }
+		        while (tempDiv.firstChild) {
+		            if (category.type === "IAB_STACK") {
+		                stacksFragment.appendChild(tempDiv.firstChild);
+		            } else if (category.type === "IAB_PURPOSE") {
+		                purposesFragment.appendChild(tempDiv.firstChild);
+		            }
+		        }
+		    }
 
-	    for (var k = 0; k < stacksContainers.length; k++) {
-	        stacksContainers[k].appendChild(stacksFragment.cloneNode(true));
-	    }
-	    for (var k = 0; k < purposesContainers.length; k++) {
-	        purposesContainers[k].appendChild(purposesFragment.cloneNode(true));
-	    }
+		    for (var k = 0; k < stacksContainers.length; k++) {
+		        stacksContainers[k].appendChild(stacksFragment.cloneNode(true));
+		    }
+		    for (var k = 0; k < purposesContainers.length; k++) {
+		        purposesContainers[k].appendChild(purposesFragment.cloneNode(true));
+		    }
 
-	    messageElementsAdded = true; 
-	    onMessageComposed();
+		    messageElementsAdded = true; 
+		    onMessageComposed();
+
+		}
+    	
 	}
 
 	function sampleUser(sampleRate) {
@@ -848,8 +852,6 @@
 
 	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
 	    metaData = res;
-	    console.log(metaData);
-
 
 	    setItem("metaData_"+propertyId, metaData,365);
 	}

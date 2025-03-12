@@ -64,6 +64,8 @@ A complete example has been included in the "example" folder within this reposit
 | `gdpr`            | `object`   | **Optional**. Adds GDPR TCF or GDPR Standard messaging campaigns to your configuration.                  |
 | `isSPA`           | `boolean`  | **Optional**. Set to `true` to implement for a single-page application. Shows messages only when `window._sp_.executeMessaging();` is triggered. |
 | `targetingParams` | `object`   | **Optional**. Allows setting arbitrary key/value pairs sent to Sourcepoint servers for decision-making in the scenario builder. Parameters set within U.S. Privacy (Legacy) or GDPR objects override this configuration.  |
+| `buildMessageComponents`           | `boolean`   | **Required**. The default is true, if set to false, ui elements won't be repleced                           |
+
 
 ### Optional Event Callbacks
 
