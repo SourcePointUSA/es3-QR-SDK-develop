@@ -138,6 +138,10 @@
         	return euConsentString;
         }
 
+        _sp_.getQrCodeUrl = function(){
+        	return getQrCodeUrl();
+        }
+
         _sp_.clearUserData = function(){
         	deleteCookie("authId");
         	deleteCookie("consentUUID");
@@ -687,17 +691,21 @@
 	    return req;
 	}
 
-	function buildMessage() {
-    	var data = JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
-    	
-    	updateQrUrl(_sp_.config.qrUrl + encodeURIComponent(_sp_.config.pmUrl +
+	function getQrCodeUrl(){
+	 	return	_sp_.config.qrUrl + encodeURIComponent(_sp_.config.pmUrl +
     		"?authid="+authId + 
 			"&consentlanguage="+consentLanguage + 
 			"&propertyid="+propertyId +
 			"&propertyhref="+propertyHref +
 			"&accountid="+accountId +
 			"&pmid="+pmId)
-		);
+
+	}
+
+	function buildMessage() {
+    	var data = JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
+    	
+    	updateQrUrl(getQrCodeUrl());
 
 	
 	    var allVendorCountElements = document.getElementsByClassName("all_vendor_count");

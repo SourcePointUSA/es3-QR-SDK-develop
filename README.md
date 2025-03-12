@@ -22,6 +22,7 @@ The following examples are provided:
                 messageDiv: "native_message",
                 pmDiv: "pm",
                 qrId: "qr",
+                pmId: 1196474,
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
                 pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
                 events: {
@@ -51,6 +52,7 @@ A complete example has been included in the "example" folder within this reposit
 | `accountId`       | `integer`  | **Required**. The unique identifier for your account on Sourcepoint.                                      |
 | `propertyId`      | `integer`  | **Required**. Maps the implementation to a specific URL as set up in the Sourcepoint dashboard. Use this parameter to spoof messaging campaigns for testing or debugging.                                       |
 | `propertyHref`    | `string`   | **Required**. The name or URL of the property to be connected.                                            |
+| `pmId`    | `integer`   | **Required**. The ID of the privacy message that should be displayed on the second screen.                   |
 | `consentLanguage`    | `string`   | **Required**. TEnforce that the message is delivered in the specified language regardless of an end-user's browser language setting. [Click here](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) for a list of ISO 639-1 language codes.                                           |
 | `baseEndpoint`    | `string`   | **Required**. The API endpoint. Use the default (`https://cdn.privacy-mgmt.com/`) unless a custom CNAME is required. |
 | `messageDiv`      | `string`   | **Required**. The ID of the `<div>` element where your consent message will appear.                       |
@@ -118,6 +120,13 @@ The button actions in this project allow users to interact with the application 
 | Consent Status          | Returns the consent status after executeMesaging() has been performed                                                                  | ``` _sp_.consentStatus() ``` |
 | Clear User Data          | clears users cookies for the active property                                                                  | ``` _sp_.clearUserData() ``` |
 | Get TCString          | returns the gdpr TCF consent String                                                                 | ``` _sp_.getTcString() ``` |
+
+| Get QR Code URL          | returns the url of the QR code image                                                               | ``` _sp_.getQrCodeUrl()``` |
+
+
+
+
+
 
 
 
