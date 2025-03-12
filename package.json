@@ -1,0 +1,20 @@
+{
+  "name": "es3-qr-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run transpile && npm run minify",
+    "transpile": "babel src --out-dir dist",
+    "minify": "terser dist/index.js --compress --mangle --output example/nativeMessaging.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "terser": "^5.36.0"
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sourcepoint PM</title>
+    <script type="text/javascript">
+      /**
+       * Liest einen GET-Parameter aus der URL und wendet ggf. eine Validierung oder Sanitization an.
+       *
+       * @param {string} key - Der Name des Parameters.
+       * @param {*} defaultValue - Standardwert, falls der Parameter fehlt oder ungültig ist.
+       * @param {string} filter - Art der Validierung: "int" für Integer oder "specialChars" für Zeichen-Sanitizing.
+       * @return {*} Der verarbeitete Parameterwert.
+       */
+      function safeGetParameter(key, defaultValue, filter = "specialChars") {
+      	console.log(key);
+        const params = new URLSearchParams(window.location.search);
+        let value = params.get(key);
+        if (value === null) {
+          return defaultValue;
+        }
+        if (filter === "int") {
+          const parsed = parseInt(value, 10);
+          return isNaN(parsed) ? defaultValue : parsed;
+        }
+        if (filter === "specialChars") {
+          // Einfache Sanitization: Ersetzen spezieller HTML-Zeichen.
+          const map = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+          };
+          return value.replace(/[&<>"']/g, (m) => map[m]);
+        }
+        return value;
+      }	
+
+      // Parameter aus der URL auslesen
+      const propertyId = safeGetParameter("propertyid", 0, "int");
+      const accountId = safeGetParameter("accountid", 0, "int");
+      const propertyHref = safeGetParameter("propertyhref", "", "specialChars");
+      const authId = safeGetParameter("authid", "", "specialChars");
+      const pmId = safeGetParameter("pmId", 1196474, "int");
+
+      var pmActionActionTaken = false;
+
+      window._sp_ = {
+        config: {
+          accountId: accountId,
+          propertyHref: propertyHref,
+          baseEndpoint: "https://cdn.privacy-mgmt.com",
+          authId: authId,
+
+          targetingParams: {
+            mode: "nomessage"
+          },
+          gdpr: {},
+          events: {
+            onPrivacyManagerAction: function (pmData) {
+              console.log("onPrivacyManagerAction", pmData);
+              pmActionActionTaken = true;
+            },
+            onConsentReady: function (consentUUID, euconsent) {
+              if (!pmActionActionTaken) {
+              	console.log(pmId);
+                _sp_.gdpr.loadPrivacyManagerModal(pmId);
+              } else {
+                document.getElementById("thank_you").style.display = "block";
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <script src="https://cdn.privacy-mgmt.com/unified/wrapperMessagingWithoutDetection.js" async></script>
+  </head>
+  <body>
+    <div
+      id="thank_you"
+      style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;"
+    >
+      Thank you for your choice. Please return to your TV and press the reload CMP button to finalize your preferences.
+      If you'd like to make further changes, you can
+      <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">click here</a>
+      to resurface the privacy management options.
+    </div>
+  </body>
+</html>

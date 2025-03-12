@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "ie": "6"
+        },
+        "modules": false
+      }
+    ]
+  ],
+  "comments": false
+}

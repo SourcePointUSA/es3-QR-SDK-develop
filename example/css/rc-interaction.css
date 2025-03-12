@@ -1,0 +1,305 @@
+body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #323232;
+            color: #e0e0e0;
+        }
+
+        .main-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 50px 20px;
+            gap: 20px;
+        }
+
+        .main-buttons button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #2e3b4e;
+            color: #e0e0e0;
+            transition: background-color 0.3s;
+        }
+
+        .main-buttons button:focus {
+            background-color: #3e5066;
+        }
+
+        #native_message, #pm{
+            display: NONE;
+        }
+
+        .gdpr-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background: rgba(18, 18, 18, 0.75);
+            color: #e0e0e0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-radius: 0;
+        }
+
+        .gdpr-logo {
+            margin-right: 20px;
+        }
+
+        .gdpr-logo img {
+            height: 14em;
+            opacity: 0.8;
+        }
+
+        .gdpr-text {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .gdpr-text h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .gdpr-text p {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .gdpr-text a {
+            color: #90caf9;
+            text-decoration: none;
+        }
+
+        .gdpr-text a:focus {
+            text-decoration: underline;
+        }
+
+        .accordion {
+             background-color: #45535a;
+            color: #E0E0DD;
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 5px;
+            text-align: left;
+            border: none;
+            outline: none;
+            width: 100%;
+            transition: background-color 0.3s;
+            border-radius: 0.4em;
+        }
+
+        .accordion:focus {
+            background-color: #333333;
+        }
+
+        .panel {
+            display: none;
+            background-color: #232323;
+            overflow: hidden;
+            /* padding: 10px; */
+            color: #e0e0e0;
+            width: 99%;
+            margin-bottom: 0.3em;
+            padding-left: 1%;
+        }
+
+        .gdpr-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+
+        .gdpr-buttons button{
+            width: 20em;
+        }
+
+        button.accept-all,
+        button.manage-preferences,
+        button.reject-all,
+        button.update-cmp,
+        button.continue
+         {
+            padding: 1em 2em;
+            border: none;
+            border-radius: 0.3em;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .update-cmp{
+            background-color: #37474f;
+            color: #e0e0e0;
+            width: 15em;
+        }
+
+        .accept-all {
+            background-color: #37474f;
+            color: #e0e0e0;
+        }
+        
+        .accept-all:focus {
+            background-color: #455a64;
+        }
+
+         .manage-preferences, .reject-all {
+            background-color: #455a64;
+            color: #e0e0e0;
+        }
+
+        .manage-preferences:focus {
+            background-color: #546e7a;
+        }
+
+         .continue {
+            background-color: #263238;
+            color: #e0e0e0;
+        }
+
+        .continue:focus {
+            background-color: #37474f;
+        }
+
+        @media screen and (max-width: 768px) {
+            .gdpr-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .gdpr-text {
+                margin-bottom: 20px;
+            }
+
+            .gdpr-buttons {
+                align-items: flex-start;
+            }
+        }
+
+ 
+/** application/oipfApplicationManager embedded object style  */
+object#applicationManager
+{
+    position: absolute;
+    left: 0px;
+    top: 0px; 
+    width: 0px; 
+    height: 0px;
+}
+
+/** safe area as recommended by standard */
+div.safe_area 
+{
+    position: absolute;
+    left: 128px; 
+    top: 36px; 
+    width: 1024px; 
+    height: 648px;
+    /** set background color and alpha */
+    background-color: rgba(0, 0, 0, .5);
+}
+
+/* set application area invisble as initial state (we need to press the red button, so application scene shows) */
+div#app_area 
+{
+    visibility: hidden;
+}
+
+/* set red button div style */
+div.red_button_style 
+{
+    position: absolute;
+    left: 320px; 
+    top: 600px; 
+    width: 960px; 
+    height: 84px;
+    /* red background */
+    background-color: red;
+    /* centered text */
+    font-size: 36px;
+    text-align: center;
+    line-height: 84px;
+}
+
+
+/* set title text style */
+div.title_text
+{
+    padding-top: 25px;
+    padding-bottom: 20px;
+    font-size: 36px;
+    text-align: center;
+}
+
+/* set status text style */
+div.status_text
+{
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 3px;
+    font-size: 20px;
+    border-top: 2px solid #d3d3d3;
+}
+
+/* set bottom legend style */
+div.bottom_legend
+{
+    position: absolute;
+    top: 624px; 
+    width: 1024px; 
+    height: 24px;
+}
+
+/* set bottom legend cell style */
+div.legend_cell
+{
+    width: 250px;
+    height: 24px;
+    display: inline-block;
+}
+
+div.legend_button_red {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-color: red;
+}
+
+div.legend_button_green {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-color: green;
+}
+
+div.legend_button_yellow {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-color: yellow;
+}
+
+div.legend_button_blue {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-color: blue;
+}
+
+/* set bottom legend cell style */
+span.legend_text {
+    position: relative;
+    top: -7px;
+    font-size: 16px;
+}
+
