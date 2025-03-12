@@ -142,6 +142,10 @@
         	return getQrCodeUrl();
         }
 
+        _sp_.getMessageData = function(){
+        	return getMessageData();
+        }
+
         _sp_.clearUserData = function(){
         	deleteCookie("authId");
         	deleteCookie("consentUUID");
@@ -699,12 +703,14 @@
 			"&propertyhref="+propertyHref +
 			"&accountid="+accountId +
 			"&pmid="+pmId)
+	}
 
+	function getMessageData(){
+		 return JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
 	}
 
 	function buildMessage() {
-    	var data = JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
-    	
+    	var data = getMessageData();
     	updateQrUrl(getQrCodeUrl());
 
 	

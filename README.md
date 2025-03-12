@@ -120,12 +120,8 @@ The button actions in this project allow users to interact with the application 
 | Consent Status          | Returns the consent status after executeMesaging() has been performed                                                                  | ``` _sp_.consentStatus() ``` |
 | Clear User Data          | clears users cookies for the active property                                                                  | ``` _sp_.clearUserData() ``` |
 | Get TCString          | returns the gdpr TCF consent String                                                                 | ``` _sp_.getTcString() ``` |
-
 | Get QR Code URL          | returns the url of the QR code image                                                               | ``` _sp_.getQrCodeUrl()``` |
-
-
-
-
+| Get Message Data          | returns the vendor Counts,  stacks and purposes                                                               | ``` _sp_.getMessageData()``` |
 
 
 
