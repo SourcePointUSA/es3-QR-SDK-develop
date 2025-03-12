@@ -26,7 +26,7 @@
 	var consentLanguage = _sp_.config.consentLanguage || "EN";
 	var isSPA = _sp_.config.isSPA;
 	var isJSONp = _sp_.config.isJSONp;
-	var baseEndpoint = _sp_.config.baseEndpoint;
+	var baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 
 	var dateCreated = getCookieValue("consentDate_"+propertyId);
 	var euConsentString = getItem("euconsent-v2_"+propertyId);
@@ -843,7 +843,7 @@
 	extendSpObject();
 	
 	if(!isSPA){
-		executeMessaging();
+		_sp_.executeMessaging();
 	}
 	        
     if(!messageElementsAdded){
