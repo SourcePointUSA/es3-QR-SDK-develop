@@ -202,22 +202,22 @@ The SDK supports dynamic UI generation via HTML templates. Follow these steps:
 2. Define a Template
     
     Create a hidden template element with placeholders for dynamic data:
-       ```html
+   ```html
     <div id="stack_template" style="display: none;">
-  <div class="item">
-    <h2>{name}</h2>
-    <p>{description}</p>
-  </div>
-</div>
- ```
+      <div class="item">
+        <h2>{name}</h2>
+        <p>{description}</p>
+      </div>
+    </div>
+   ```
 
 3. Add Containers
 
     Provide containers where the populated templates will be injected:
-         ```html
+   ```html
     <div class="sp_stacks"></div>
     <div class="sp_purposes"></div>
-     ```
+   ```
 
 ## 8. Button Actions
 
