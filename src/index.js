@@ -1,72 +1,152 @@
+var env = "prod";
+var scriptVersion = "2.0.0";
+var scriptType = "nativeqr";
+
+
+
+var console = window.console || { log: function() {return true}, error: function() {document.write(v)} };
+
+// Globale sp_init-Funktion – kann vom Publisher aufgerufen werden,
+// falls window._sp_.config nicht schon definiert wurde.
+function sp_init(config) {
+    window._sp_ = window._sp_ || {};
+    _sp_.config = config; // Konfiguration speichern
+    if (typeof _sp_.init === 'function') {
+        _sp_.init(config);
+    } else {
+        console.error("Init-Funktion nicht gefunden. Warte auf _sp_.init.");
+    }
+}
+
 (function() {
 
+		var triggerEvent = function(eventName, args) {
+		    var event = window._sp_.config.events[eventName];
+		    if (typeof event === 'function') {
+		        event.apply(null, args || []); // Event mit Parametern ausführen
+		    }
+		};
+
+
+	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, metaData,propertyHref,consentLanguage,isSPA, isJSONp, 
+	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, dateCreated, euConsentString, 
+	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals;
 	var hasLocalData = false;
 	var	granularStatus = null;
 	var	consentAllRef = null;
-
-	var console = window.console || { log: function() {return true}, error: function() {document.write(v)} };
-
-	if (typeof _sp_ === 'undefined') {
-		console.error("_sp_ - object undefined");
-	}
-
-	var env = "prod";
-	var scriptVersion = "2.0.0";
-	var scriptType = "nativeqr";
-	var consentUUID = getCookieValue("consentUUID");
-	var sampledUser = getCookieValue("sp_su");
-	var authId = getCookieValue("authId") || _sp_.config.authId;
 	var cb = Math.floor(Math.random() * 1000000);
 
-	var mmsDomain = _sp_.config.baseEndpoint;
-
-	var propertyHref = _sp_.config.propertyHref;
-	var propertyId = _sp_.config.propertyId;
-	var accountId = _sp_.config.accountId;
-	var consentLanguage = _sp_.config.consentLanguage || "EN";
-	var isSPA = _sp_.config.isSPA;
-	var isJSONp = _sp_.config.isJSONp;
-	var baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
-
-	var dateCreated = getCookieValue("consentDate_"+propertyId);
-	var euConsentString = getItem("euconsent-v2_"+propertyId);
-
-	var consentStatus = getItem("consentStatus_"+propertyId) || null
-	var localState = getItem("localState_"+propertyId);
-	getMetaData();
-
-	var metaData = getItem("metaData_"+propertyId);
-	var	gdprApplies = metaData.gdpr.applies;
-
-	var vendorGrants = getItem("vendorGrants_"+propertyId);
-	var nonKeyedLocalState = getItem("nonKeyedLocalState_"+propertyId);
-
-	var consentedPurposes = getItem("consentedPurposes_"+propertyId);
-
-	var messageDiv = _sp_.config.messageDiv;
-	var pmDiv = _sp_.config.pmDiv;
-	var pmId = _sp_.config.pmId;
-
-	var pmId = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.pmId) ? _sp_.config.pmId : 1196474;
-	var buildMessageComponents = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.buildMessageComponents === true) ? true : false;
-	
 
 	var messageId = null;
-	var messageMetaData = null; 
-	var localState = null;
+		var messageMetaData = null; 
+		var localState = null;
 
-	var messageElementsAdded = false; 
- 
-    if (consentUUID == null) {
-        consentUUID = generateUUID();
-        setCookie("consentUUID", consentUUID, 365);
-    } 
+		var messageElementsAdded = false; 
+	 
+	    if (consentUUID == null) {
+	        consentUUID = generateUUID();
+	        setCookie("consentUUID", consentUUID, 365);
+	    } 
 
-    if (authId == null) {
-        authId = generateUUID();
-        setCookie("authId", authId, 365);
-    } 
+	    if (authId == null) {
+	        authId = generateUUID();
+	        setCookie("authId", authId, 365);
+	    } 
 
+
+
+    function init(config) {
+    	_sp_.config = config;
+
+        config = config || (_sp_ && _sp_.config);
+
+       	window._sp_.config.events = window._sp_.config.events || {};
+
+
+        console.log(config);
+        console.log(_sp_.config);
+
+
+		propertyHref = _sp_.config.propertyHref;
+		propertyId = _sp_.config.propertyId;
+
+	 	dateCreated = getCookieValue("consentDate_"+propertyId);
+	 	euConsentString = getItem("euconsent-v2_"+propertyId);
+
+	 	consentStatus = getItem("consentStatus_"+propertyId) || null;
+ 	  	localState = getItem("localState_"+propertyId);
+		metaData = getItem("metaData_"+propertyId);
+		vendorGrants = getItem("vendorGrants_"+propertyId);
+		nonKeyedLocalState = getItem("nonKeyedLocalState_"+propertyId);
+		consentedPurposes = getItem("consentedPurposes_"+propertyId);
+       
+        if (!config) {
+            console.error("Keine Konfiguration gefunden! Bitte sp_init(config) aufrufen.");
+            return;
+        }
+        // Hier kommt der eigentliche Initialisierungscode:
+        console.log("Init with following config:", config);
+      	
+
+		consentUUID = getCookieValue("consentUUID");
+		sampledUser = getCookieValue("sp_su");
+		authId = getCookieValue("authId") || _sp_.config.authId;
+
+
+		 accountId = _sp_.config.accountId;
+		 consentLanguage = _sp_.config.consentLanguage || "EN";
+		 isSPA = _sp_.config.isSPA;
+		 isJSONp = _sp_.config.isJSONp;
+		 baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
+		exposeGlobals = _sp_.config.exposeGlobals
+
+
+		getMetaData();
+
+		gdprApplies = metaData.gdpr.applies;
+
+
+
+		messageDiv = _sp_.config.messageDiv;
+		 pmDiv = _sp_.config.pmDiv;
+
+
+		pmId = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.pmId) ? _sp_.config.pmId : 1196474;
+		buildMessageComponents = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.buildMessageComponents === true) ? true : false;
+		
+
+
+
+
+		extendSpObject();
+	
+		if(!isSPA){
+			_sp_.executeMessaging();
+		}
+			        
+	    if(!messageElementsAdded){
+	   		buildMessage();
+	    }
+
+
+    }
+
+
+    // Globales _sp_ sicherstellen und init exportieren
+    window._sp_ = window._sp_ || {};
+    window._sp_.init = init;
+
+    // Wenn bereits eine Konfiguration vorhanden ist, sofort initialisieren.
+    if (_sp_.config) {
+        init(_sp_.config);
+    } else {
+        console.log("Keine globale Konfiguration gefunden – warte auf sp_init(config)...");
+    }
+
+
+
+
+	
     /*Polyfill for JSON*/
 	if (!window.JSON) {
 	    window.JSON = {
@@ -104,83 +184,109 @@
 	    };
 	}
 
-    function extendSpObject() {	
-        _sp_.executeMessaging = function() {+
-        	hideElement(pmDiv);
-       		hideElement(messageDiv);
-			getMessages();
-            console.log('Messaging executed!');
-        };
+    function extendSpObject() {
+    // Zunächst die Funktionen als lokale Variablen definieren:
+    var executeMessagingFunc = function() {
+        hideElement(pmDiv);
+        hideElement(messageDiv);
+        getMessages();
+        console.log("Messaging executed!");
+    };
 
-        _sp_.loadPrivacyManagerModal = function() {
-        	showElement(pmDiv);
-       		hideElement(messageDiv);
-        };
+    var loadPrivacyManagerModalFunc = function() {
+        showElement(pmDiv);
+        hideElement(messageDiv);
+    };
 
-        _sp_.acceptAll = function(){
-        	hideElement(pmDiv);
-        	hideElement(messageDiv);
-        	acceptAll();
-        }
+    var acceptAllFunc = function() {
+        hideElement(pmDiv);
+        hideElement(messageDiv);
+        acceptAll();
+    };
 
-        _sp_.continue = function(){
-        	hideElement(pmDiv);
-        	hideElement(messageDiv);
-        	liOnly();
-        }
+    var continueFunc = function() {
+        hideElement(pmDiv);
+        hideElement(messageDiv);
+        liOnly();
+    };
 
-        _sp_.reject = function(){
-        	hideElement(pmDiv);
-        	hideElement(messageDiv);
-        	rejectAll();
-        } 
-        _sp_.consentStatus = function(){
-        	return consentStatus;
-        }
+    var rejectFunc = function() {
+        hideElement(pmDiv);
+        hideElement(messageDiv);
+        rejectAll();
+    };
 
-        _sp_.getTcString = function(){
-        	return euConsentString;
-        }
+    var consentStatusFunc = function() {
+        return consentStatus;
+    };
 
-        _sp_.getQrCodeUrl = function(){
-        	return getQrCodeUrl();
-        }
+    var getTcStringFunc = function() {
+        return euConsentString;
+    };
 
-        _sp_.getMessageData = function(){
-        	return getMessageData();
-        }
+    var getQrCodeUrlFunc = function() {
+        return getQrCodeUrl();
+    };
 
-        _sp_.clearUserData = function(){
-        	deleteCookie("authId");
-        	deleteCookie("consentUUID");
-        	deleteItem("metaData_"+propertyId);
-        	deleteCookie("consentDate_"+propertyId);
-        	deleteItem("consentStatus_"+propertyId);
-        	deleteItem("euconsent-v2_"+propertyId);
-        	deleteItem("localState_"+propertyId);
-        	deleteItem("nonKeyedLocalState_"+propertyId);
-        	deleteItem("vendorGrants_"+propertyId);
-        	deleteCookie("sp_su");
-        	return true; 
-        }
+    var getMessageDataFunc = function() {
+        return getMessageData();
+    };
 
-        _sp_.updateConsentStatus = function(){
-        	hideElement(pmDiv);
-        	hideElement(messageDiv);
-        	getConsentStatus();
-			getMessages();
-        }     
-    }
+    var clearUserDataFunc = function() {
+        deleteCookie("authId");
+        deleteCookie("consentUUID");
+        deleteItem("metaData_" + propertyId);
+        deleteCookie("consentDate_" + propertyId);
+        deleteItem("consentStatus_" + propertyId);
+        deleteItem("euconsent-v2_" + propertyId);
+        deleteItem("localState_" + propertyId);
+        deleteItem("nonKeyedLocalState_" + propertyId);
+        deleteItem("vendorGrants_" + propertyId);
+        deleteCookie("sp_su");
+        return true;
+    };
 
-	window._sp_.config.events = window._sp_.config.events || {};
+    var updateConsentStatusFunc = function() {
+        hideElement(pmDiv);
+        hideElement(messageDiv);
+        getConsentStatus();
+        getMessages();
+    };
 
-	var triggerEvent = function(eventName, args) {
-	    var event = window._sp_.config.events[eventName];
-	    if (typeof event === 'function') {
-	        event.apply(null, args || []); // Event mit Parametern ausführen
-	    }
-	};
+    // Falls das _sp_-Objekt existiert, erweitern wir es; ansonsten legen wir
+    // die Funktionen als eigenständige globale Funktionen an.
+  
+    _sp_.executeMessaging = executeMessagingFunc;
+    _sp_.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
+    _sp_.acceptAll = acceptAllFunc;
+    _sp_.continue = continueFunc;
+    _sp_.reject = rejectFunc;
+    _sp_.consentStatus = consentStatusFunc;
+    _sp_.getTcString = getTcStringFunc;
+    _sp_.getQrCodeUrl = getQrCodeUrlFunc;
+    _sp_.getMessageData = getMessageDataFunc;
+    _sp_.clearUserData = clearUserDataFunc;
+    _sp_.updateConsentStatus = updateConsentStatusFunc;
 
+
+	if(exposeGlobals === true){
+		 window.executeMessaging = executeMessagingFunc;
+	    window.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
+	    window.acceptAll = acceptAllFunc;
+	    window.spContinue = continueFunc;  // "continue" ist ein reserviertes Wort
+	    window.reject = rejectFunc;
+	    window.consentStatus = consentStatusFunc;
+	    window.getTcString = getTcStringFunc;
+	    window.getQrCodeUrl = getQrCodeUrlFunc;
+	    window.getMessageData = getMessageDataFunc;
+	    window.clearUserData = clearUserDataFunc;
+	    window.updateConsentStatus = updateConsentStatusFunc;
+
+	}   
+  
+}
+
+	
 	function onConsentReady(){
 		triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, consentedPurposes]);
 	}
@@ -289,16 +395,21 @@
 	function shouldCallMessagesEndpoint(){
 		var shouldCall = false;
 
+		console.log(consentStatus);
+
 		if ((consentStatus === null)|| (!consentStatus.consentedAll)) {
 			return true
 		}
 		
 		if (dateCreated !== null) {
 		    if (compareDates(metaData.gdpr.legalBasisChangeDate, dateCreated) === 1) {
+		    	
+		    	console.log("legalBasisChangeDate");
 		        consentStatus.legalBasisChanges = true;
 		        shouldCall = true;
 		    }
 		    if (compareDates(metaData.gdpr.additionsChangeDate, dateCreated) === 1) {
+		    	console.log("vendorListAdditions");
 		        consentStatus.vendorListAdditions = true;
 		        shouldCall = true
 		    }
@@ -394,7 +505,7 @@
 	}
 
 	function acceptAll() {
-	    var baseUrl = _sp_.config.baseEndpoint + '/wrapper/v2/choice/consent-all';
+	    var baseUrl = baseEndpoint + '/wrapper/v2/choice/consent-all';
 	    var queryParams = {
 	        hasCsp: 'true',
 	        authId: authId,
@@ -595,6 +706,8 @@
  
 	    if (typeof window.localStorage !== "undefined") {
 	        try {
+	        	console.log(key);
+	        	console.log("GETITM:" + JSON.parse(window.localStorage.getItem(key)))
 	            return JSON.parse(window.localStorage.getItem(key));
 	        } catch (e) {
 	            return JSON.parse(decodeURIComponent(getCookieValue(key)));
@@ -837,6 +950,7 @@
 	}
 
 	function getMetaData(){
+
 		var baseUrl = baseEndpoint + '/wrapper/v2/meta-data';
 	    var params = {
 	      hasCsp: 'true',
@@ -856,14 +970,7 @@
 	    setItem("metaData_"+propertyId, metaData,365);
 	}
 
-	extendSpObject();
-	
-	if(!isSPA){
-		_sp_.executeMessaging();
-	}
-	        
-    if(!messageElementsAdded){
-   		buildMessage();
-    }
+
 
 })();
+ 

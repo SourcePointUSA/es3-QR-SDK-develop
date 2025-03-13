@@ -43,28 +43,31 @@ The following examples are provided:
 
 ```
 
+it is also possible to load the nativeMessaging.js file and provide a config object by calling the sp_init(config) method. 
+
 A complete example has been included in the "example" folder within this repository.
 
 ## Script Configuration Parameters
 
 | Parameter         | Type       | Description                                                                                              |
 |-------------------|------------|----------------------------------------------------------------------------------------------------------|
-| `accountId`       | `integer`  | **Required**. The unique identifier for your account on Sourcepoint.                                      |
-| `propertyId`      | `integer`  | **Required**. Maps the implementation to a specific URL as set up in the Sourcepoint dashboard. Use this parameter to spoof messaging campaigns for testing or debugging.                                       |
-| `propertyHref`    | `string`   | **Required**. The name or URL of the property to be connected.                                            |
-| `pmId`    | `integer`   | **Required**. The ID of the privacy message that should be displayed on the second screen.                   |
-| `consentLanguage`    | `string`   | **Required**. TEnforce that the message is delivered in the specified language regardless of an end-user's browser language setting. [Click here](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) for a list of ISO 639-1 language codes.                                           |
-| `baseEndpoint`    | `string`   | **Required**. The API endpoint. Use the default (`https://cdn.privacy-mgmt.com/`) unless a custom CNAME is required. |
-| `messageDiv`      | `string`   | **Required**. The ID of the `<div>` element where your consent message will appear.                       |
+| `accountId`       | `integer`  | **required**. The unique identifier for your account on Sourcepoint.                                      |
+| `propertyId`      | `integer`  | **required**. Maps the implementation to a specific URL as set up in the Sourcepoint dashboard. Use this parameter to spoof messaging campaigns for testing or debugging.                                       |
+| `propertyHref`    | `string`   | **required**. The name or URL of the property to be connected.                                            |
+| `pmId`    | `integer`   | **required**. The ID of the privacy message that should be displayed on the second screen.                   |
+| `consentLanguage`    | `string`   | **required**. Enforce that the message is delivered in the specified language regardless of an end-user's browser language setting. [Click here](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes) for a list of ISO 639-1 language codes.                                           |
+| `baseEndpoint`    | `string`   | **required**. The API endpoint. Use the default (`https://cdn.privacy-mgmt.com/`) unless a custom CNAME is required. |
+| `messageDiv`      | `string`   | **required**. The ID of the `<div>` element where your consent message will appear.                       |
 | `authId`      | `string`   | **optional**. Allows your organization to pass a consent identifier to Sourcepoint to be used with [authenticated consent](https://docs.sourcepoint.com/hc/en-us/articles/4403274791699-Authenticated-consent) .            |
-| `pmDiv`           | `string`   | **Required**. The ID of the `<div>` element designated for the privacy manager.                           |
-| `qrId`            | `string`   | **Required**. The ID of the `<img>` element where the QR code is displayed.                               |
+| `pmDiv`           | `string`   | **required**. The ID of the `<div>` element designated for the privacy manager.                           |
+| `qrId`            | `string`   | **required**. The ID of the `<img>` element where the QR code is displayed.                               |
 | `qrUrl`           | `string`   | **optional**. The URL of the QR code generator.        |
 | `pmUrl`           | `string`   | **optional**. The URL for the privacy manager's second-layer page  |
-| `gdpr`            | `object`   | **Optional**. Adds GDPR TCF or GDPR Standard messaging campaigns to your configuration.                  |
-| `isSPA`           | `boolean`  | **Optional**. Set to `true` to implement for a single-page application. Shows messages only when `window._sp_.executeMessaging();` is triggered. |
-| `targetingParams` | `object`   | **Optional**. Allows setting arbitrary key/value pairs sent to Sourcepoint servers for decision-making in the scenario builder. Parameters set within U.S. Privacy (Legacy) or GDPR objects override this configuration.  |
-| `buildMessageComponents`           | `boolean`   | **Required**. The default is true, if set to false, ui elements won't be repleced                           |
+| `gdpr`            | `object`   | **optional**. Adds GDPR TCF or GDPR Standard messaging campaigns to your configuration.                  |
+| `isSPA`           | `boolean`  | **optional**. Set to `true` to implement for a single-page application. Shows messages only when `window._sp_.executeMessaging();` is triggered. |
+| `targetingParams` | `object`   | **optional**. Allows setting arbitrary key/value pairs sent to Sourcepoint servers for decision-making in the scenario builder. Parameters set within U.S. Privacy (Legacy) or GDPR objects override this configuration.  |
+| `buildMessageComponents`           | `boolean`   | **optional**. The default is true, if set to false, ui elements won't be replaced                           |
+| `exposeGlobals`           | `boolean`   | **optional**. The default is false, iallows using methods globally without using the `_sp_` Object                          |
 
 
 ### Optional Event Callbacks
