@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.0";
+var scriptVersion = "2.0.1";
 var scriptType = "nativeqr";
 
 
@@ -43,15 +43,6 @@ function sp_init(config) {
 
 		var messageElementsAdded = false; 
 	 
-	    if (consentUUID == null) {
-	        consentUUID = generateUUID();
-	        setCookie("consentUUID", consentUUID, 365);
-	    } 
-
-	    if (authId == null) {
-	        authId = generateUUID();
-	        setCookie("authId", authId, 365);
-	    } 
 
 
 
@@ -92,12 +83,23 @@ function sp_init(config) {
 		sampledUser = getCookieValue("sp_su");
 		authId = getCookieValue("authId") || _sp_.config.authId;
 
+		if (consentUUID == null) {
+	        consentUUID = generateUUID();
+	        setCookie("consentUUID", consentUUID, 365);
+	    } 
 
-		 accountId = _sp_.config.accountId;
-		 consentLanguage = _sp_.config.consentLanguage || "EN";
-		 isSPA = _sp_.config.isSPA;
-		 isJSONp = _sp_.config.isJSONp;
-		 baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
+	    if (authId == null) {
+	        authId = generateUUID();
+	        setCookie("authId", authId, 365);
+	    } 
+
+
+
+		accountId = _sp_.config.accountId;
+		consentLanguage = _sp_.config.consentLanguage || "EN";
+		isSPA = _sp_.config.isSPA;
+		isJSONp = _sp_.config.isJSONp;
+		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 		exposeGlobals = _sp_.config.exposeGlobals
 
 
@@ -270,7 +272,7 @@ function sp_init(config) {
 
 
 	if(exposeGlobals === true){
-		 window.executeMessaging = executeMessagingFunc;
+		window.executeMessaging = executeMessagingFunc;
 	    window.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
 	    window.acceptAll = acceptAllFunc;
 	    window.spContinue = continueFunc;  // "continue" ist ein reserviertes Wort
