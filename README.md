@@ -171,7 +171,7 @@ This allows you to call these functions directly from the global scope.
 
 ---
 
-## 6. Event Callbacks
+## 6. 📣 Event Callbacks
 
 You can provide event callbacks in your configuration. For example:
 
@@ -185,6 +185,27 @@ events: {
   }
 }
 ```
+
+
+
+The SDK provides several event callbacks to help you hook into key stages of the consent workflow. These can be used to trigger custom logic at the right moments in the consent experience lifecycle.
+
+### `onConsentReady`
+
+This callback is triggered **once the SDK has fully loaded and the user's consent status is available**.  
+Use this as a safe starting point to execute any logic that depends on consent being established.
+
+**Typical use cases:**
+- Checking consent categories and applying them (e.g., enabling analytics or advertising scripts).
+- Initializing custom behavior based on the user's choices.
+
+### `onMessageComposed`
+This callback fires as soon as the dynamic elements of the consent message (UI) are generated.
+It’s particularly useful if you need to manipulate or enhance the message UI — for example, adding interactivity or styling.
+
+**Example use case:**
+Applying custom JavaScript to expand/collapse UI elements (e.g., accordions for stacks or purposes).
+
 
 ## 7. Dynamic Template Setup
 
