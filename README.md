@@ -171,40 +171,74 @@ This allows you to call these functions directly from the global scope.
 
 ---
 
-## 6. 📣 Event Callbacks
+## 6. Event Callbacks
 
 You can provide event callbacks in your configuration. For example:
 
 ```js
 events: {
-  onConsentReady: function(consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
-    console.log("Consent is ready:", consentUUID);
+  onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
+    console.log("OnConsentReady");
   },
-  onMessageComposed: function() {
-    console.log("Dynamic message elements have been added to the UI.");
-  }
+  onMessageComposed:function(){
+    console.log("onMessageComposed");
+    const accordions = document.querySelectorAll(".accordion");
+    accordions.forEach(accordion => {
+      accordion.addEventListener("click", () => {
+        accordion.classList.toggle("active");
+        const panel = accordion.nextElementSibling;
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            panel.style.display = "block";
+        }
+      });
+    });
+  },
+  onMetaDataReceived:function(metaData){
+      console.log("onMetaDataReceived", metaData)
+  },                    
+  onConsentStatusReceived:function(consentStatus){
+      console.log("onConsentStatusReceived", consentStatus)
+
+  },
+  onMessageReceivedData:function(messageMetaData){
+      console.log("omMessageReceivedData", messageMetaData)
+  },
+  firstLayerShown:function(){
+      console.log("firstLayerShown")
+  },
+  secondLayerShown:function(){
+      console.log("secondLayerShown");
+  },
+  firstLayerclosed:function(){
+      console.log("firstLayerClosed callback");
+  },
+  secondLayerClosed:function(){
+      console.log("secondLayerClosed");
+  },
+  onError:function(errorCode, message){
+      console.log("OnError" , message);
+  },
 }
 ```
 
+### Callback Reference
 
+| **Callback**              | **Description**                                                                 | **Return Values**                                                                                      | **Typical Use Cases**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| `onConsentReady`          | Fired when the SDK is initialized and consent data is available.                | `consentUUID`, `euConsentString`, `vendorGrants`, `consentStatus`, `consentedPurposes`                 | Initialize consent-based logic, load scripts based on user choices.                   |
+| `onMessageComposed`       | Triggered when the message UI has been dynamically rendered.                    | *(none)*                                                                                                | Add interactivity (e.g., accordions), apply custom styling to the message.            |
+| `onMetaDataReceived`      | Returns CMP metadata after initialization.                                      | `metaData`                                                                                              | Log CMP config, conditionally render UI components.                                   |
+| `onConsentStatusReceived` | Fired when valid consent status is retrieved from the backend.                      | `consentStatus`                                                                                         | Preload behavior based on consent before displaying UI.                               |
+| `onMessageReceivedData`   | Provides metadata about the rendered message.    | `messageMetaData`                                                                                       | Log impressions, conditional behavior based on message type.                          |
+| `firstLayerShown`         | Called when the first layer of the consent message is displayed.                | *(none)*                                                                                                | Track impressions, modify first layer styling.                                        |
+| `secondLayerShown`        | Called when the second layer (detailed preferences) is displayed.               | *(none)*                                                                                                | Track user interaction depth, update UI.                                               |
+| `firstLayerClosed`        | Triggered when the first layer is closed.                                       | *(none)*                                                                                                | Trigger conditional loading, log closure action.                                      |
+| `secondLayerClosed`       | Triggered when the second layer is closed (if previously visible).              | *(none)*                                                                                                | Reset state, analytics on detailed interaction.                                       |
+| `onError`                 | Fired on any SDK execution error.                                               | `errorCode`, `errorText`                                                                                | Log errors, trigger fallback or error reporting.                                      |
+                                 |
 
-The SDK provides several event callbacks to help you hook into key stages of the consent workflow. These can be used to trigger custom logic at the right moments in the consent experience lifecycle.
-
-### `onConsentReady`
-
-This callback is triggered **once the SDK has fully loaded and the user's consent status is available**.  
-Use this as a safe starting point to execute any logic that depends on consent being established.
-
-**Typical use cases:**
-- Checking consent categories and applying them (e.g., enabling analytics or advertising scripts).
-- Initializing custom behavior based on the user's choices.
-
-### `onMessageComposed`
-This callback fires as soon as the dynamic elements of the consent message (UI) are generated.
-It’s particularly useful if you need to manipulate or enhance the message UI — for example, adding interactivity or styling.
-
-**Example use case:**
-Applying custom JavaScript to expand/collapse UI elements (e.g., accordions for stacks or purposes).
 
 
 ## 7. Dynamic Template Setup

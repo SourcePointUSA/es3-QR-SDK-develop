@@ -151,7 +151,33 @@
                                 }
                             });
                         });
-                    }
+                    },
+                    onMetaDataReceived:function(metaData){
+                        console.log("onMetaDataReceived", metaData)
+
+                    },                    
+                    onConsentStatusReceived:function(consentStatus){
+                        console.log("onConsentStatusReceived", consentStatus)
+
+                    },
+                    onMessageReceivedData:function(messageMetaData){
+                        console.log("omMessageReceivedData", messageMetaData)
+                    },
+                    firstLayerShown:function(){
+                        console.log("firstLayerShown")
+                    },
+                    secondLayerShown:function(){
+                        console.log("secondLayerShown");
+                    },
+                    firstLayerclosed:function(){
+                        console.log("firstLayerClosed callback");
+                    },
+                    secondLayerClosed:function(){
+                        console.log("secondLayerClosed");
+                    },
+                    onError:function(errorCode, message){
+                        console.log("OnError" , message);
+                    },
                 }
             }
         }

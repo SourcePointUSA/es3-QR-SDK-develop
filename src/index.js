@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.1";
+var scriptVersion = "2.0.2";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -49,9 +49,9 @@ function sp_init(config) {
     } else {
         console.error("Init-Funktion nicht gefunden. Warte auf _sp_.init.");
     }
-	}
+}
 
-(function() {
+(function(){
 
 	var triggerEvent = function(eventName, args) {
 	    var event = window._sp_.config.events[eventName];
@@ -95,7 +95,7 @@ function sp_init(config) {
 		consentedPurposes = getItem("consentedPurposes_"+propertyId);
        
         if (!config) {
-            console.error("Keine Konfiguration gefunden! Bitte sp_init(config) aufrufen.");
+        	onError("001", "NoConfig")
             return;
         }
         console.log("Init with following config:", config);
@@ -256,20 +256,69 @@ function sp_init(config) {
 		triggerEvent('onMessageComposed');
 	}
 
+	function onMetaDataReceived(){
+		triggerEvent('onMetaDataReceived', [metaData]);
+	}
+
+	function onConsentStatusReceived(){
+		triggerEvent('onConsentStatusReceived', [consentStatus]);
+	}
+
+	function onMessageReceivedData(){
+		triggerEvent('onMessageReceivedData', [messageMetaData]);
+	}
+
+	function firstLayerShown(){
+		triggerEvent('firstLayerShown');
+	}
+
+	function secondLayerShown(){
+		triggerEvent('secondLayerShown');
+	}
+
+	function firstLayerClosed(){
+		triggerEvent('firstLayerClosed');
+	}
+
+	function secondLayerClosed(){
+		triggerEvent('secondLayerClosed');
+	}
+
+	function onError(errorCode, errorText){
+		triggerEvent('onError' [errorCode, errorText]);
+	}
+
+
+
+ 
+
 	function showElement(elementId) {
 	    var element = document.getElementById(elementId); 
 	    if (element) {
 	        element.style.display = 'block'; 
+	       	if(elementId == pmDiv) secondLayerShown();
+	        if(elementId == messageDiv) firstLayerShown();
 	    }
 	}
+
 
 	function hideElement(elementId) {
 	    var element = document.getElementById(elementId); 
 	    if (element) {
+	        var wasVisible = element.style.display !== 'none' && element.offsetParent !== null;
 	        element.style.display = 'none'; 
+	        console.log( pmDiv, messageDiv, elementId, wasVisible);
+	        if (elementId === pmDiv && wasVisible) {
+	            secondLayerClosed();
+	        }
+
+	        if (elementId === messageDiv && wasVisible) {
+	            firstLayerClosed();
+	        }
 	    }
 	}
 
+	 
 	function httpGet(theUrl) {
 	    var xmlHttp = new XMLHttpRequest();
 	    xmlHttp.open("GET", theUrl, false);
@@ -345,6 +394,7 @@ function sp_init(config) {
 	            if (campaign.message && campaign.message.message_json) {
 	            	messageMetaData = campaign.messageMetaData
 	            	messageId = campaign.messageMetaData.messageId;
+	            	onMessageReceivedData();
 	                return campaign.message.message_json;
 	            }
 	        }
@@ -356,7 +406,7 @@ function sp_init(config) {
 	function shouldCallMessagesEndpoint(){
 		var shouldCall = false;
 
-		console.log(consentStatus);
+ 
 
 		if ((consentStatus === null)|| (!consentStatus.consentedAll)) {
 			return true
@@ -439,7 +489,7 @@ function sp_init(config) {
 	    			onConsentReady()
 	    		}
     		}else{
-    			    	onConsentReady()
+    			onConsentReady()
     		}
 
 		sendReportingData();
@@ -491,7 +541,7 @@ function sp_init(config) {
 	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
 
 	    sendAcceptAllRequest(JSON.parse(consentdata));
-	    hideElement(messageDiv);
+
 	}
 
 	function liOnly(){
@@ -529,7 +579,6 @@ function sp_init(config) {
 	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
 
 	    sendRejectAllChoiceRequest(JSON.parse(consentdata));
-	    hideElement(messageDiv);
 	}
 
 
@@ -562,7 +611,7 @@ function sp_init(config) {
 	            var res = JSON.parse(req.responseText);
 	            storeConsentResponse(res.consentStatus, res.uuid, res.dateCreated, res.euconsent, res.grants, res.categories);
 	        }else{
-	            console.error('error:', req.responseText);
+	        	onError(req.status, req.responseText)
 	        }
 	    };
 	    req.send(JSON.stringify(data));
@@ -667,8 +716,6 @@ function sp_init(config) {
  
 	    if (typeof window.localStorage !== "undefined") {
 	        try {
-	        	console.log(key);
-	        	console.log("GETITM:" + JSON.parse(window.localStorage.getItem(key)))
 	            return JSON.parse(window.localStorage.getItem(key));
 	        } catch (e) {
 	            return JSON.parse(decodeURIComponent(getCookieValue(key)));
@@ -722,6 +769,8 @@ function sp_init(config) {
 	    vendorGrants = vGrants;
 		setItem("consentedPurposes_"+propertyId,purposes ,365);
 	   	consentedPurposes = purposes
+
+	   	onConsentStatusReceived();
 	   	onConsentReady();	
 	}
 
@@ -927,6 +976,8 @@ function sp_init(config) {
 
 	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
 	    metaData = res;
+
+	    onMetaDataReceived();
 
 	    setItem("metaData_"+propertyId, metaData,365);
 	}
