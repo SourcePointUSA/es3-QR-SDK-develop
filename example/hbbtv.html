@@ -114,13 +114,13 @@
  
 
     <script type="text/javascript">
-        _ssp_ = { 
+        _sp_ = { 
             config: {
                 accountId: 22,
                 propertyId: 37811,
                 propertyHref: "http://ott.es3",
                 //baseEndpoint: 'http://proxy.dev-24.de',
-                baseEndpoint: 'https://cdn.privacy-mgmt.com/',
+                baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "de",
                 // authId: "1234-5678-9083-3452", // optional 
@@ -129,17 +129,12 @@
                 qrId: "qr",
                 pmId: 1196474,
                 buildMessageComponents : true,
-                exposeGlobals : false, 
+                exposeGlobals : true, 
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
                 pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
                 events: {
                     onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
-                        console.log('Custom - onConsentReady');
-                        console.log('consentUUID: ' + consentUUID);
-                        console.log('euconsent: ' + euconsent);
-                        console.log( vendorGrants);
-                        console.log( consentStatus);
-                        console.log( purposes);
+                         //callbackforOnConsentReady(consentUUID, euconsent, vendorGrants, consentStatus, purposes);
                     },
                     onMessageComposed:function(){
                         console.log("onMessageComposed");
@@ -156,12 +151,38 @@
                                 }
                             });
                         });
-                    }
+                    },
+                    onMetaDataReceived:function(metaData){
+                        console.log("onMetaDataReceived", metaData)
+
+                    },                    
+                    onConsentStatusReceived:function(consentStatus){
+                        console.log("onConsentStatusReceived", consentStatus)
+
+                    },
+                    onMessageReceivedData:function(messageMetaData){
+                        console.log("omMessageReceivedData", messageMetaData)
+                    },
+                    firstLayerShown:function(){
+                        console.log("firstLayerShown")
+                    },
+                    secondLayerShown:function(){
+                        console.log("secondLayerShown");
+                    },
+                    firstLayerclosed:function(){
+                        console.log("firstLayerClosed callback");
+                    },
+                    secondLayerClosed:function(){
+                        console.log("secondLayerClosed");
+                    },
+                    onError:function(errorCode, message){
+                        console.log("OnError" , message);
+                    },
                 }
             }
         }
     </script>
         <script src="nativeMessaging.js" type="text/javascript"> </script>  
-        <script type="text/javascript">sp_init(_ssp_.config)</script>
+        <script type="text/javascript">//sp_init(_ssp_.config)</script>
  </body>
 </html>

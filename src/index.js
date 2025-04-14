@@ -1,13 +1,46 @@
 var env = "prod";
-var scriptVersion = "2.0.0";
+var scriptVersion = "2.0.2";
 var scriptType = "nativeqr";
 
+/*Polyfill for JSON*/
+if (!window.JSON) {
+    window.JSON = {
+        stringify: function(obj) {
+            var t = typeof(obj);
+            if (t != "object" || obj === null) {
+                // simple data type
+                if (t == "string") obj = '"' + obj + '"';
+                return String(obj);
+            } else {
+                // array or object
+                var n, v, json = [],
+                    arr = (obj && obj.constructor == Array);
+                for (n in obj) {
+                    v = obj[n];
+                    t = typeof(v);
+                    if (t == "string") v = '"' + v + '"';
+                    else if (t == "object" && v !== null) v = JSON.stringify(v);
+                    json.push((arr ? "" : '"' + n + '":') + String(v));
+                }
+                return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+            }
+        }
+    };
+}
 
+// Polyfill for JSON.parse
+if (typeof JSON.parse !== 'function') {
+    JSON.parse = function(text) {
+        try {
+            return (new Function('return ' + text))();
+        } catch (e) {
+            throw new SyntaxError('JSON.parse: ungültiges JSON-Format');
+        }
+    };
+}
 
 var console = window.console || { log: function() {return true}, error: function() {document.write(v)} };
 
-// Globale sp_init-Funktion – kann vom Publisher aufgerufen werden,
-// falls window._sp_.config nicht schon definiert wurde.
 function sp_init(config) {
     window._sp_ = window._sp_ || {};
     _sp_.config = config; // Konfiguration speichern
@@ -18,19 +51,19 @@ function sp_init(config) {
     }
 }
 
-(function() {
+(function(){
 
-		var triggerEvent = function(eventName, args) {
-		    var event = window._sp_.config.events[eventName];
-		    if (typeof event === 'function') {
-		        event.apply(null, args || []); // Event mit Parametern ausführen
-		    }
-		};
-
+	var triggerEvent = function(eventName, args) {
+	    var event = window._sp_.config.events[eventName];
+	    if (typeof event === 'function') {
+	        event.apply(null, args || []); // Event mit Parametern ausführen
+	    }
+	};
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, metaData,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, dateCreated, euConsentString, 
 	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals;
+
 	var hasLocalData = false;
 	var	granularStatus = null;
 	var	consentAllRef = null;
@@ -38,34 +71,15 @@ function sp_init(config) {
 
 
 	var messageId = null;
-		var messageMetaData = null; 
-		var localState = null;
-
-		var messageElementsAdded = false; 
-	 
-	    if (consentUUID == null) {
-	        consentUUID = generateUUID();
-	        setCookie("consentUUID", consentUUID, 365);
-	    } 
-
-	    if (authId == null) {
-	        authId = generateUUID();
-	        setCookie("authId", authId, 365);
-	    } 
-
-
-
+	var messageMetaData = null; 
+	var localState = null;
+	var messageElementsAdded = false; 
+	 	
     function init(config) {
     	_sp_.config = config;
 
         config = config || (_sp_ && _sp_.config);
-
        	window._sp_.config.events = window._sp_.config.events || {};
-
-
-        console.log(config);
-        console.log(_sp_.config);
-
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
@@ -81,42 +95,39 @@ function sp_init(config) {
 		consentedPurposes = getItem("consentedPurposes_"+propertyId);
        
         if (!config) {
-            console.error("Keine Konfiguration gefunden! Bitte sp_init(config) aufrufen.");
+        	onError("001", "NoConfig")
             return;
         }
-        // Hier kommt der eigentliche Initialisierungscode:
         console.log("Init with following config:", config);
       	
-
 		consentUUID = getCookieValue("consentUUID");
 		sampledUser = getCookieValue("sp_su");
 		authId = getCookieValue("authId") || _sp_.config.authId;
 
+		if (consentUUID == null) {
+	        consentUUID = generateUUID();
+	        setCookie("consentUUID", consentUUID, 365);
+	    } 
 
-		 accountId = _sp_.config.accountId;
-		 consentLanguage = _sp_.config.consentLanguage || "EN";
-		 isSPA = _sp_.config.isSPA;
-		 isJSONp = _sp_.config.isJSONp;
-		 baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
+	    if (authId == null) {
+	        authId = generateUUID();
+	        setCookie("authId", authId, 365);
+	    } 
+
+		accountId = _sp_.config.accountId;
+		consentLanguage = _sp_.config.consentLanguage || "EN";
+		isSPA = _sp_.config.isSPA;
+		isJSONp = _sp_.config.isJSONp;
+		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 		exposeGlobals = _sp_.config.exposeGlobals
-
 
 		getMetaData();
 
 		gdprApplies = metaData.gdpr.applies;
-
-
-
 		messageDiv = _sp_.config.messageDiv;
-		 pmDiv = _sp_.config.pmDiv;
-
-
+		pmDiv = _sp_.config.pmDiv;
 		pmId = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.pmId) ? _sp_.config.pmId : 1196474;
 		buildMessageComponents = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.buildMessageComponents === true) ? true : false;
-		
-
-
-
 
 		extendSpObject();
 	
@@ -127,65 +138,18 @@ function sp_init(config) {
 	    if(!messageElementsAdded){
 	   		buildMessage();
 	    }
-
-
     }
 
-
-    // Globales _sp_ sicherstellen und init exportieren
     window._sp_ = window._sp_ || {};
     window._sp_.init = init;
 
-    // Wenn bereits eine Konfiguration vorhanden ist, sofort initialisieren.
     if (_sp_.config) {
         init(_sp_.config);
     } else {
         console.log("Keine globale Konfiguration gefunden – warte auf sp_init(config)...");
     }
 
-
-
-
-	
-    /*Polyfill for JSON*/
-	if (!window.JSON) {
-	    window.JSON = {
-	        stringify: function(obj) {
-	            var t = typeof(obj);
-	            if (t != "object" || obj === null) {
-	                // simple data type
-	                if (t == "string") obj = '"' + obj + '"';
-	                return String(obj);
-	            } else {
-	                // array or object
-	                var n, v, json = [],
-	                    arr = (obj && obj.constructor == Array);
-	                for (n in obj) {
-	                    v = obj[n];
-	                    t = typeof(v);
-	                    if (t == "string") v = '"' + v + '"';
-	                    else if (t == "object" && v !== null) v = JSON.stringify(v);
-	                    json.push((arr ? "" : '"' + n + '":') + String(v));
-	                }
-	                return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-	            }
-	        }
-	    };
-	}
-
-	// Polyfill für JSON.parse
-	if (typeof JSON.parse !== 'function') {
-	    JSON.parse = function(text) {
-	        try {
-	            return (new Function('return ' + text))();
-	        } catch (e) {
-	            throw new SyntaxError('JSON.parse: ungültiges JSON-Format');
-	        }
-	    };
-	}
-
     function extendSpObject() {
-    // Zunächst die Funktionen als lokale Variablen definieren:
     var executeMessagingFunc = function() {
         hideElement(pmDiv);
         hideElement(messageDiv);
@@ -252,9 +216,6 @@ function sp_init(config) {
         getConsentStatus();
         getMessages();
     };
-
-    // Falls das _sp_-Objekt existiert, erweitern wir es; ansonsten legen wir
-    // die Funktionen als eigenständige globale Funktionen an.
   
     _sp_.executeMessaging = executeMessagingFunc;
     _sp_.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
@@ -270,10 +231,10 @@ function sp_init(config) {
 
 
 	if(exposeGlobals === true){
-		 window.executeMessaging = executeMessagingFunc;
+		window.executeMessaging = executeMessagingFunc;
 	    window.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
 	    window.acceptAll = acceptAllFunc;
-	    window.spContinue = continueFunc;  // "continue" ist ein reserviertes Wort
+	    window.spContinue = continueFunc; 
 	    window.reject = rejectFunc;
 	    window.consentStatus = consentStatusFunc;
 	    window.getTcString = getTcStringFunc;
@@ -295,23 +256,72 @@ function sp_init(config) {
 		triggerEvent('onMessageComposed');
 	}
 
+	function onMetaDataReceived(){
+		triggerEvent('onMetaDataReceived', [metaData]);
+	}
+
+	function onConsentStatusReceived(){
+		triggerEvent('onConsentStatusReceived', [consentStatus]);
+	}
+
+	function onMessageReceivedData(){
+		triggerEvent('onMessageReceivedData', [messageMetaData]);
+	}
+
+	function firstLayerShown(){
+		triggerEvent('firstLayerShown');
+	}
+
+	function secondLayerShown(){
+		triggerEvent('secondLayerShown');
+	}
+
+	function firstLayerClosed(){
+		triggerEvent('firstLayerClosed');
+	}
+
+	function secondLayerClosed(){
+		triggerEvent('secondLayerClosed');
+	}
+
+	function onError(errorCode, errorText){
+		triggerEvent('onError' [errorCode, errorText]);
+	}
+
+
+
+ 
+
 	function showElement(elementId) {
-	    var element = document.getElementById(elementId); // Hol das Element mit der ID
+	    var element = document.getElementById(elementId); 
 	    if (element) {
-	        element.style.display = 'block'; // Setzt display auf block, um das Element anzuzeigen
+	        element.style.display = 'block'; 
+	       	if(elementId == pmDiv) secondLayerShown();
+	        if(elementId == messageDiv) firstLayerShown();
 	    }
 	}
+
 
 	function hideElement(elementId) {
-	    var element = document.getElementById(elementId); // Hol das Element mit der ID
+	    var element = document.getElementById(elementId); 
 	    if (element) {
-	        element.style.display = 'none'; // Setzt display auf block, um das Element anzuzeigen
+	        var wasVisible = element.style.display !== 'none' && element.offsetParent !== null;
+	        element.style.display = 'none'; 
+	        console.log( pmDiv, messageDiv, elementId, wasVisible);
+	        if (elementId === pmDiv && wasVisible) {
+	            secondLayerClosed();
+	        }
+
+	        if (elementId === messageDiv && wasVisible) {
+	            firstLayerClosed();
+	        }
 	    }
 	}
 
+	 
 	function httpGet(theUrl) {
 	    var xmlHttp = new XMLHttpRequest();
-	    xmlHttp.open("GET", theUrl, false); // false for synchronous request
+	    xmlHttp.open("GET", theUrl, false);
 	    xmlHttp.send(null);
 	    return xmlHttp.responseText;
 	}
@@ -384,6 +394,7 @@ function sp_init(config) {
 	            if (campaign.message && campaign.message.message_json) {
 	            	messageMetaData = campaign.messageMetaData
 	            	messageId = campaign.messageMetaData.messageId;
+	            	onMessageReceivedData();
 	                return campaign.message.message_json;
 	            }
 	        }
@@ -395,7 +406,7 @@ function sp_init(config) {
 	function shouldCallMessagesEndpoint(){
 		var shouldCall = false;
 
-		console.log(consentStatus);
+ 
 
 		if ((consentStatus === null)|| (!consentStatus.consentedAll)) {
 			return true
@@ -478,7 +489,7 @@ function sp_init(config) {
 	    			onConsentReady()
 	    		}
     		}else{
-    			    	onConsentReady()
+    			onConsentReady()
     		}
 
 		sendReportingData();
@@ -530,7 +541,7 @@ function sp_init(config) {
 	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
 
 	    sendAcceptAllRequest(JSON.parse(consentdata));
-	    hideElement(messageDiv);
+
 	}
 
 	function liOnly(){
@@ -568,7 +579,6 @@ function sp_init(config) {
 	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
 
 	    sendRejectAllChoiceRequest(JSON.parse(consentdata));
-	    hideElement(messageDiv);
 	}
 
 
@@ -601,7 +611,7 @@ function sp_init(config) {
 	            var res = JSON.parse(req.responseText);
 	            storeConsentResponse(res.consentStatus, res.uuid, res.dateCreated, res.euconsent, res.grants, res.categories);
 	        }else{
-	            console.error('error:', req.responseText);
+	        	onError(req.status, req.responseText)
 	        }
 	    };
 	    req.send(JSON.stringify(data));
@@ -706,8 +716,6 @@ function sp_init(config) {
  
 	    if (typeof window.localStorage !== "undefined") {
 	        try {
-	        	console.log(key);
-	        	console.log("GETITM:" + JSON.parse(window.localStorage.getItem(key)))
 	            return JSON.parse(window.localStorage.getItem(key));
 	        } catch (e) {
 	            return JSON.parse(decodeURIComponent(getCookieValue(key)));
@@ -761,6 +769,8 @@ function sp_init(config) {
 	    vendorGrants = vGrants;
 		setItem("consentedPurposes_"+propertyId,purposes ,365);
 	   	consentedPurposes = purposes
+
+	   	onConsentStatusReceived();
 	   	onConsentReady();	
 	}
 
@@ -966,6 +976,8 @@ function sp_init(config) {
 
 	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
 	    metaData = res;
+
+	    onMetaDataReceived();
 
 	    setItem("metaData_"+propertyId, metaData,365);
 	}
