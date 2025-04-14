@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.2";
+var scriptVersion = "2.0.3";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -213,7 +213,7 @@ function sp_init(config) {
     var updateConsentStatusFunc = function() {
         hideElement(pmDiv);
         hideElement(messageDiv);
-        getConsentStatus();
+        getConsentStatus("true");
         getMessages();
     };
   
@@ -307,7 +307,6 @@ function sp_init(config) {
 	    if (element) {
 	        var wasVisible = element.style.display !== 'none' && element.offsetParent !== null;
 	        element.style.display = 'none'; 
-	        console.log( pmDiv, messageDiv, elementId, wasVisible);
 	        if (elementId === pmDiv && wasVisible) {
 	            secondLayerClosed();
 	        }
@@ -414,13 +413,10 @@ function sp_init(config) {
 		
 		if (dateCreated !== null) {
 		    if (compareDates(metaData.gdpr.legalBasisChangeDate, dateCreated) === 1) {
-		    	
-		    	console.log("legalBasisChangeDate");
 		        consentStatus.legalBasisChanges = true;
 		        shouldCall = true;
 		    }
 		    if (compareDates(metaData.gdpr.additionsChangeDate, dateCreated) === 1) {
-		    	console.log("vendorListAdditions");
 		        consentStatus.vendorListAdditions = true;
 		        shouldCall = true
 		    }
@@ -430,9 +426,7 @@ function sp_init(config) {
 	}
  
 	function getMessages() {
-		console.log("startGetMessages");
 		if (shouldCallMessagesEndpoint()) {
-    		console.log("notconsentedTOAll requesting message")
  
     		var baseURL = baseEndpoint + '/wrapper/v2/messages';
 	    	var queryParams = '?hasCsp=true&env=prod';
@@ -774,8 +768,8 @@ function sp_init(config) {
 	   	onConsentReady();	
 	}
 
-	function getConsentStatus(){
-		if (consentStatus !== null) {
+	function getConsentStatus(forced){
+		if ((consentStatus !== null) && (!forced)) {
 			if(consentStatus.consentedAll){
 				return;
  			}
