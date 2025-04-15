@@ -152,8 +152,24 @@ If no global configuration is present, call the `sp_init(config)` function after
 
 ---
 
-## 5. Global Exposure of Helper Functions
+## 5. CMP methods
 
+| Method                 | Use Case                                                                                     | Return Value                                                                 |
+|------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| `_sp_.executeMessaging`     | Triggers the loading of messaging components (e.g., banners, modals).                        | `void`                                                                       |
+| `_sp_.loadPrivacyManagerModal` | Displays the second layer on demand                                                         | `void`                                                                       |
+| `_sp_.acceptAll`            | Consent Action: Accept All                                                                   | `Promise<void>`                                                              |
+| `_sp_.spContinue`           | Consent Action: Reject Consent, maintain Legitimate Interest                                 | `Promise<void>`                                                              |
+| `_sp_.reject`               | Consent Action: Reject All                                                                    | `Promise<void>`                                                              |
+| `_sp_.consentStatus`        | Retrieves current consent status for the user.                                               | `Promise<Object>`<br>`{`<br>&nbsp;&nbsp;`rejectedAny: false,`<br>&nbsp;&nbsp;`rejectedLI: false,`<br>&nbsp;&nbsp;`consentedAll: true,`<br>&nbsp;&nbsp;`consentedToAny: true,`<br>&nbsp;&nbsp;`granularStatus: { vendorConsent: 'ALL', vendorLegInt: 'ALL', purposeConsent: 'ALL', purposeLegInt: 'ALL', previousOptInAll: false },`<br>&nbsp;&nbsp;`hasConsentData: true`<br>`}` |
+| `_sp_.getTcString`          | Fetches the IAB Transparency & Consent (TC) string.                                          | `Promise<string>`                                                            |
+| `_sp_.getQrCodeUrl`         | Generates a URL for the second screen QR code.                                               | `Promise<string>`                                                            |
+| `_sp_.getMessageData`       | Retrieves message meta data such as stacks, purposes, and vendor count.                      | `Promise<Object>`<br>`{`<br>&nbsp;&nbsp;`categories: [...],`<br>&nbsp;&nbsp;`language: 'DE',`<br>&nbsp;&nbsp;`iabVendorCount: 3,`<br>&nbsp;&nbsp;`allVendorCount: 5`<br>`}` |
+| `_sp_.clearUserData`        | Clears all consent and identification data for the current user on the device.              | `Promise<void>`                                                              |
+| `_sp_.updateConsentStatus`  | Fetches the latest consent status from the Backend.                                          | `Promise<void>`                                                              |
+
+
+### Global Exposure of Methods
 If `exposeGlobals` is set to `true` in your configuration, the following helper functions will be attached to the `window` object:
 
 - `executeMessaging`
