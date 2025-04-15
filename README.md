@@ -10,12 +10,9 @@ The Sourcepoint ES3 QR SDK is a lightweight, ES3-compliant JavaScript library th
 2. [Installation](#installation)
 3. [Configuration Parameters](#configuration-parameters)
 4. [Initialization Methods](#initialization-methods)
-5. [Global Exposure of Helper Functions](#global-exposure-of-helper-functions)
+5. [Helper Functions](#global-exposure-of-helper-functions)
 6. [Event Callbacks](#event-callbacks)
 7. [Dynamic Template Setup](#dynamic-template-setup)
-8. [Button Actions](#button-actions)
-9. [Outstanding Issues](#outstanding-issues)
-10. [License](#license)
 
 ---
 
@@ -156,17 +153,26 @@ If no global configuration is present, call the `sp_init(config)` function after
 
 | Method                 | Use Case                                                                                     | Return Value                                                                 |
 |------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| `_sp_.executeMessaging`     | Triggers the loading of messaging components (e.g., banners, modals).                        | `void`                                                                       |
-| `_sp_.loadPrivacyManagerModal` | Displays the second layer on demand                                                         | `void`                                                                       |
-| `_sp_.acceptAll`            | Consent Action: Accept All                                                                   | `Promise<void>`                                                              |
-| `_sp_.spContinue`           | Consent Action: Reject Consent, maintain Legitimate Interest                                 | `Promise<void>`                                                              |
-| `_sp_.reject`               | Consent Action: Reject All                                                                    | `Promise<void>`                                                              |
-| `_sp_.consentStatus`        | Retrieves current consent status for the user.                                               | `Promise<Object>`<br>`{`<br>&nbsp;&nbsp;`rejectedAny: false,`<br>&nbsp;&nbsp;`rejectedLI: false,`<br>&nbsp;&nbsp;`consentedAll: true,`<br>&nbsp;&nbsp;`consentedToAny: true,`<br>&nbsp;&nbsp;`granularStatus: { vendorConsent: 'ALL', vendorLegInt: 'ALL', purposeConsent: 'ALL', purposeLegInt: 'ALL', previousOptInAll: false },`<br>&nbsp;&nbsp;`hasConsentData: true`<br>`}` |
-| `_sp_.getTcString`          | Fetches the IAB Transparency & Consent (TC) string.                                          | `Promise<string>`                                                            |
-| `_sp_.getQrCodeUrl`         | Generates a URL for the second screen QR code.                                               | `Promise<string>`                                                            |
-| `_sp_.getMessageData`       | Retrieves message meta data such as stacks, purposes, and vendor count.                      | `Promise<Object>`<br>`{`<br>&nbsp;&nbsp;`categories: [...],`<br>&nbsp;&nbsp;`language: 'DE',`<br>&nbsp;&nbsp;`iabVendorCount: 3,`<br>&nbsp;&nbsp;`allVendorCount: 5`<br>`}` |
-| `_sp_.clearUserData`        | Clears all consent and identification data for the current user on the device.              | `Promise<void>`                                                              |
-| `_sp_.updateConsentStatus`  | Fetches the latest consent status from the Backend.                                          | `Promise<void>`                                                              |
+| `_sp_.executeMessaging()`     | Triggers the loading of messaging components (e.g., banners, modals).                        | `void`                                                                       |
+| `_sp_.loadPrivacyManagerModal()` | Displays the second layer on demand                                                         | `void`                                                                       |
+| `_sp_.consentStatus()`        | Retrieves current consent status for the user.                                               | `<Object>`<br>`{`<br>&nbsp;&nbsp;`rejectedAny: false,`<br>&nbsp;&nbsp;`rejectedLI: false,`<br>&nbsp;&nbsp;`consentedAll: true,`<br>&nbsp;&nbsp;`consentedToAny: true,`<br>&nbsp;&nbsp;`granularStatus: { vendorConsent: 'ALL', vendorLegInt: 'ALL', purposeConsent: 'ALL', purposeLegInt: 'ALL', previousOptInAll: false },`<br>&nbsp;&nbsp;`hasConsentData: true`<br>`}` |
+| `_sp_.getTcString()`          | Fetches the IAB Transparency & Consent (TC) string.                                          | `<string>`                                                            |
+| `_sp_.getQrCodeUrl()`         | Generates a URL for the second screen QR code.                                               | `<string>`                                                            |
+| `_sp_.getMessageData()`       | Retrieves message meta data such as stacks, purposes, and vendor count.                      | `<Object>`<br>`{`<br>&nbsp;&nbsp;`categories: [...],`<br>&nbsp;&nbsp;`language: 'DE',`<br>&nbsp;&nbsp;`iabVendorCount: 3,`<br>&nbsp;&nbsp;`allVendorCount: 5`<br>`}` |
+| `_sp_.clearUserData()`        | Clears all consent and identification data for the current user on the device.              | `<boolen>`                                                              |
+| `_sp_.updateConsentStatus()`  | Fetches the latest consent status from the Backend.                                          | `<void>`                                                              |
+### Button Actions
+
+The SDK includes built-in actions to handle user interactions. For example:
+
+| Action                          | Description                                                                   | Example Code                        |
+|---------------------------------|-------------------------------------------------------------------------------|-------------------------------------|
+| **Accept All**                  | Accepts all consent options.                                                  | `_sp_.acceptAll();`                 |
+| **Continue Without Accepting**  | Proceeds without granting explicit consent.                                   | `_sp_.continue();`                  |
+| **Reject All**                  | Rejects all consent options.                                                  | `_sp_.reject();`                    |
+| **Open Privacy Manager**        | Opens the privacy manager modal for detailed settings.                        | `_sp_.loadPrivacyManagerModal();`   |
+| **Start Messaging**             | Initiates the CMP experience by starting the messaging flow.                  | `_sp_.executeMessaging();`          |
+| **Update Consent Status**       | Refreshes consent status, useful if users update settings via the QR code.      | `_sp_.updateConsentStatus();`       |
 
 
 ### Global Exposure of Methods
@@ -291,22 +297,10 @@ The SDK supports dynamic UI generation via HTML templates. Follow these steps:
     <div class="sp_purposes"></div>
    ```
 
-## 8. Button Actions
-
-The SDK includes built-in actions to handle user interactions. For example:
-
-| Action                          | Description                                                                   | Example Code                        |
-|---------------------------------|-------------------------------------------------------------------------------|-------------------------------------|
-| **Accept All**                  | Accepts all consent options.                                                  | `_sp_.acceptAll();`                 |
-| **Continue Without Accepting**  | Proceeds without granting explicit consent.                                   | `_sp_.continue();`                  |
-| **Reject All**                  | Rejects all consent options.                                                  | `_sp_.reject();`                    |
-| **Open Privacy Manager**        | Opens the privacy manager modal for detailed settings.                        | `_sp_.loadPrivacyManagerModal();`   |
-| **Start Messaging**             | Initiates the CMP experience by starting the messaging flow.                  | `_sp_.executeMessaging();`          |
-| **Update Consent Status**       | Refreshes consent status, useful if users update settings via the QR code.      | `_sp_.updateConsentStatus();`       |
 
 ---
 
-## 9. Outstanding Issues
+## 8. Outstanding Issues
 
 - **Custom Consent Updates:** Post and revoke custom consent functionality is under development.
 - **Text Element Integration:** Further work is in progress to pull text elements from the Sourcepoint portal for enhanced customization.
