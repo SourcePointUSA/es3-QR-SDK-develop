@@ -8,8 +8,8 @@ The Sourcepoint ES3 QR SDK is a lightweight, ES3-compliant JavaScript library th
 
 1. [Overview](#overview)
 2. [Installation](#installation)
-3. [Configuration Parameters](#configuration-parameters)
-4. [Initialization Methods](#initialization-methods)
+3. [Initialization Methods](#initialization-methods)
+4. [Configuration Parameters](#configuration-parameters)
 5. [CMP methods](#cmp-methods)
 6. [Event Callbacks](#event-callbacks)
 7. [Dynamic Template Setup](#dynamic-template-setup)
@@ -113,8 +113,21 @@ Include the required JavaScript and CSS files in your HTML. For example:
 </html>
 ```
 
+---
 
-## 3. Configuration Parameters
+## 3. Initialization Methods
+
+### Global Configuration
+
+If you define the configuration globally (as shown in the installation example), the SDK will automatically initialize when it is loaded.
+
+### Explicit Initialization
+
+If no global configuration is present, call the `sp_init(config)` function after the SDK is loaded. This function will set up your configuration and trigger initialization.
+
+---
+
+## 4. Configuration Parameters
 
 | Parameter                 | Type      | Required | Description                                                                                                                                          |
 |---------------------------|-----------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -135,19 +148,7 @@ Include the required JavaScript and CSS files in your HTML. For example:
 | **pmUrl**                 | String    | Optional | URL for the privacy manager's second-layer page.                                                                                                     |
 | **events**                | Object    | Optional | Contains event callback functions such as `onConsentReady` and `onMessageComposed`.                                                                   |
 
----
 
-## 4. Initialization Methods
-
-### Global Configuration
-
-If you define the configuration globally (as shown in the installation example), the SDK will automatically initialize when it is loaded.
-
-### Explicit Initialization
-
-If no global configuration is present, call the `sp_init(config)` function after the SDK is loaded. This function will set up your configuration and trigger initialization.
-
----
 
 ## 5. CMP methods
 
