@@ -133,6 +133,7 @@ Include the required JavaScript and CSS files in your HTML. For example:
 | **isSPA**                 | Boolean   | No       | Set to `true` for single-page applications. Messaging is triggered only when `executeMessaging()` is called.                                           |
 | **buildMessageComponents**| Boolean  | No       | If set to `true` (default), dynamic UI components will be built and injected into your page.                                                          |
 | **exposeGlobals**         | Boolean   | No       | If `true`, key helper functions (e.g., `executeMessaging`, `acceptAll`, etc.) are attached to the `window` object for global access.                  |
+| **disableLocalStorage**         | Boolean   | No       | If `true`, only cookies will be set and no use of the localStorage, if this is not set the script will use cookies if localStorage is not available  |
 | **qrUrl**                 | String    | Optional | URL of the QR code generator.                                                                                                                        |
 | **pmUrl**                 | String    | Optional | URL for the privacy manager's second-layer page.                                                                                                     |
 | **events**                | Object    | Optional | Contains event callback functions such as `onConsentReady` and `onMessageComposed`.                                                                   |
