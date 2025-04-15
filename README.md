@@ -10,7 +10,7 @@ The Sourcepoint ES3 QR SDK is a lightweight, ES3-compliant JavaScript library th
 2. [Installation](#installation)
 3. [Configuration Parameters](#configuration-parameters)
 4. [Initialization Methods](#initialization-methods)
-5. [Helper Functions](#global-exposure-of-helper-functions)
+5. [CMP methods](#cmp-methods)
 6. [Event Callbacks](#event-callbacks)
 7. [Dynamic Template Setup](#dynamic-template-setup)
 
