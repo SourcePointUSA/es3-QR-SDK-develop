@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.2";
+var scriptVersion = "2.0.4";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -80,6 +80,16 @@ function sp_init(config) {
 
         config = config || (_sp_ && _sp_.config);
        	window._sp_.config.events = window._sp_.config.events || {};
+       	_sp_.version = scriptVersion;
+
+
+       	accountId = _sp_.config.accountId;
+		consentLanguage = _sp_.config.consentLanguage || "EN";
+		isSPA = _sp_.config.isSPA;
+		isJSONp = _sp_.config.isJSONp;
+		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
+		exposeGlobals = _sp_.config.exposeGlobals;
+		disableLocalStorage = _sp_.config.disableLocalStorage;
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
@@ -114,12 +124,7 @@ function sp_init(config) {
 	        setCookie("authId", authId, 365);
 	    } 
 
-		accountId = _sp_.config.accountId;
-		consentLanguage = _sp_.config.consentLanguage || "EN";
-		isSPA = _sp_.config.isSPA;
-		isJSONp = _sp_.config.isJSONp;
-		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
-		exposeGlobals = _sp_.config.exposeGlobals
+
 
 		getMetaData();
 
@@ -213,7 +218,7 @@ function sp_init(config) {
     var updateConsentStatusFunc = function() {
         hideElement(pmDiv);
         hideElement(messageDiv);
-        getConsentStatus();
+        getConsentStatus("true");
         getMessages();
     };
   
@@ -307,7 +312,6 @@ function sp_init(config) {
 	    if (element) {
 	        var wasVisible = element.style.display !== 'none' && element.offsetParent !== null;
 	        element.style.display = 'none'; 
-	        console.log( pmDiv, messageDiv, elementId, wasVisible);
 	        if (elementId === pmDiv && wasVisible) {
 	            secondLayerClosed();
 	        }
@@ -414,13 +418,10 @@ function sp_init(config) {
 		
 		if (dateCreated !== null) {
 		    if (compareDates(metaData.gdpr.legalBasisChangeDate, dateCreated) === 1) {
-		    	
-		    	console.log("legalBasisChangeDate");
 		        consentStatus.legalBasisChanges = true;
 		        shouldCall = true;
 		    }
 		    if (compareDates(metaData.gdpr.additionsChangeDate, dateCreated) === 1) {
-		    	console.log("vendorListAdditions");
 		        consentStatus.vendorListAdditions = true;
 		        shouldCall = true
 		    }
@@ -430,9 +431,7 @@ function sp_init(config) {
 	}
  
 	function getMessages() {
-		console.log("startGetMessages");
 		if (shouldCallMessagesEndpoint()) {
-    		console.log("notconsentedTOAll requesting message")
  
     		var baseURL = baseEndpoint + '/wrapper/v2/messages';
 	    	var queryParams = '?hasCsp=true&env=prod';
@@ -700,33 +699,61 @@ function sp_init(config) {
 
 
 	function setItem(key, value) {
- 
-	    if (typeof window.localStorage !== "undefined") {
-	        try {
+		if (typeof window.localStorage == "undefined" || disableLocalStorage) {
+			setCookie(key,JSON.stringify(value), 365);
+		}
+		else{
+			try {
+	        	console.log('local');
 	            window.localStorage.setItem(key, JSON.stringify(value));
 	        } catch (e) {
+	        	console.log('cookie');
+	            setCookie(key,JSON.stringify(value), 365);
+	        }
+		}	
+
+
+
+
+
+	/*	console.log(disableLocalStorage);
+		if(disableLocalStorage){
+			console.log('cookie')
+	 		setCookie(key,JSON.stringify(value), 365);
+	 		return
+		}
+
+
+
+ 		console.log(disableLocalStorage)
+ 		console.log(typeof window.localStorage !== "undefined" || !disableLocalStorage);
+	    if (typeof window.localStorage == "undefined" || disableLocalStorage) {
+	        try {
+	        	console.log('local');
+	            window.localStorage.setItem(key, JSON.stringify(value));
+	        } catch (e) {
+	        	console.log('cookie');
 	            setCookie(key,JSON.stringify(value), 365);
 	        }
 	    } else {
 	    	 setCookie(key,JSON.stringify(value), 365);
-	    }
+	    }*/
 	}
 
 	function getItem(key) {
- 
-	    if (typeof window.localStorage !== "undefined") {
-	        try {
+		if (typeof window.localStorage == "undefined" || disableLocalStorage) {
+			return  JSON.parse(decodeURIComponent(getCookieValue(key)));
+		}else{
+			try {
 	            return JSON.parse(window.localStorage.getItem(key));
 	        } catch (e) {
 	            return JSON.parse(decodeURIComponent(getCookieValue(key)));
 	        }
-	    } else {
-	        return  JSON.parse(decodeURIComponent(getCookieValue(key)));
-	    }
+		}
+ 		 
 	}
 
 	function getCookieValue(name) {
- 
 	    var cookies = document.cookie.split(';');
 	    for (var i = 0; i < cookies.length; i++) {
 	        var cookie = cookies[i].trim(); 
@@ -742,19 +769,16 @@ function sp_init(config) {
 	}
 
 	function deleteItem(key) {
-	    if (typeof window.localStorage !== "undefined") {
-	        try {
-	            window.localStorage.removeItem(key);
-	        } catch (e) {
-	            deleteCookie(key);
+		if (typeof window.localStorage == "undefined" || disableLocalStorage) {
+				deleteCookie(key);
+		}else{
+			try {
+            	window.localStorage.removeItem(key);
+        	} catch (e) {
+            	deleteCookie(key);
 	        }
-	    } else {
-	        deleteCookie(key);
-	    }
+		}
 	}
-
-
-
 
 	function storeConsentResponse(conStatus, uuid, cDate, euconsent, vGrants, purposes){	    
 	    consentStatus = conStatus;
@@ -774,8 +798,8 @@ function sp_init(config) {
 	   	onConsentReady();	
 	}
 
-	function getConsentStatus(){
-		if (consentStatus !== null) {
+	function getConsentStatus(forced){
+		if ((consentStatus !== null) && (!forced)) {
 			if(consentStatus.consentedAll){
 				return;
  			}

@@ -13,7 +13,7 @@
 
 </head>
 <body>
-<body onload="//start();">
+<body onload="start();">
  <div>
         <object type="application/oipfApplicationManager" id="applicationManager"> </object>
     </div>
@@ -122,19 +122,21 @@
                 //baseEndpoint: 'http://proxy.dev-24.de',
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
-                consentLanguage : "de",
+                consentLanguage : "DE",
                 // authId: "1234-5678-9083-3452", // optional 
-                isSPA : false, 
+                isSPA : true, 
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
                 buildMessageComponents : true,
                 exposeGlobals : true, 
+                disableLocalStorage : false, 
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
                 pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
                 events: {
                     onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
-                         //callbackforOnConsentReady(consentUUID, euconsent, vendorGrants, consentStatus, purposes);
+                        console.log("onconsentReady")
+                         console.log(consentUUID, euconsent, vendorGrants, consentStatus, purposes);
                     },
                     onMessageComposed:function(){
                         console.log("onMessageComposed");
