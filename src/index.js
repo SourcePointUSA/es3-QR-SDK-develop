@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.4";
+var scriptVersion = "2.0.5";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -410,11 +410,10 @@ function sp_init(config) {
 	function shouldCallMessagesEndpoint(){
 		var shouldCall = false;
 
- 
-
-		if ((consentStatus === null)|| (!consentStatus.consentedAll)) {
+		if ((consentStatus === null) || (!consentStatus.consentedAll)) {
 			return true
 		}
+
 		
 		if (dateCreated !== null) {
 		    if (compareDates(metaData.gdpr.legalBasisChangeDate, dateCreated) === 1) {
@@ -655,7 +654,7 @@ function sp_init(config) {
 	}
 
 	function sendAcceptAllRequest(consentdata) {
-		granularStatus = consentdata.gdpr.consentStatus.granularStatus;
+		granularStatus = consentdata.gdpr.consentStatus.granularStatus;	
 		consentAllRef =  consentdata.gdpr.consentAllRef;
 		gdprApplies = consentdata.gdpr.gdprApplies;
 		euConsentString = consentdata.gdpr.euconsent;
@@ -679,7 +678,7 @@ function sp_init(config) {
 	        sampleRate: metaData.gdpr.sampleRate,
 	        sendPVData: getSampleUser(),
 	        consentAllRef: consentAllRef,
-	        granularStatus:consentStatus,
+	        granularStatus:granularStatus,
 	        vendorListId: consentdata.gdpr.vendorListId
 	    };
 
@@ -704,10 +703,8 @@ function sp_init(config) {
 		}
 		else{
 			try {
-	        	console.log('local');
 	            window.localStorage.setItem(key, JSON.stringify(value));
 	        } catch (e) {
-	        	console.log('cookie');
 	            setCookie(key,JSON.stringify(value), 365);
 	        }
 		}	
@@ -758,7 +755,7 @@ function sp_init(config) {
 	    for (var i = 0; i < cookies.length; i++) {
 	        var cookie = cookies[i].trim(); 
 	        if (cookie.indexOf(name + "=") === 0) {
-	            return cookie.substring((name + "=").length, cookie.length);
+	            return decodeURIComponent(cookie.substring((name + "=").length, cookie.length));
 	        }
 	    }
 	    return null; 
