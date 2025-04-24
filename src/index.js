@@ -459,8 +459,7 @@ function sp_init(config) {
 		            }
 		        },
 		        propertyHref: propertyHref,
-		        propertyId: propertyId,
-		        authId: authId,
+		        propertyId: propertyId
 
 		    };
  
@@ -981,7 +980,6 @@ function sp_init(config) {
 	}
 
 	function getMetaData(){
-
 		var baseUrl = baseEndpoint + '/wrapper/v2/meta-data';
 	    var params = {
 	      hasCsp: 'true',
