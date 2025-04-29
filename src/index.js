@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.5";
+var scriptVersion = "2.0.7";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -62,7 +62,7 @@ function sp_init(config) {
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, metaData,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, dateCreated, euConsentString, 
-	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals;
+	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain;
 
 	var hasLocalData = false;
 	var	granularStatus = null;
@@ -90,6 +90,7 @@ function sp_init(config) {
 		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 		exposeGlobals = _sp_.config.exposeGlobals;
 		disableLocalStorage = _sp_.config.disableLocalStorage;
+		cookieDomain = _sp_.config.cookieDomain;
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
@@ -386,8 +387,16 @@ function sp_init(config) {
 	        var date = new Date();
 	        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); 
 	        expires = "; expires=" + date.toUTCString();
+	        if (typeof cookieDomain !== "undefined") {
+  				domain = "; domain=" + cookieDomain;
+			}else{
+				domain = ""
+			}
+	        
 	    }
-	    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+
+ 	    document.cookie = name + "=" + encodeURIComponent(value) + expires +  domain + "; path=/";
+
 	}
 
 	function checkMessageJson(response) {
@@ -707,33 +716,6 @@ function sp_init(config) {
 	            setCookie(key,JSON.stringify(value), 365);
 	        }
 		}	
-
-
-
-
-
-	/*	console.log(disableLocalStorage);
-		if(disableLocalStorage){
-			console.log('cookie')
-	 		setCookie(key,JSON.stringify(value), 365);
-	 		return
-		}
-
-
-
- 		console.log(disableLocalStorage)
- 		console.log(typeof window.localStorage !== "undefined" || !disableLocalStorage);
-	    if (typeof window.localStorage == "undefined" || disableLocalStorage) {
-	        try {
-	        	console.log('local');
-	            window.localStorage.setItem(key, JSON.stringify(value));
-	        } catch (e) {
-	        	console.log('cookie');
-	            setCookie(key,JSON.stringify(value), 365);
-	        }
-	    } else {
-	    	 setCookie(key,JSON.stringify(value), 365);
-	    }*/
 	}
 
 	function getItem(key) {
@@ -761,7 +743,13 @@ function sp_init(config) {
 	}
 
 	function deleteCookie(name) {
-    	document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+	    var domain = "";
+
+	    if (typeof cookieDomain !== "undefined") {
+	        domain = "; domain=" + cookieDomain;
+	    }
+
+	    document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC" + domain + "; path=/;";
 	}
 
 	function deleteItem(key) {
