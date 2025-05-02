@@ -135,6 +135,7 @@ If no global configuration is present, call the `sp_init(config)` function after
 | **propertyId**            | Integer   | Yes      | Identifier mapping the implementation to a specific URL (as configured in the Sourcepoint dashboard).                                                |
 | **propertyHref**          | String    | Yes      | The URL or property name to connect.                                                                                                                 |
 | **baseEndpoint**          | String    | Yes      | API endpoint; default is `https://cdn.privacy-mgmt.com/`.                                                                                           |
+| **cookieDomain**          | String    | No      | Custom cookie domain; default sets the cookies on the sub domain.                                                                                           |
 | **messageDiv**            | String    | Yes      | ID of the `<div>` element where the consent message will be displayed.                                                                               |
 | **pmDiv**                 | String    | Yes      | ID of the `<div>` element designated for the privacy manager.                                                                                        |
 | **qrId**                  | String    | Yes      | ID of the `<img>` element where the QR code will be rendered.                                                                                        |
