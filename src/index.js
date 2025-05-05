@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.7";
+var scriptVersion = "2.0.8";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -62,7 +62,7 @@ function sp_init(config) {
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, metaData,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, dateCreated, euConsentString, 
-	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain;
+	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut;
 
 	var hasLocalData = false;
 	var	granularStatus = null;
@@ -91,6 +91,7 @@ function sp_init(config) {
 		exposeGlobals = _sp_.config.exposeGlobals;
 		disableLocalStorage = _sp_.config.disableLocalStorage;
 		cookieDomain = _sp_.config.cookieDomain;
+		secondScreenTimeOut = _sp_.config.secondScreenTimeOut;
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
@@ -826,14 +827,32 @@ function sp_init(config) {
 	    return req;
 	}
 
-	function getQrCodeUrl(){
-	 	return	_sp_.config.qrUrl + encodeURIComponent(_sp_.config.pmUrl +
-    		"?authid="+authId + 
-			"&consentlanguage="+consentLanguage + 
-			"&propertyid="+propertyId +
-			"&propertyhref="+propertyHref +
-			"&accountid="+accountId +
-			"&pmid="+pmId)
+	function getQrCodeUrl() {
+		let additionalParams = "";
+
+		// Prüfen, ob secondScreenTimeOut definiert ist und einen gültigen Wert hat
+		if (typeof secondScreenTimeOut !== "undefined" && secondScreenTimeOut !== null) {
+			console.log(secondScreenTimeOut);
+
+			// Aktuelles Datum mit Uhrzeit im ISO-Format
+			const timestamp = new Date().toISOString();
+
+			// Parameter ergänzen
+			additionalParams += "&timestamp=" + encodeURIComponent(timestamp);
+			additionalParams += "&second_screen_timeout=" + encodeURIComponent(secondScreenTimeOut);
+		} else {
+			console.log("noTimeout");
+		}
+
+		return _sp_.config.qrUrl + encodeURIComponent(_sp_.config.pmUrl +
+			"?authid=" + authId + 
+			"&consentlanguage=" + consentLanguage + 
+			"&propertyid=" + propertyId +
+			"&propertyhref=" + propertyHref +
+			"&accountid=" + accountId +
+			"&pmid=" + pmId +
+			additionalParams
+		);
 	}
 
 	function getMessageData(){

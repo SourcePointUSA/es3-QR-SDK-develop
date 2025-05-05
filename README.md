@@ -147,6 +147,7 @@ If no global configuration is present, call the `sp_init(config)` function after
 | **disableLocalStorage**         | Boolean   | No       | If `true`, only cookies will be set and no use of the localStorage, if this is not set the script will use cookies if localStorage is not available  |
 | **qrUrl**                 | String    | Optional | URL of the QR code generator.                                                                                                                        |
 | **pmUrl**                 | String    | Optional | URL for the privacy manager's second-layer page.                                                                                                     |
+| **secondScreenTimeOut**                 | integer    | Optional | Specifies the duration (in milliseconds) after which the second screen will automatically timeout. If this value is set, the second screen will be dismissed after the specified interval.|
 | **events**                | Object    | Optional | Contains event callback functions such as `onConsentReady` and `onMessageComposed`.                                                                   |
 
 
