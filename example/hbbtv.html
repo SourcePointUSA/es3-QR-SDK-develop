@@ -120,11 +120,13 @@
                 propertyId: 37811,
                 propertyHref: "http://ott.es3",
                 //baseEndpoint: 'http://proxy.dev-24.de',
+                proxyEndpoint : "https://dh1jps19zxjei.cloudfront.net",
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "DE",
                 // authId: "1234-5678-9083-3452", // optional 
                 isSPA : true, 
+                isJSONp : true, 
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
@@ -135,7 +137,6 @@
                 secondScreenTimeOut: 3000,
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
 //                pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
-
                 pmUrl: "https://native.message/pm.html",
                 events: {
                     onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
@@ -147,7 +148,6 @@
                         const accordions = document.querySelectorAll(".accordion");
                         accordions.forEach(accordion => {
                             accordion.addEventListener("click", () => {
-                                console.log("click")
                                 accordion.classList.toggle("active");
                                 const panel = accordion.nextElementSibling;
                                 if (panel.style.display === "block") {
@@ -181,14 +181,16 @@
                     secondLayerClosed:function(){
                         console.log("secondLayerClosed");
                     },
-                    onError:function(errorCode, message){
-                        console.log("OnError" , message);
+                    onError : function(errorCode, message){
+                        console.error("OnError: ",errorCode, message);
                     },
                 }
             }
         }
     </script>
         <script src="nativeMessaging.js" type="text/javascript"> </script>  
-        <script type="text/javascript">//sp_init(_ssp_.config)</script>
+        <script type="text/javascript">
+
+        //sp_init(_ssp_.config)</script>
  </body>
 </html>

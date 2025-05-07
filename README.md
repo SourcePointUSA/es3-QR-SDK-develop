@@ -148,6 +148,8 @@ If no global configuration is present, call the `sp_init(config)` function after
 | **qrUrl**                 | String    | Optional | URL of the QR code generator.                                                                                                                        |
 | **pmUrl**                 | String    | Optional | URL for the privacy manager's second-layer page.                                                                                                     |
 | **secondScreenTimeOut**                 | integer    | Optional | Specifies the duration (in milliseconds) after which the second screen will automatically timeout. If this value is set, the second screen will be dismissed after the specified interval.|
+| **isJSONp**                | String    | Optional | Enables JSONP requests, if set a  `proxyEndpoint`  is required.                                                                   |
+| **proxyEndpoint**           String    | Optional | proxy url for jsonp                                                                   |
 | **events**                | Object    | Optional | Contains event callback functions such as `onConsentReady` and `onMessageComposed`.                                                                   |
 
 

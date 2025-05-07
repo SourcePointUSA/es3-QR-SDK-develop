@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "2.0.8";
+var scriptVersion = "3.0.0";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -28,18 +28,35 @@ if (!window.JSON) {
     };
 }
 
-// Polyfill for JSON.parse
-if (typeof JSON.parse !== 'function') {
-    JSON.parse = function(text) {
-        try {
-            return (new Function('return ' + text))();
-        } catch (e) {
-            throw new SyntaxError('JSON.parse: ungültiges JSON-Format');
+JSON.parse = function(text) {
+    try {
+        return (new Function('return ' + text))();
+    } catch (e) {
+        onError("001", 'JSON.parse: ungültiges JSON-Format');
+        return null;
+    }
+};
+
+var isArray = function(arr) {
+    return Object.prototype.toString.call(arr) === '[object Array]';
+};
+
+if (!Object.keys) {
+    Object.keys = function(obj) {
+        if (obj !== Object(obj)) {
+           onError("002", 'Object.keys called on a non-object');
         }
+
+        var result = [], prop;
+        for (prop in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+                result.push(prop);
+            }
+        }
+
+        return result;
     };
 }
-
-var console = window.console || { log: function() {return true}, error: function() {document.write(v)} };
 
 function sp_init(config) {
     window._sp_ = window._sp_ || {};
@@ -47,11 +64,26 @@ function sp_init(config) {
     if (typeof _sp_.init === 'function') {
         _sp_.init(config);
     } else {
-        console.error("Init-Funktion nicht gefunden. Warte auf _sp_.init.");
+        onError("003", "No init method found");
     }
 }
 
 (function(){
+
+	window.handleMetaDataForJsonP = handleMetaDataForJsonP;
+	window.handleMessageDataForJsonP = handleMessageDataForJsonP;
+	window.handleGetMessagesForJsonP = handleGetMessagesForJsonP;
+	window.handleGetConsentStatusForJsonP = handleGetConsentStatusForJsonP;
+	window.handlePvResponse = handlePvResponse;
+
+	window.handleAcceptAllResponse = handleAcceptAllResponse;
+	window.handleJsonpAcceptAllCall = handleJsonpAcceptAllCall;
+
+	window.handleLiOnlyResponse = handleLiOnlyResponse;
+	window.handleLiOnlyCall = handleLiOnlyCall;
+
+	window.handleRejectAllResponse = handleRejectAllResponse;
+	window.handleRejectAllCall = handleRejectAllCall;
 
 	var triggerEvent = function(eventName, args) {
 	    var event = window._sp_.config.events[eventName];
@@ -60,9 +92,9 @@ function sp_init(config) {
 	    }
 	};
 
-	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, metaData,propertyHref,consentLanguage,isSPA, isJSONp, 
-	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, dateCreated, euConsentString, 
-	consentStatus,consentedPurposes ,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut;
+	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId,propertyHref,consentLanguage,isSPA, isJSONp, 
+	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData;
 
 	var hasLocalData = false;
 	var	granularStatus = null;
@@ -87,6 +119,15 @@ function sp_init(config) {
 		consentLanguage = _sp_.config.consentLanguage || "EN";
 		isSPA = _sp_.config.isSPA;
 		isJSONp = _sp_.config.isJSONp;
+		proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");;
+
+		if(isJSONp){
+			if (typeof proxyEndpoint === "undefined" ){
+				onError("004", "jsonPProxyEndpoint is undefined")
+				return
+			}
+		}
+
 		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 		exposeGlobals = _sp_.config.exposeGlobals;
 		disableLocalStorage = _sp_.config.disableLocalStorage;
@@ -104,14 +145,20 @@ function sp_init(config) {
 		metaData = getItem("metaData_"+propertyId);
 		vendorGrants = getItem("vendorGrants_"+propertyId);
 		nonKeyedLocalState = getItem("nonKeyedLocalState_"+propertyId);
-		consentedPurposes = getItem("consentedPurposes_"+propertyId);
+
+
+		acceptedCategories = getItem("acceptedCategories_"+propertyId);
+	    acceptedVendors = getItem("acceptedVendors_"+propertyId);
+		legIntCategories = getItem("legIntCategories_"+propertyId);
+		legIntVendors = getItem("legIntVendors_"+propertyId);
        
+
         if (!config) {
-        	onError("001", "NoConfig")
+        	onError("005", "No Configuration Found")
             return;
         }
-        console.log("Init with following config:", config);
-      	
+
+
 		consentUUID = getCookieValue("consentUUID");
 		sampledUser = getCookieValue("sp_su");
 		authId = getCookieValue("authId") || _sp_.config.authId;
@@ -124,13 +171,10 @@ function sp_init(config) {
 	    if (authId == null) {
 	        authId = generateUUID();
 	        setCookie("authId", authId, 365);
-	    } 
-
-
+	    } 	
 
 		getMetaData();
 
-		gdprApplies = metaData.gdpr.applies;
 		messageDiv = _sp_.config.messageDiv;
 		pmDiv = _sp_.config.pmDiv;
 		pmId = (typeof _sp_ !== "undefined" && _sp_.config && _sp_.config.pmId) ? _sp_.config.pmId : 1196474;
@@ -143,7 +187,7 @@ function sp_init(config) {
 		}
 			        
 	    if(!messageElementsAdded){
-	   		buildMessage();
+	   		getMessageData();
 	    }
     }
 
@@ -153,7 +197,7 @@ function sp_init(config) {
     if (_sp_.config) {
         init(_sp_.config);
     } else {
-        console.log("Keine globale Konfiguration gefunden – warte auf sp_init(config)...");
+        console.log("No Global Config found – waiting for sp_init(config)...");
     }
 
     function extendSpObject() {
@@ -200,7 +244,7 @@ function sp_init(config) {
     };
 
     var getMessageDataFunc = function() {
-        return getMessageData();
+        return messageCategoryData;
     };
 
     var clearUserDataFunc = function() {
@@ -213,6 +257,10 @@ function sp_init(config) {
         deleteItem("localState_" + propertyId);
         deleteItem("nonKeyedLocalState_" + propertyId);
         deleteItem("vendorGrants_" + propertyId);
+        deleteItem("acceptedVendors_" + propertyId);
+        deleteItem("acceptedCategories_" + propertyId);
+        deleteItem("legIntVendors_" + propertyId);
+        deleteItem("legIntCategories_" + propertyId);
         deleteCookie("sp_su");
         return true;
     };
@@ -249,14 +297,14 @@ function sp_init(config) {
 	    window.getMessageData = getMessageDataFunc;
 	    window.clearUserData = clearUserDataFunc;
 	    window.updateConsentStatus = updateConsentStatusFunc;
-
 	}   
+
   
 }
 
 	
 	function onConsentReady(){
-		triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, consentedPurposes]);
+		triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, acceptedCategories]);
 	}
 
 	function onMessageComposed(){
@@ -283,21 +331,21 @@ function sp_init(config) {
 		triggerEvent('secondLayerShown');
 	}
 
+
 	function firstLayerClosed(){
 		triggerEvent('firstLayerClosed');
 	}
+
 
 	function secondLayerClosed(){
 		triggerEvent('secondLayerClosed');
 	}
 
-	function onError(errorCode, errorText){
-		triggerEvent('onError' [errorCode, errorText]);
+
+	function onError(errorCode, errorText, errorData){
+		triggerEvent('onError' , [errorCode, errorText, errorData]);
 	}
 
-
-
- 
 
 	function showElement(elementId) {
 	    var element = document.getElementById(elementId); 
@@ -330,6 +378,52 @@ function sp_init(config) {
 	    xmlHttp.open("GET", theUrl, false);
 	    xmlHttp.send(null);
 	    return xmlHttp.responseText;
+	}
+
+	function httpGet(theUrl) {
+	    try {
+	        var xmlHttp = new XMLHttpRequest();
+	        xmlHttp.open("GET", theUrl, false);
+	        xmlHttp.send(null);
+
+	        if (xmlHttp.status === 200) {
+	            return xmlHttp.responseText;
+	        } else {
+	           onError(xmlHttp.status, xmlHttp.statusText);
+	            return null;
+	        }
+	    } catch (e) {
+	        onError("404", "Request failed:", e);
+	        return null;
+	    }
+	}
+
+
+	function jsonpGet(url, callbackName, timeout) {
+	    var script = document.createElement("script");
+	    var timedOut = false;
+	    var head = document.getElementsByTagName("head")[0] || document.body;
+	    var timeoutId;
+	    if (timeout) {
+	        timeoutId = setTimeout(function () {
+	            timedOut = true;
+	            window[callbackName] = function () {};
+	            head.removeChild(script);
+	            // Du kannst hier ein globales onError aufrufen oder ein weiteres Event feuern
+	        }, timeout);
+	    }
+
+	    var separator = url.indexOf("?") >= 0 ? "&" : "?";
+	    script.src = url + separator + "callback=" + callbackName;
+
+	    script.onerror = function () {
+	        if (timeoutId) clearTimeout(timeoutId);
+	        window[callbackName] = function () {};
+	        head.removeChild(script);
+	        onError("009", "Script-Error while processing JSONP-Request for " + callbackName);
+	    };
+
+	    head.appendChild(script);
 	}
 
 	function compareDates(date1, date2) {
@@ -442,7 +536,7 @@ function sp_init(config) {
 	function getMessages() {
 		if (shouldCallMessagesEndpoint()) {
  
-    		var baseURL = baseEndpoint + '/wrapper/v2/messages';
+    		var baseURL = '/wrapper/v2/messages';
 	    	var queryParams = '?hasCsp=true&env=prod';
 
 		    var body = {    
@@ -472,29 +566,34 @@ function sp_init(config) {
 		        propertyId: propertyId
 
 		    };
- 
-		    var fullURL = baseURL + queryParams +
-		        '&body=' + json2QueryParam(body) +
-		        '&localState=' + json2QueryParam(localState) +
-		        '&metadata=' +json2QueryParam(metaData) +
-		        '&nonKeyedLocalState=' + json2QueryParam(nonKeyedLocalState)+
-		        '&ch=' + cb +
-		        '&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
 
+		    var fullURL = (isJSONp ? proxyEndpoint + "/jsonp" : baseEndpoint) + baseURL + queryParams +
+			    '&body=' + json2QueryParam(body) +
+			    '&localState=' + json2QueryParam(localState) +
+			    '&metadata=' + json2QueryParam(metaData) +
+			    '&nonKeyedLocalState=' + json2QueryParam(nonKeyedLocalState) +
+			    '&ch=' + cb +
+			    '&scriptVersion=' + scriptVersion +
+			    '&scriptType=' + scriptType; 
 
-			    var res = JSON.parse(httpGet(fullURL));
+				if (isJSONp) {
+				    var res = jsonpGet(fullURL, "handleGetMessagesForJsonP");
+				}else{
+					var res = JSON.parse(httpGet(fullURL));
 
-			    localState = res.localState;
-			    setItem("localState_" + propertyId, JSON.parse(res.localState), 365);
-			    nonKeyedLocalState = res.nonKeyedLocalState;
-			    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), 365);
+				    localState = res.localState;
+				    setItem("localState_" + propertyId, JSON.parse(res.localState), 365);
+				    nonKeyedLocalState = res.nonKeyedLocalState;
+				    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), 365);
 
-			    if (checkMessageJson(res)) {
-			        showElement(messageDiv);
-			    }
-			    else{
-	    			onConsentReady()
-	    		}
+				    if (checkMessageJson(res)) {
+				        showElement(messageDiv);
+				    }
+				    else{
+		    			onConsentReady()
+		    		}
+
+				}
     		}else{
     			onConsentReady()
     		}
@@ -503,27 +602,45 @@ function sp_init(config) {
 	}
 
 	function json2QueryParam(jsonObject){
- 
 		if( typeof(jsonObject) == "string"){
 			return  encodeURIComponent(jsonObject);
 		}else{
 			return encodeURIComponent(JSON.stringify(jsonObject))
 		}
-		 
+	}
+
+	function useJsonpPostRequest(endpoint, data, callbackName) {
+	    var base = 	proxyEndpoint + "/post" + endpoint;
+	    var params = {
+	        hasCsp: true,
+	        env: env,
+	        ch: cb,
+	        scriptVersion: scriptVersion,
+	        scriptType: scriptType
+	    };
+		
+		const fullUrl = base + "?body=" + encodeURIComponent(JSON.stringify(data)) + "&" + toQueryParams(params);
+	    jsonpGet(fullUrl, callbackName);
 	}
 
 	function updateQrUrl(newUrl) {
-	    var image = document.getElementById(_sp_.config.qrId);
+		if (_sp_.config.qrId) {
+		    var image = document.getElementById(_sp_.config.qrId);
 
-	    if (image) {
-	        var timestamp = new Date().getTime(); 
-	        var separator = newUrl.indexOf('?') === -1 ? '?' : '&'; 
-	        image.src = newUrl + separator + 't=' + timestamp;
-	    }
+		    if (image) {
+		        var timestamp = new Date().getTime(); 
+		        var separator = newUrl.indexOf('?') === -1 ? '?' : '&'; 
+		        image.src = newUrl + separator + 't=' + timestamp;
+		    } else {
+		        onError("010", "qr ID is missing in config");
+		    }
+		}
 	}
 
 	function acceptAll() {
-	    var baseUrl = baseEndpoint + '/wrapper/v2/choice/consent-all';
+	    var path = '/wrapper/v2/choice/consent-all';
+	    var baseUrl = (isJSONp ? (proxyEndpoint + '/jsonp' + path) : (baseEndpoint + path));
+
 	    var queryParams = {
 	        hasCsp: 'true',
 	        authId: authId,
@@ -538,30 +655,30 @@ function sp_init(config) {
 	        scriptType: scriptType
 	    };
 
-	    var queryString = [];
-	    for (var key in queryParams) {
-	        if (queryParams.hasOwnProperty(key)) {
-	            queryString.push(encodeURIComponent(key) + '=' + encodeURIComponent(queryParams[key]));
-	        }
+	    var queryString = toQueryParams(queryParams);
+	    var fullUrl = baseUrl + '?' + queryString;
+
+	    if (isJSONp) {
+	        jsonpGet(fullUrl, "handleAcceptAllResponse");
+	    } else {
+	        var consentdata = httpGet(fullUrl);
+	        sendAcceptAllRequest(JSON.parse(consentdata));
 	    }
-
-	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
-
-	    sendAcceptAllRequest(JSON.parse(consentdata));
-
 	}
+
 
 	function liOnly(){
-
-	    /*get LI only Purposes and vendors*/
-	    var liURL = baseEndpoint + '/consent/tcfv2/consent/v3/' + propertyId + '/li-only';
-	    sendGranularChoiceRequest(JSON.parse(httpGet(liURL)));
+		if (isJSONp) {
+	        jsonpGet(proxyEndpoint + '/jsonp/consent/tcfv2/consent/v3/' + propertyId + '/li-only', "handleLiOnlyResponse");
+	    } else {
+	    	sendGranularChoiceRequest(JSON.parse(httpGet(baseEndpoint + '/consent/tcfv2/consent/v3/' + propertyId + '/li-only')));
+	    }
 	}
 
-
-
 	function rejectAll(){
-	    var baseUrl = baseEndpoint + '/wrapper/v2/choice/reject-all';
+		var path = '/wrapper/v2/choice/reject-all';
+	   	var baseUrl = (isJSONp ? (proxyEndpoint + '/jsonp' + path) : (baseEndpoint + path));
+
 	    var queryParams = {
 	        hasCsp: 'true',
 	        authId: authId,
@@ -576,26 +693,21 @@ function sp_init(config) {
 	        scriptType: scriptType
 	    };
 
-	    var queryString = [];
-	    for (var key in queryParams) {
-	        if (queryParams.hasOwnProperty(key)) {
-	            queryString.push(encodeURIComponent(key) + '=' + encodeURIComponent(queryParams[key]));
-	        }
+	    var queryString = toQueryParams(queryParams);
+	    var fullUrl = baseUrl + '?' + queryString;
+
+	    if (isJSONp) {
+	        jsonpGet(fullUrl, "handleRejectAllResponse");
+	    } else {
+	    	var consentdata = httpGet(baseUrl + '?' + queryString);
+	        sendRejectAllChoiceRequest(JSON.parse(consentdata));
 	    }
-
-	    var consentdata = httpGet(baseUrl + '?' + queryString.join('&'));
-
-	    sendRejectAllChoiceRequest(JSON.parse(consentdata));
 	}
 
 
 
 	function sendGranularChoiceRequest(pmSaveAndExitVariables){
-
-	    var url = baseEndpoint + '/wrapper/v2/choice/gdpr/1?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
-	    var req = createPostRequest(url);
-	    
-	    var data = {
+		var data = {
 	        accountId: accountId,
 	        applies: gdprApplies,
 	        authId: authId,
@@ -613,26 +725,47 @@ function sp_init(config) {
 	        pmSaveAndExitVariables : pmSaveAndExitVariables
 	    };
 
-	    req.onreadystatechange = function() {
-	        if (req.readyState === 4 && req.status === 200) {
-	            var res = JSON.parse(req.responseText);
-	            storeConsentResponse(res.consentStatus, res.uuid, res.dateCreated, res.euconsent, res.grants, res.categories);
-	        }else{
-	        	onError(req.status, req.responseText)
-	        }
-	    };
-	    req.send(JSON.stringify(data));
+		if (isJSONp) {
+	        useJsonpPostRequest("/wrapper/v2/choice/gdpr/1", data, "handleLiOnlyCall");
+	    } else {
+		    var url = baseEndpoint + '/wrapper/v2/choice/gdpr/1?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
+		    var req = createPostRequest(url);
+		   
+		    req.onreadystatechange = function() {
+		        if (req.readyState === 4 && req.status === 200) {		        	
+		            var res = JSON.parse(req.responseText);
+
+		            storeConsentResponse(
+		            	res.consentStatus, 
+		            	res.uuid, 
+		            	res.dateCreated, 
+		            	res.euconsent, 
+		            	res.grants, 
+		            	res.categories,
+		            	res.vendors,
+		            	res.legIntVendors,
+		            	res.legIntCategories 
+					);
+		        }else{
+		        	onError(req.status, req.responseText)
+		        }
+		    };
+		    req.send(JSON.stringify(data));
+		}
 	}
 
 	function sendRejectAllChoiceRequest(consentdata){
-	    granularStatus = consentdata.gdpr.consentStatus.granularStatus;
-	    consentAllRef =  consentdata.gdpr.consentAllRef;
+	    granularStatus = consentdata.gdpr.consentStatus.granularStatus;    
+	    consentAllRef = consentdata.gdpr.consentAllRef;
 	    gdprApplies = consentdata.gdpr.gdprApplies;
-	 
-	    var url = baseEndpoint + '/wrapper/v2/choice/gdpr/13?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
+	    euConsentString = consentdata.gdpr.euconsent;
+	    acceptedCategories = consentdata.gdpr.categories;
+	    consentStatus = consentdata.gdpr.consentStatus;
+	    vendorGrants = consentdata.gdpr.grants;
+	    acceptedVendors = consentdata.gdpr.vendors
+	    legIntVendors = consentdata.gdpr.legIntVendors
+	    legIntCategories = consentdata.gdpr.legIntCategories
 
-	    var req = createPostRequest(url);
- 
 	    var data = {
 	        accountId: accountId,
 	        applies: gdprApplies,
@@ -649,27 +782,53 @@ function sp_init(config) {
 	        sampleRate: metaData.gdpr.sampleRate,
 	        sendPVData: getSampleUser()
 		};
+	 
+	 	var endpoint = "/wrapper/v2/choice/gdpr/13";
+	    var url = baseEndpoint + '/wrapper/v2/choice/gdpr/13?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
+	   
+  		if (isJSONp) {
+	        useJsonpPostRequest(endpoint, data, "handleRejectAllCall");
+	    } else {
+	        var url = baseEndpoint + endpoint + "?hasCsp=true&env=prod&ch=" + cb + "&scriptVersion=" + scriptVersion + "&scriptType=" + scriptType;
+	    	var req = createPostRequest(url);
+	    	
+	    	req.onreadystatechange = function() {
+	        	if (req.readyState === 4 && req.status === 200) {
+	            	var res = JSON.parse(req.responseText);
+	            	storeConsentResponse(
+	            		res.consentStatus, 
+		            	res.uuid, 
+		            	res.dateCreated, 
+		            	res.euconsent, 
+		            	res.grants, 
+		            	res.categories,
+		            	res.vendors,
+		            	res.legIntVendors,
+		            	res.legIntCategories 
+					);
+		        }else{
+		            onError('error:', req.responseText);
+		        }
+		    };
 
-	    req.onreadystatechange = function() {
-	        if (req.readyState === 4 && req.status === 200) {
-	            var res = JSON.parse(req.responseText);
-	            storeConsentResponse(res.consentStatus , res.uuid, res.dateCreated, res.euconsent, res.grants, res.categories);
-	        }else{
-	            console.error('error:', req.responseText);
-	        }
-	    };
-
-	    req.send(JSON.stringify(data));
+	    	req.send(JSON.stringify(data));
+		}
 	}
 
 	function sendAcceptAllRequest(consentdata) {
-		granularStatus = consentdata.gdpr.consentStatus.granularStatus;	
-		consentAllRef =  consentdata.gdpr.consentAllRef;
-		gdprApplies = consentdata.gdpr.gdprApplies;
-		euConsentString = consentdata.gdpr.euconsent;
-		consentedPurposes = consentdata.gdpr.categories;
-	 
-	    var url = baseEndpoint + '/wrapper/v2/choice/gdpr/11?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
+	    granularStatus = consentdata.gdpr.consentStatus.granularStatus;    
+	    consentAllRef = consentdata.gdpr.consentAllRef;
+	    gdprApplies = consentdata.gdpr.gdprApplies;
+	    euConsentString = consentdata.gdpr.euconsent;
+	    acceptedCategories = consentdata.gdpr.categories;
+	    consentStatus = consentdata.gdpr.consentStatus;
+	    vendorGrants = consentdata.gdpr.grants;
+	    acceptedVendors = consentdata.gdpr.vendors
+	    legIntVendors = consentdata.gdpr.legIntVendors
+	    legIntCategories = consentdata.gdpr.legIntCategories
+
+
+	    var endpoint = "/wrapper/v2/choice/gdpr/11";
 
 	    var data = {
 	        accountId: accountId,
@@ -687,36 +846,55 @@ function sp_init(config) {
 	        sampleRate: metaData.gdpr.sampleRate,
 	        sendPVData: getSampleUser(),
 	        consentAllRef: consentAllRef,
-	        granularStatus:granularStatus,
+	        granularStatus: granularStatus,
 	        vendorListId: consentdata.gdpr.vendorListId
 	    };
 
-	    var req = createPostRequest(url);
-
-	    req.onreadystatechange = function() {
-	        if (req.readyState === 4 && req.status === 200) {
-	        	var res = JSON.parse(req.responseText);
-	        	storeConsentResponse(consentdata.gdpr.consentStatus, res.uuid, res.dateCreated, euConsentString, consentdata.gdpr.grants, consentedPurposes)	
-	        }else{
-	        	console.error('error:', req.responseText);
-	        }
-	    };
-
-	    req.send(JSON.stringify(data));
+	    if (isJSONp) {
+	        useJsonpPostRequest(endpoint, data, "handleJsonpAcceptAllCall");
+	    } else {
+	        var url = baseEndpoint + endpoint + "?hasCsp=true&env=prod&ch=" + cb + "&scriptVersion=" + scriptVersion + "&scriptType=" + scriptType;
+	        var req = createPostRequest(url);
+	        req.onreadystatechange = function() {
+	            if (req.readyState === 4 && req.status === 200) {
+	                var res = JSON.parse(req.responseText);
+	                storeConsentResponse(
+	                	consentdata.gdpr.consentStatus, 
+	                	res.uuid, 
+	                	res.dateCreated, 
+	                	euConsentString, 
+	                	consentdata.gdpr.grants, 
+	                	consentdata.gdpr.categories,
+				    	consentdata.gdpr.vendors, 
+				    	consentdata.gdpr.legIntVendors, 
+				    	consentdata.gdpr.legIntCategories
+				    );
+	            } else {
+	                onError('error:', req.responseText);
+	            }
+	        };
+	        req.send(JSON.stringify(data));
+	    }
 	}
 
 
+
 	function setItem(key, value) {
-		if (typeof window.localStorage == "undefined" || disableLocalStorage) {
-			setCookie(key,JSON.stringify(value), 365);
-		}
-		else{
-			try {
+	    if (value === null || value === undefined || value === "" ||
+	        (typeof value === "object" && Object.keys(value).length === 0)) {
+	        return; // 🚫 nichts speichern
+	    }
+
+
+	    if (typeof window.localStorage == "undefined" || disableLocalStorage) {
+	        setCookie(key, JSON.stringify(value), 365);
+	    } else {
+	        try {
 	            window.localStorage.setItem(key, JSON.stringify(value));
 	        } catch (e) {
-	            setCookie(key,JSON.stringify(value), 365);
+	            setCookie(key, JSON.stringify(value), 365);
 	        }
-		}	
+	    }
 	}
 
 	function getItem(key) {
@@ -765,7 +943,7 @@ function sp_init(config) {
 		}
 	}
 
-	function storeConsentResponse(conStatus, uuid, cDate, euconsent, vGrants, purposes){	    
+	function storeConsentResponse(conStatus, uuid, cDate, euconsent, vGrants, purposes, vendors, legIntV, legIntP){	  
 	    consentStatus = conStatus;
 	    setItem("consentStatus_"+propertyId, conStatus,365);
 	    consentUUID = uuid;
@@ -776,9 +954,14 @@ function sp_init(config) {
 	    setItem("euconsent-v2_"+propertyId, euconsent, 365);
 		setItem("vendorGrants_"+propertyId,vGrants,365);
 	    vendorGrants = vGrants;
-		setItem("consentedPurposes_"+propertyId,purposes ,365);
-	   	consentedPurposes = purposes
-
+		setItem("acceptedCategories_"+propertyId,purposes ,365);
+	   	acceptedCategories = purposes;
+	   	setItem("acceptedVendors_" + propertyId,vendors ,365);
+	   	acceptedVendors = vendors;
+	   	setItem("legIntCategories_"+propertyId, legIntP ,365);
+	   	legIntCategories = legIntP;
+	   	setItem("legIntVendors_"+propertyId,legIntV ,365);
+	   	legIntVendors = legIntV;
 	   	onConsentStatusReceived();
 	   	onConsentReady();	
 	}
@@ -790,9 +973,7 @@ function sp_init(config) {
  			}
 		}
 
-
-
-	    var baseUrl = baseEndpoint +'/wrapper/v2/consent-status';
+		var baseUrl = (isJSONp ? (proxyEndpoint + "/jsonp") : baseEndpoint) + '/wrapper/v2/consent-status';
 	    var params = {
 	      hasCsp: 'true',
 	      accountId: accountId,
@@ -806,16 +987,27 @@ function sp_init(config) {
 	      ch: cb,
 	      scriptVersion: scriptVersion,
 	      scriptType: scriptType
-	    
-	   };
+	   	};
 
+		if (isJSONp) {
+		    jsonpGet(buildUrl(baseUrl, params), "handleGetConsentStatusForJsonP");
+		}else{
+		    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
 
-	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
-
-	    if(typeof(res.consentStatusData.gdpr) !== undefined){
-	    	hasLocalData = true;
-	    	storeConsentResponse(res.consentStatusData.gdpr.consentStatus, res.consentStatusData.gdpr.consentUUID, res.consentStatusData.gdpr.dateCreated, res.consentStatusData.gdpr.euconsent, res.consentStatusData.gdpr.grants, res.consentStatusData.gdpr.categories);	     
-	    }
+		    if(typeof(res.consentStatusData.gdpr) !== undefined){
+		    	hasLocalData = true;
+		    	storeConsentResponse(
+		    		res.consentStatusData.gdpr.consentStatus, 
+		    		res.consentStatusData.gdpr.consentUUID, 
+		    		res.consentStatusData.gdpr.dateCreated, 
+		    		res.consentStatusData.gdpr.euconsent, 
+		    		res.consentStatusData.gdpr.grants, 
+		    		res.consentStatusData.gdpr.acceptedVendors,
+		    		res.consentStatusData.gdpr.legIntVendors,
+		    		res.consentStatusData.gdpr.legIntCategories
+		    	);	
+		    }
+		}
 	}
 
 	function createPostRequest(url){
@@ -832,7 +1024,6 @@ function sp_init(config) {
 
 		// Prüfen, ob secondScreenTimeOut definiert ist und einen gültigen Wert hat
 		if (typeof secondScreenTimeOut !== "undefined" && secondScreenTimeOut !== null) {
-			console.log(secondScreenTimeOut);
 
 			// Aktuelles Datum mit Uhrzeit im ISO-Format
 			const timestamp = new Date().toISOString();
@@ -840,8 +1031,6 @@ function sp_init(config) {
 			// Parameter ergänzen
 			additionalParams += "&timestamp=" + encodeURIComponent(timestamp);
 			additionalParams += "&second_screen_timeout=" + encodeURIComponent(secondScreenTimeOut);
-		} else {
-			console.log("noTimeout");
 		}
 
 		return _sp_.config.qrUrl + encodeURIComponent(_sp_.config.pmUrl +
@@ -856,12 +1045,19 @@ function sp_init(config) {
 	}
 
 	function getMessageData(){
-		 return JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
+		if(isJSONp){
+	    	var baseUrl = proxyEndpoint  + "/jsonp/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage;
+			jsonpGet(baseUrl, "handleMessageDataForJsonP");	
+		}else{
+			messageCategoryData =  JSON.parse(httpGet(baseEndpoint + "/consent/tcfv2/vendor-list/categories?siteId=" + propertyId + "&consentLanguage="+consentLanguage));
+			buildMessage();
+		}
 	}
+
 
 	function buildMessage() {
 		if(buildMessageComponents){
-			var data = getMessageData();
+			var data = messageCategoryData;
     		updateQrUrl(getQrCodeUrl());
 
 	
@@ -942,52 +1138,76 @@ function sp_init(config) {
 		}
 	}
 
+function toQueryParams(obj, prefix) {
+    const str = [];
+
+    for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+
+        const value = obj[key];
+        const k = prefix ? `${prefix}[${key}]` : key;
+
+        if (value !== null && typeof value === 'object') {
+            if (Array.isArray(value)) {
+                value.forEach((val, index) => {
+                    str.push(toQueryParams(val, `${k}[${index}]`));
+                });
+            } else {
+                str.push(toQueryParams(value, k));
+            }
+        } else {
+            str.push(`${encodeURIComponent(k)}=${encodeURIComponent(value)}`);
+        }
+    }
+
+    return str.join('&');
+}
 
 	function sendReportingData() {
- 
-	 	sampleUser(metaData.gdpr.sampleRate);
-	 	if(sampledUser === "true"){       
-	        var data = {
-	        	gdpr:{
-	        		applies: true,
-	        		consentStatus,
-	        		accountId: accountId,
-		        	euconsent : euConsentString,
-		        	mmsDomain: baseEndpoint,
-		        	propertyId: propertyId,
-		        	siteId: propertyId,
-		        	pubData: {},
-		        	uuid: consentUUID,
-		        	sampleRate: metaData.gdpr.sampleRate,
-		        	withSiteActions: true
-	        	}
+		sampleUser(metaData.gdpr.sampleRate);
+		if (sampledUser === "true") {
+			var data = {
+				gdpr: {
+					applies: true,
+					consentStatus,
+					accountId: accountId,
+					euconsent: euConsentString,
+					mmsDomain: baseEndpoint,
+					propertyId: propertyId,
+					siteId: propertyId,
+					pubData: {},
+					uuid: consentUUID,
+					sampleRate: metaData.gdpr.sampleRate,
+					withSiteActions: true
+				}
 			};
 
 			if (messageMetaData) {
-			    data.gdpr.categoryId = messageMetaData.categoryId;
-			    data.gdpr.subCategoryId = messageMetaData.subCategoryId;
-			    data.gdpr.msgId = messageMetaData.messageId;
-			    data.gdpr.prtnUUID = messageMetaData.prtnUUID;
+				data.gdpr.categoryId = messageMetaData.categoryId;
+				data.gdpr.subCategoryId = messageMetaData.subCategoryId;
+				data.gdpr.msgId = messageMetaData.messageId;
+				data.gdpr.prtnUUID = messageMetaData.prtnUUID;
 			}
 
-		    var url = baseEndpoint + '/wrapper/v2/pv-data?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
 
-			var req = createPostRequest(url);
-
-		    req.onreadystatechange = function() {
-		        if (req.readyState === 4 && req.status === 200) {
-		            var res = JSON.parse(req.responseText);
-		        }else{
-		            console.error('error:', req.responseText);
-		        }
-		    };
-
-		    req.send(JSON.stringify(data));
-	 	}  
-	}
+			if (isJSONp) {
+				useJsonpPostRequest("/wrapper/v2/pv-data", data, "handlePvResponse")
+			} else {
+				var fullUrl = baseEndpoint + '/wrapper/v2/pv-data?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
+				var req = createPostRequest(fullUrl);
+				req.onreadystatechange = function () {
+					if (req.readyState === 4 && req.status === 200) {
+						console.log("PV-Daten send:", req.responseText);
+					} else if (req.readyState === 4) {
+						onError("PV-ERROR:" + req.status, req.responseText);
+					}
+				};
+				req.send(JSON.stringify(data));
+			}
+		}
+	}	
 
 	function getMetaData(){
-		var baseUrl = baseEndpoint + '/wrapper/v2/meta-data';
 	    var params = {
 	      hasCsp: 'true',
 	      accountId: accountId,
@@ -1000,15 +1220,135 @@ function sp_init(config) {
 	      scriptType: scriptType
 	    };
 
-	    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
-	    metaData = res;
-
-	    onMetaDataReceived();
-
-	    setItem("metaData_"+propertyId, metaData,365);
+	    if(isJSONp){
+	    	var baseUrl = proxyEndpoint + '/jsonp/wrapper/v2/meta-data';
+			var res = jsonpGet(buildUrl(baseUrl, params), "handleMetaDataForJsonP");	
+		}else{
+			var baseUrl = baseEndpoint + '/wrapper/v2/meta-data';
+		    var res = JSON.parse(httpGet(buildUrl(baseUrl, params)));
+			if(res === undefined){
+			  onError("010", "MetaDataCall failed")
+			}else{
+				metaData = res;
+				gdprApplies = metaData.gdpr.applies;
+				onMetaDataReceived();
+			}
+		    setItem("metaData_"+propertyId, metaData,365);
+		}
 	}
 
+	function handleMetaDataForJsonP(data){
+		gdprApplies = data.gdpr.applies;
+ 
+        metaData = data;
+        setItem("metaData_" + propertyId, metaData, 365);
+        onMetaDataReceived(); // Event triggern
+	}
 
+	function handleMessageDataForJsonP(data){
+		messageCategoryData = data;
+		buildMessage();
+	}
+
+	function handleGetMessagesForJsonP(data){
+		localState = data.localState;
+	    setItem("localState_" + propertyId, JSON.parse(data.localState), 365);
+	    nonKeyedLocalState = data.nonKeyedLocalState;
+	    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(data.nonKeyedLocalState), 365);
+
+	    if (checkMessageJson(data)) {
+	        showElement(messageDiv);
+	    }
+	    else{
+			onConsentReady()
+		}
+	}
+
+	function handleGetConsentStatusForJsonP(data){
+	    if(typeof(data.consentStatusData.gdpr) !== undefined){
+	    	hasLocalData = true;
+
+	    storeConsentResponse(
+	    	data.consentStatusData.gdpr.consentStatus, 
+	    	data.consentStatusData.gdpr.uuid, 
+	    	data.consentStatusData.gdpr.dateCreated, 
+	    	data.consentStatusData.gdpr.euconsent, 
+	    	data.consentStatusData.gdpr.grants, 
+	    	data.consentStatusData.gdpr.acceptedCategories, 
+	    	data.consentStatusData.gdpr.acceptedVendors, 
+	    	data.consentStatusData.gdpr.legIntVendors, 
+	    	data.consentStatusData.gdpr.legIntCategories 
+		);
+
+
+ 	    }
+	}
+
+	function handlePvResponse(data){
+		return true; 
+	}
+
+	function handleJsonpAcceptAllCall(data) {
+	    if (data) {
+	        storeConsentResponse(
+	            consentStatus,
+	            data.uuid,
+	            data.dateCreated,
+	            euConsentString,
+	            vendorGrants,
+	            acceptedCategories,
+	            acceptedVendors,
+	            legIntVendors,
+	            legIntCategories
+	        );
+	    } else {
+	        onError("Invalid response in handleJsonpAcceptAllCall");
+	    }
+	}
+
+	function handleAcceptAllResponse(data) {
+	    if (data && data.gdpr) {
+	        sendAcceptAllRequest(data);
+	    } else {
+	    	 onError("Invalid response in handleAcceptAllResponse");
+	    }
+	}
+
+	function handleLiOnlyResponse(data){
+		sendGranularChoiceRequest(data);
+	}
+
+	function handleLiOnlyCall(data){
+	    storeConsentResponse(
+	    	data.consentStatus, 
+	    	data.uuid, 
+	    	data.dateCreated, 
+	    	data.euconsent, 
+	    	data.grants, 
+	    	data.acceptedCategories, 
+	    	data.acceptedVendors, 
+	    	data.legIntVendors, 
+	    	data.legIntCategories 
+		);	    	 
+	}
+
+	function handleRejectAllResponse(data){;
+		sendRejectAllChoiceRequest(data);
+	}
+
+	function handleRejectAllCall(data){
+		storeConsentResponse(
+	    	data.consentStatus, 
+	    	data.uuid, 
+	    	data.dateCreated, 
+	    	data.euconsent, 
+	    	data.grants, 
+	    	data.acceptedCategories, 
+	    	data.acceptedVendors, 
+	    	data.legIntVendors, 
+	    	data.legIntCategories 
+		);	    	
+	}
 
 })();
  
