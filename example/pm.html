@@ -45,6 +45,38 @@
       const authId = safeGetParameter("authid", "", "specialChars");
       const pmId = safeGetParameter("pmId", 1196474, "int");
 
+
+      const secondScreenTimeOut = safeGetParameter("second_screen_timeout", null, "int");
+      const timeout_timestamp = safeGetParameter("timestamp", null, "specialChars");
+      var timeout = false;
+
+      if (timeout_timestamp && secondScreenTimeOut !== null) {
+        var timestampDate = new Date(timeout_timestamp); // ISO-String zu Date
+        if (!isNaN(timestampDate.getTime())) {
+          var expiryTime = timestampDate.getTime() + secondScreenTimeOut;
+          var currentTime = new Date().getTime();
+
+          if (currentTime < expiryTime) {
+            isTimeoutValid = true;
+
+            // Optionale Verzögerung, wenn gewünscht:
+            var delay = expiryTime - currentTime;
+            console.log("Timeout gültig für noch " + delay + " ms");
+
+            // Falls du z.B. nach Ablauf automatisch etwas machen willst:
+            setTimeout(function() {
+              console.log("Timeout abgelaufen");
+              _sp_.destroyMessages();
+              document.getElementById("timeout").style.display = "block";
+            }, delay);
+          } else {
+            timeout = true ;
+            console.log("Timeout bereits abgelaufen");
+          }
+        }
+      }
+
+
       var pmActionActionTaken = false;
 
       window._sp_ = {
@@ -64,11 +96,17 @@
               pmActionActionTaken = true;
             },
             onConsentReady: function (consentUUID, euconsent) {
-              if (!pmActionActionTaken) {
-              	console.log(pmId);
-                _sp_.gdpr.loadPrivacyManagerModal(pmId);
-              } else {
-                document.getElementById("thank_you").style.display = "block";
+              console.log(timeout);
+              if(timeout){
+                document.getElementById("timeout").style.display = "block";
+
+              }else{
+                if (!pmActionActionTaken) {
+                  console.log(pmId);
+                  _sp_.gdpr.loadPrivacyManagerModal(pmId);
+                } else {
+                  document.getElementById("thank_you").style.display = "block";
+                }
               }
             }
           }
@@ -86,6 +124,12 @@
       If you'd like to make further changes, you can
       <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">click here</a>
       to resurface the privacy management options.
+    </div>
+
+    <div id="timeout" style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;">
+    <h2>Ihre Sitzung ist abgelaufen</h2>
+    Die Zeit zur Bestätigung Ihrer Auswahl ist abgelaufen.
+    Bitte scannen Sie den QR-Code auf Ihrem Fernseher erneut, um fortzufahren und Ihre Datenschutz-Einstellungen vorzunehmen.
     </div>
   </body>
 </html>
