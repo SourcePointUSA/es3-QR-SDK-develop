@@ -302,7 +302,7 @@ function sp_init(config) {
       // hideElement(pmDiv);
       // hideElement(messageDiv);
       getConsentStatus("true");
-      getMessages();
+      // getMessages();
     };
 
     _sp_.executeMessaging = executeMessagingFunc;
