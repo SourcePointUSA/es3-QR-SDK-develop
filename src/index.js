@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.0";
+var scriptVersion = "3.0.1";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -136,6 +136,8 @@ function sp_init(config) {
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
+		targetingParams = _sp_.config.targetingParams;
+
 
 	 	dateCreated = getCookieValue("consentDate_"+propertyId);
 	 	euConsentString = getItem("euconsent-v2_"+propertyId);
@@ -201,7 +203,9 @@ function sp_init(config) {
     }
 
     function extendSpObject() {
-    var executeMessagingFunc = function() {
+    var executeMessagingFunc = function(targeting) {
+    	if(targeting) targetingParams = targeting;
+    	console.log(targetingParams);
         hideElement(pmDiv);
         hideElement(messageDiv);
         getMessages();
@@ -209,6 +213,7 @@ function sp_init(config) {
     };
 
     var loadPrivacyManagerModalFunc = function() {
+    	updateQrUrl(getQrCodeUrl());
         showElement(pmDiv);
         hideElement(messageDiv);
     };
@@ -546,7 +551,7 @@ function sp_init(config) {
 		            gdpr: {
 		                consentStatus: consentStatus,
 		                hasLocalData: hasLocalData,
-		                targetingParams: {},
+		                targetingParams: targetingParams,
 		            }
 		        },
 		        clientMMSOrigin: baseEndpoint,
@@ -1012,7 +1017,7 @@ function sp_init(config) {
 
 	function createPostRequest(url){
 		var req = new XMLHttpRequest();
-	    req.open('POST', url, false);
+	    req.open('POST', url, true);
 	    req.setRequestHeader('accept', '*/*');
 	    req.setRequestHeader('accept-language', 'de,en;q=0.9');
 	    req.setRequestHeader('content-type', 'application/json');
@@ -1246,6 +1251,7 @@ function toQueryParams(obj, prefix) {
 	}
 
 	function handleMessageDataForJsonP(data){
+		console.log("handleMessageDataForJsonPiscalled")
 		messageCategoryData = data;
 		buildMessage();
 	}
