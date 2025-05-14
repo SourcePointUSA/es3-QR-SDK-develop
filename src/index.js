@@ -1134,7 +1134,7 @@ function sp_init(config) {
     return req;
   }
 
-  function getQrCodeUrl() {
+  function getQrCodeUrl(expiry) {
     let additionalParams = "";
 
     // Prüfen, ob secondScreenTimeOut definiert ist und einen gültigen Wert hat
@@ -1167,7 +1167,9 @@ function sp_init(config) {
           accountId +
           "&pmid=" +
           pmId +
-          additionalParams
+          additionalParams +
+          "&expiry=" +
+          expiry
       )
     );
   }
