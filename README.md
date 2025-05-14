@@ -35,11 +35,6 @@ Sourcepoint supports two methods that your organization can use to initialize th
 | Global Configuration    | Define a global configuration object (e.g., `window._sp_.config`) before the SDK is loaded. If present, the SDK automatically initializes. Review [Install with Global Configuration](#install-with-global-configuration) for more details. |
 | Explicit Initialization | If no global configuration is present, you can initialize the SDK later by calling `sp_init(config)`. Review [Install with Explicit Initialization](#install-with-explicit-initialization) for more details.                                |
 
-> Regardless of which initialization method your organization utilizes, you will also need to include the required Javascript and CSS files in your installation:
->
-> - rc-interaction.css
-> - rc-buttons.js
-> - rc-interaction.js
 
 ### Install with Global Configuration
 
