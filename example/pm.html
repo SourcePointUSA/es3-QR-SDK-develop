@@ -1,135 +1,378 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sourcepoint PM</title>
     <script type="text/javascript">
-      /**
-       * Liest einen GET-Parameter aus der URL und wendet ggf. eine Validierung oder Sanitization an.
-       *
-       * @param {string} key - Der Name des Parameters.
-       * @param {*} defaultValue - Standardwert, falls der Parameter fehlt oder ungültig ist.
-       * @param {string} filter - Art der Validierung: "int" für Integer oder "specialChars" für Zeichen-Sanitizing.
-       * @return {*} Der verarbeitete Parameterwert.
-       */
-      function safeGetParameter(key, defaultValue, filter = "specialChars") {
-      	console.log(key);
+    /**
+     * Liest einen GET-Parameter aus der URL und wendet ggf. eine Validierung oder Sanitization an.
+     */
+    function safeGetParameter(key, defaultValue, filter = "specialChars") {
         const params = new URLSearchParams(window.location.search);
         let value = params.get(key);
         if (value === null) {
-          return defaultValue;
+            return defaultValue;
         }
         if (filter === "int") {
-          const parsed = parseInt(value, 10);
-          return isNaN(parsed) ? defaultValue : parsed;
+            const parsed = parseInt(value, 10);
+            return isNaN(parsed) ? defaultValue : parsed;
         }
         if (filter === "specialChars") {
-          // Einfache Sanitization: Ersetzen spezieller HTML-Zeichen.
-          const map = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-          };
-          return value.replace(/[&<>"']/g, (m) => map[m]);
+            const map = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            };
+            return value.replace(/[&<>"']/g, m => map[m]);
         }
         return value;
-      }	
+    }
 
-      // Parameter aus der URL auslesen
-      const propertyId = safeGetParameter("propertyid", 0, "int");
-      const accountId = safeGetParameter("accountid", 0, "int");
-      const propertyHref = safeGetParameter("propertyhref", "", "specialChars");
-      const authId = safeGetParameter("authid", "", "specialChars");
-      const pmId = safeGetParameter("pmId", 1196474, "int");
+    // Parameter aus der URL
+    const propertyId = safeGetParameter("propertyid", 0, "int");
+    const accountId = safeGetParameter("accountid", 0, "int");
+    const propertyHref = safeGetParameter("propertyhref", "", "specialChars");
+    const authId = safeGetParameter("authid", "", "specialChars");
+    const pmId = safeGetParameter("pmid", 1196474, "int");
+    const secondScreenTimeOut = safeGetParameter("second_screen_timeout", null, "int");
+    const timeout_timestamp = safeGetParameter("timestamp", null, "specialChars");
+    const consentLanguage = safeGetParameter("consentlanguage", "en", "specialChars").toLowerCase();
+    let timeout = false;
 
-
-      const secondScreenTimeOut = safeGetParameter("second_screen_timeout", null, "int");
-      const timeout_timestamp = safeGetParameter("timestamp", null, "specialChars");
-      var timeout = false;
-
-      if (timeout_timestamp && secondScreenTimeOut !== null) {
-        var timestampDate = new Date(timeout_timestamp); // ISO-String zu Date
+    // Timeout-Logik
+    if (timeout_timestamp && secondScreenTimeOut !== null) {
+        let timestampDate = new Date(timeout_timestamp);
         if (!isNaN(timestampDate.getTime())) {
-          var expiryTime = timestampDate.getTime() + secondScreenTimeOut;
-          var currentTime = new Date().getTime();
-
-          if (currentTime < expiryTime) {
-            isTimeoutValid = true;
-
-            // Optionale Verzögerung, wenn gewünscht:
-            var delay = expiryTime - currentTime;
-            console.log("Timeout gültig für noch " + delay + " ms");
-
-            // Falls du z.B. nach Ablauf automatisch etwas machen willst:
-            setTimeout(function() {
-              console.log("Timeout abgelaufen");
-              _sp_.destroyMessages();
-              document.getElementById("timeout").style.display = "block";
-            }, delay);
-          } else {
-            timeout = true ;
-            console.log("Timeout bereits abgelaufen");
-          }
-        }
-      }
-
-
-      var pmActionActionTaken = false;
-
-      window._sp_ = {
-        config: {
-          accountId: accountId,
-          propertyHref: propertyHref,
-          baseEndpoint: "https://cdn.privacy-mgmt.com",
-          authId: authId,
-
-          targetingParams: {
-            mode: "nomessage"
-          },
-          gdpr: {},
-          events: {
-            onPrivacyManagerAction: function (pmData) {
-              console.log("onPrivacyManagerAction", pmData);
-              pmActionActionTaken = true;
-            },
-            onConsentReady: function (consentUUID, euconsent) {
-              console.log(timeout);
-              if(timeout){
-                document.getElementById("timeout").style.display = "block";
-
-              }else{
-                if (!pmActionActionTaken) {
-                  console.log(pmId);
-                  _sp_.gdpr.loadPrivacyManagerModal(pmId);
-                } else {
-                  document.getElementById("thank_you").style.display = "block";
-                }
-              }
+            let expiryTime = timestampDate.getTime() + secondScreenTimeOut;
+            let currentTime = new Date().getTime();
+            if (currentTime < expiryTime) {
+                let delay = expiryTime - currentTime;
+                setTimeout(() => {
+                    _sp_.destroyMessages();
+                    document.getElementById("timeout").style.display = "block";
+                }, delay);
+            } else {
+                timeout = true;
             }
-          }
         }
-      };
+    }
+
+    var pmActionActionTaken = false;
+
+    const translations = {
+        sq: {
+            thankYou: `Faleminderit për zgjedhjen tuaj. Ju lutemi kthehuni te televizori juaj dhe shtypni butonin për të rifreskuar CMP-në për të përfunduar preferencat tuaja. Nëse dëshironi të bëni ndryshime të mëtejshme, mund të <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klikoni këtu</a> për të rishfaqur opsionet e menaxhimit të privatësisë.`,
+            timeoutTitle: "Seanca juaj ka skaduar",
+            timeoutText: "Koha për të konfirmuar zgjedhjen tuaj ka skaduar. Ju lutemi skanoni përsëri kodin QR në televizorin tuaj për të vazhduar dhe për të vendosur preferencat tuaja të privatësisë."
+        },
+        ar: {
+            thankYou: `شكرًا لاختيارك. يرجى العودة إلى التلفزيون الخاص بك والضغط على زر إعادة تحميل CMP لإنهاء تفضيلاتك. إذا كنت ترغب في إجراء تغييرات إضافية، يمكنك <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">النقر هنا</a> لإعادة عرض خيارات إدارة الخصوصية.`,
+            timeoutTitle: "انتهت جلستك",
+            timeoutText: "انتهى الوقت المخصص لتأكيد اختيارك. يرجى مسح رمز الاستجابة السريعة (QR) على التلفزيون الخاص بك مرة أخرى للمتابعة وتعيين تفضيلات الخصوصية الخاصة بك."
+        },
+        eu: {
+            thankYou: `Eskerrik asko zure aukeragatik. Mesedez, itzuli zure telebistara eta sakatu CMP berriro kargatzeko botoia zure hobespenak amaitzeko. Aldaketa gehiago egin nahi badituzu, <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hemen klik egin</a> dezakezu pribatutasun kudeaketa aukerak berriro azaltzeko.`,
+            timeoutTitle: "Zure saioa iraungi da",
+            timeoutText: "Zure aukeraketa berresteko denbora amaitu da. Mesedez, eskaneatu berriro zure telebistako QR kodea jarraitzeko eta zure pribatutasun hobespenak ezartzeko."
+        },
+        bs: {
+            thankYou: `Hvala vam na vašem izboru. Molimo vas da se vratite na vaš televizor i pritisnete dugme za ponovno učitavanje CMP-a kako biste završili svoje postavke. Ako želite napraviti dodatne izmjene, možete <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknuti ovdje</a> da ponovo prikažete opcije upravljanja privatnošću.`,
+            timeoutTitle: "Vaša sesija je istekla",
+            timeoutText: "Vrijeme za potvrdu vašeg izbora je isteklo. Molimo vas da ponovo skenirate QR kod na vašem televizoru kako biste nastavili i postavili svoje postavke privatnosti."
+        },
+        bg: {
+            thankYou: `Благодарим ви за избора. Моля, върнете се към телевизора си и натиснете бутона за презареждане на CMP, за да финализирате предпочитанията си. Ако искате да направите допълнителни промени, можете да <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">кликнете тук</a>, за да отворите отново опциите за управление на поверителността.`,
+            timeoutTitle: "Вашата сесия е изтекла",
+            timeoutText: "Времето за потвърждение на вашия избор е изтекло. Моля, сканирайте отново QR кода на телевизора си, за да продължите и да зададете предпочитанията си за поверителност."
+        },
+        ca: {
+            thankYou: `Gràcies per la vostra elecció. Si us plau, torneu al vostre televisor i premeu el botó de recàrrega de CMP per finalitzar les vostres preferències. Si voleu fer més canvis, podeu <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">fer clic aquí</a> per tornar a mostrar les opcions de gestió de la privadesa.`,
+            timeoutTitle: "La vostra sessió ha caducat",
+            timeoutText: "El temps per confirmar la vostra selecció ha caducat. Si us plau, escanegeu de nou el codi QR al vostre televisor per continuar i establir les vostres preferències de privadesa."
+        },
+        zh: {
+            thankYou: `感谢您的选择。请返回您的电视并按下重新加载CMP按钮以完成您的偏好设置。如果您想进行进一步的更改，您可以<a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">点击这里</a>重新显示隐私管理选项。`,
+            timeoutTitle: "您的会话已过期",
+            timeoutText: "确认您的选择的时间已过。请再次扫描您电视上的二维码以继续并设置您的隐私偏好。"
+        },
+        "zh-hant": {
+            thankYou: `感謝您的選擇。請返回您的電視並按下重新加載CMP按鈕以完成您的偏好設置。如果您想進行進一步的更改，您可以<a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">點擊這裡</a>重新顯示隱私管理選項。`,
+            timeoutTitle: "您的會話已過期",
+            timeoutText: "確認您的選擇的時間已過。請再次掃描您電視上的二維碼以繼續並設置您的隱私偏好。"
+        },
+        hr: {
+            thankYou: `Hvala vam na vašem izboru. Molimo vas da se vratite na vaš televizor i pritisnete dugme za ponovno učitavanje CMP-a kako biste završili svoje postavke. Ako želite napraviti dodatne izmjene, možete <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknuti ovdje</a> da ponovo prikažete opcije upravljanja privatnošću.`,
+            timeoutTitle: "Vaša sesija je istekla",
+            timeoutText: "Vrijeme za potvrdu vašeg izbora je isteklo. Molimo vas da ponovo skenirate QR kod na vašem televizoru kako biste nastavili i postavili svoje postavke privatnosti."
+        },
+        cs: {
+            thankYou: `Děkujeme za vaši volbu. Prosím, vraťte se k vaší televizi a stiskněte tlačítko pro znovunačtení CMP, abyste dokončili své preference. Pokud chcete provést další změny, můžete <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknout zde</a> pro znovu zobrazení možností správy soukromí.`,
+            timeoutTitle: "Vaše relace vypršela",
+            timeoutText: "Čas na potvrzení vašeho výběru vypršel. Prosím, znovu naskenujte QR kód na vaší televizi, abyste pokračovali a nastavili své preference soukromí."
+        },
+        da: {
+            thankYou: `Tak for dit valg. Venligst vend tilbage til dit TV og tryk på genindlæs CMP-knappen for at afslutte dine præferencer. Hvis du ønsker at foretage yderligere ændringer, kan du <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klikke her</a> for at genåbne indstillingerne for privatlivsstyring.`,
+            timeoutTitle: "Din session er udløbet",
+            timeoutText: "Tiden til at bekræfte dit valg er udløbet. Venligst scan QR-koden på dit TV igen for at fortsætte og indstille dine privatlivspræferencer."
+        },
+        nl: {
+            thankYou: `Bedankt voor uw keuze. Ga alstublieft terug naar uw tv en druk op de knop om CMP opnieuw te laden om uw voorkeuren te voltooien. Als u verdere wijzigingen wilt aanbrengen, kunt u <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hier klikken</a> om de privacybeheeropties opnieuw te tonen.`,
+            timeoutTitle: "Uw sessie is verlopen",
+            timeoutText: "De tijd om uw selectie te bevestigen is verstreken. Scan alstublieft opnieuw de QR-code op uw tv om door te gaan en uw privacyvoorkeuren in te stellen."
+        },
+        en: {
+            thankYou: `Thank you for your choice. Please return to your TV and press the reload CMP button to finalize your preferences. If you'd like to make further changes, you can <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">click here</a> to resurface the privacy management options.`,
+            timeoutTitle: "Your session has expired",
+            timeoutText: "The time to confirm your selection has expired. Please scan the QR code on your TV again to continue and set your privacy preferences."
+        },
+        et: {
+            thankYou: `Aitäh teie valiku eest. Palun minge tagasi oma teleri juurde ja vajutage CMP uuesti laadimise nuppu, et oma eelistused lõpule viia. Kui soovite teha täiendavaid muudatusi, võite <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klõpsata siin</a>, et privaatsusseadete valikud uuesti kuvada.`,
+            timeoutTitle: "Teie seanss on aegunud",
+            timeoutText: "Teie valiku kinnitamise aeg on möödunud. Palun skannige oma teleril olev QR-kood uuesti, et jätkata ja määrata oma privaatsuseelistused."
+        },
+        fi: {
+            thankYou: `Kiitos valinnastasi. Palaa takaisin televisiosi ääreen ja paina CMP:n latauspainiketta viimeistelläksesi asetuksesi. Jos haluat tehdä lisämuutoksia, voit <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">napsauttaa tästä</a> avataksesi tietosuojanhallinnan asetukset uudelleen.`,
+            timeoutTitle: "Istuntosi on vanhentunut",
+            timeoutText: "Valintasi vahvistamisen aika on päättynyt. Skannaa QR-koodi televisiostasi uudelleen jatkaaksesi ja määrittääksesi tietosuoja-asetuksesi."
+        },
+        fr: {
+            thankYou: `Merci pour votre choix. Veuillez retourner à votre téléviseur et appuyer sur le bouton "recharger CMP" pour finaliser vos préférences. Si vous souhaitez apporter d'autres modifications, vous pouvez <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">cliquer ici</a> pour rouvrir les options de gestion de la confidentialité.`,
+            timeoutTitle: "Votre session a expiré",
+            timeoutText: "Le temps imparti pour confirmer votre sélection est écoulé. Veuillez scanner à nouveau le code QR sur votre téléviseur pour continuer et définir vos préférences de confidentialité."
+        },
+        gl: {
+            thankYou: `Grazas pola túa elección. Volve ao teu televisor e preme o botón de recargar CMP para rematar de configurar as túas preferencias. Se queres facer máis cambios, podes <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">premer aquí</a> para volver amosar as opcións de xestión da privacidade.`,
+            timeoutTitle: "A túa sesión expirou",
+            timeoutText: "O tempo para confirmar a túa selección expirou. Escanea de novo o código QR na túa TV para continuar e configurar as túas preferencias de privacidade."
+        },
+        de: {
+            thankYou: `Vielen Dank für Ihre Auswahl. Bitte kehren Sie zu Ihrem Fernseher zurück und drücken Sie die "CMP neu laden"-Taste, um Ihre Einstellungen abzuschließen. Wenn Sie weitere Änderungen vornehmen möchten, können Sie <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hier klicken</a>, um die Datenschutzoptionen erneut anzuzeigen.`,
+            timeoutTitle: "Ihre Sitzung ist abgelaufen",
+            timeoutText: "Die Zeit zur Bestätigung Ihrer Auswahl ist abgelaufen. Bitte scannen Sie den QR-Code auf Ihrem Fernseher erneut, um fortzufahren und Ihre Datenschutz-Einstellungen vorzunehmen."
+        },
+        ka: {
+            thankYou: `გმადლობთ თქვენი არჩევანისთვის. გთხოვთ, დაუბრუნდეთ თქვენს ტელევიზორს და დააჭირეთ CMP-ის ხელახლა ჩატვირთვის ღილაკს თქვენი პრეფერენციების დასასრულებლად. თუ გსურთ შემდგომი ცვლილებების შეტანა, შეგიძლიათ <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">დააწკაპუნოთ აქ</a> რათა ხელახლა იხილოთ კონფიდენციალურობის მენეჯმენტის პარამეტრები.`,
+            timeoutTitle: "თქვენი სესია დასრულდა",
+            timeoutText: "თქვენი არჩევანის დასადასტურებლად განკუთვნილი დრო ამოიწურა. გთხოვთ, ხელახლა დაასკანეროთ QR კოდი თქვენს ტელევიზორზე, რათა გააგრძელოთ და დააყენოთ კონფიდენციალურობის პრეფერენციები."
+        },
+        el: {
+            thankYou: `Σας ευχαριστούμε για την επιλογή σας. Παρακαλούμε επιστρέψτε στην τηλεόρασή σας και πατήστε το κουμπί επαναφόρτωσης του CMP για να ολοκληρώσετε τις προτιμήσεις σας. Αν θέλετε να κάνετε περαιτέρω αλλαγές, μπορείτε <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">να κάνετε κλικ εδώ</a> για να επαναπροβληθούν οι επιλογές διαχείρισης απορρήτου.`,
+            timeoutTitle: "Η συνεδρία σας έληξε",
+            timeoutText: "Ο χρόνος για την επιβεβαίωση της επιλογής σας έληξε. Σαρώστε ξανά τον κωδικό QR στην τηλεόρασή σας για να συνεχίσετε και να ορίσετε τις προτιμήσεις απορρήτου σας."
+        },
+        he: {
+            thankYou: `תודה על בחירתך. חזור אל הטלוויזיה ולחץ על כפתור הטעינה מחדש של CMP כדי להשלים את ההעדפות שלך. אם ברצונך לבצע שינויים נוספים, תוכל <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">ללחוץ כאן</a> כדי להציג מחדש את אפשרויות ניהול הפרטיות.`,
+            timeoutTitle: "ההפעלה שלך פגה",
+            timeoutText: "הזמן לאישור הבחירה שלך פג. אנא סרוק שוב את קוד ה-QR שעל המסך כדי להמשיך ולהגדיר את העדפות הפרטיות שלך."
+        },
+        hi: {
+            thankYou: `आपकी पसंद के लिए धन्यवाद। कृपया अपने टीवी पर वापस जाएं और अपनी पसंद को अंतिम रूप देने के लिए CMP को पुनः लोड करने वाला बटन दबाएं। यदि आप और बदलाव करना चाहते हैं, तो आप <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">यहाँ क्लिक कर सकते हैं</a> ताकि गोपनीयता प्रबंधन विकल्प फिर से प्रदर्शित हों।`,
+            timeoutTitle: "आपका सत्र समाप्त हो गया है",
+            timeoutText: "आपकी चयन की पुष्टि करने का समय समाप्त हो गया है। कृपया आगे बढ़ने और अपनी गोपनीयता प्राथमिकताओं को सेट करने के लिए अपने टीवी पर QR कोड को दोबारा स्कैन करें।"
+        },
+        hu: {
+            thankYou: `Köszönjük a választását. Kérjük, térjen vissza a tévéjéhez, és nyomja meg a CMP újratöltés gombját a beállítások véglegesítéséhez. Ha további módosításokat szeretne végrehajtani, <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kattintson ide</a>, hogy újra megjelenjenek az adatvédelmi beállítási lehetőségek.`,
+            timeoutTitle: "A munkamenet lejárt",
+            timeoutText: "A kiválasztás megerősítésére szánt idő lejárt. Kérjük, olvassa be újra a TV képernyőjén megjelenő QR-kódot a folytatáshoz és az adatvédelmi beállítások megadásához."
+        },
+        id: {
+            thankYou: `Terima kasih atas pilihan Anda. Silakan kembali ke TV Anda dan tekan tombol muat ulang CMP untuk menyelesaikan preferensi Anda. Jika Anda ingin melakukan perubahan lebih lanjut, Anda dapat <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klik di sini</a> untuk menampilkan kembali opsi pengelolaan privasi.`,
+            timeoutTitle: "Sesi Anda telah berakhir",
+            timeoutText: "Waktu untuk mengonfirmasi pilihan Anda telah habis. Silakan pindai kembali kode QR di TV Anda untuk melanjutkan dan mengatur preferensi privasi Anda."
+        },
+        it: {
+            thankYou: `Grazie per la tua scelta. Torna al tuo televisore e premi il pulsante per ricaricare CMP al fine di completare le tue preferenze. Se desideri apportare ulteriori modifiche, puoi <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">fare clic qui</a> per visualizzare nuovamente le opzioni di gestione della privacy.`,
+            timeoutTitle: "La tua sessione è scaduta",
+            timeoutText: "Il tempo per confermare la tua selezione è scaduto. Scansiona nuovamente il codice QR sul tuo televisore per continuare e impostare le tue preferenze sulla privacy."
+        },
+        ja: {
+            thankYou: `ご選択ありがとうございます。テレビに戻り、CMP再読み込みボタンを押して設定を完了してください。さらに変更を行いたい場合は、<a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">こちらをクリック</a>してプライバシー管理オプションを再表示できます。`,
+            timeoutTitle: "セッションの有効期限が切れました",
+            timeoutText: "選択を確認する時間が終了しました。続行してプライバシー設定を行うには、テレビのQRコードを再度スキャンしてください。"
+        },
+        ko: {
+            thankYou: `선택해 주셔서 감사합니다. TV로 돌아가 CMP 다시 불러오기 버튼을 눌러 설정을 완료해 주세요. 추가로 설정을 변경하고 싶으시다면 <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">여기를 클릭</a>하여 개인정보 관리 옵션을 다시 표시할 수 있습니다.`,
+            timeoutTitle: "세션이 만료되었습니다",
+            timeoutText: "선택을 확인할 수 있는 시간이 만료되었습니다. 계속 진행하고 개인정보 설정을 완료하려면 TV에 표시된 QR 코드를 다시 스캔해 주세요."
+        },
+        lv: {
+            thankYou: `Paldies par jūsu izvēli. Lūdzu, atgriezieties pie sava televizora un nospiediet CMP pārlādes pogu, lai pabeigtu savas izvēles. Ja vēlaties veikt papildu izmaiņas, varat <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">noklikšķināt šeit</a>, lai atkārtoti atvērtu privātuma iestatījumu opcijas.`,
+            timeoutTitle: "Jūsu sesija ir beigusies",
+            timeoutText: "Laiks jūsu izvēles apstiprināšanai ir beidzies. Lūdzu, vēlreiz noskenējiet QR kodu savā televizorā, lai turpinātu un iestatītu savus privātuma iestatījumus."
+        },
+        lt: {
+            thankYou: `Ačiū, kad pasirinkote. Grįžkite prie savo televizoriaus ir paspauskite CMP įkėlimo mygtuką, kad užbaigtumėte savo nustatymus. Jei norite atlikti papildomus pakeitimus, galite <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">spustelėti čia</a>, kad vėl atidarytumėte privatumo nustatymus.`,
+            timeoutTitle: "Jūsų sesija baigėsi",
+            timeoutText: "Jūsų pasirinkimo patvirtinimo laikas baigėsi. Nuskaitykite QR kodą televizoriuje dar kartą, kad galėtumėte tęsti ir nustatyti privatumo parinktis."
+        },
+        mk: {
+            thankYou: `Ви благодариме за вашиот избор. Ве молиме вратете се на вашиот телевизор и притиснете го копчето за повторно вчитување на CMP за да ги финализирате вашите поставки. Ако сакате да направите дополнителни измени, можете да <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">кликнете тука</a> за повторно прикажување на опции за управување со приватноста.`,
+            timeoutTitle: "Вашата сесија истече",
+            timeoutText: "Времето за потврда на вашиот избор истече. Ве молиме повторно скенирајте го QR-кодот на вашиот телевизор за да продолжите и да ги поставите вашите поставки за приватност."
+        },
+        ms: {
+            thankYou: `Terima kasih atas pilihan anda. Sila kembali ke TV anda dan tekan butang muat semula CMP untuk melengkapkan pilihan anda. Jika anda ingin membuat perubahan lanjut, anda boleh <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klik di sini</a> untuk memaparkan semula pilihan pengurusan privasi.`,
+            timeoutTitle: "Sesi anda telah tamat",
+            timeoutText: "Masa untuk mengesahkan pilihan anda telah tamat. Sila imbas semula kod QR di TV anda untuk meneruskan dan menetapkan keutamaan privasi anda."
+        },
+        mt: {
+            thankYou: `Grazzi talli għażilt. Jekk jogħġbok erġa' lura lejn it-TV tiegħek u agħfas il-buttuna tar-reload tal-CMP biex tlesti l-preferenzi tiegħek. Jekk tixtieq tagħmel aktar tibdil, tista’ <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">tikklikkja hawn</a> biex terġa’ turi l-għażliet tal-privatezza.`,
+            timeoutTitle: "Is-sezzjoni tiegħek skadiet",
+            timeoutText: "Il-ħin biex tikkonferma l-għażla tiegħek spiċċa. Jekk jogħġbok iċċekkja mill-ġdid il-kodiċi QR fuq it-TV tiegħek biex tkompli u tissettja l-preferenzi tal-privatezza tiegħek."
+        },
+        no: {
+            thankYou: `Takk for valget ditt. Gå tilbake til TV-en og trykk på CMP-oppdateringsknappen for å fullføre innstillingene dine. Hvis du vil gjøre flere endringer, kan du <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klikke her</a> for å vise personverninnstillingene på nytt.`,
+            timeoutTitle: "Økten din har utløpt",
+            timeoutText: "Tiden for å bekrefte valget ditt er utløpt. Vennligst skann QR-koden på TV-en din på nytt for å fortsette og angi personvernpreferansene dine."
+        },
+        pl: {
+            thankYou: `Dziękujemy za wybór. Wróć do telewizora i naciśnij przycisk ponownego załadowania CMP, aby zakończyć ustawienia. Jeśli chcesz wprowadzić dodatkowe zmiany, możesz <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknąć tutaj</a>, aby ponownie wyświetlić opcje zarządzania prywatnością.`,
+            timeoutTitle: "Twoja sesja wygasła",
+            timeoutText: "Czas na potwierdzenie wyboru minął. Zeskanuj ponownie kod QR na telewizorze, aby kontynuować i ustawić preferencje prywatności."
+        },
+        "pt-br": {
+            thankYou: `Obrigado por sua escolha. Por favor, volte para a sua TV e pressione o botão de recarregar CMP para finalizar suas preferências. Se você quiser fazer mais alterações, pode <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">clicar aqui</a> para reexibir as opções de gerenciamento de privacidade.`,
+            timeoutTitle: "Sua sessão expirou",
+            timeoutText: "O tempo para confirmar sua seleção expirou. Por favor, escaneie novamente o código QR na sua TV para continuar e definir suas preferências de privacidade."
+        },
+        "pt-pt": {
+            thankYou: `Obrigado pela sua escolha. Volte para a sua televisão e prima o botão de recarregar o CMP para finalizar as suas preferências. Se quiser fazer mais alterações, pode <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">clicar aqui</a> para mostrar novamente as opções de gestão de privacidade.`,
+            timeoutTitle: "A sua sessão expirou",
+            timeoutText: "O tempo para confirmar a sua seleção expirou. Por favor, leia novamente o código QR na sua televisão para continuar e definir as suas preferências de privacidade."
+        },
+        ro: {
+            thankYou: `Vă mulțumim pentru alegere. Vă rugăm să reveniți la televizor și să apăsați butonul de reîncărcare CMP pentru a finaliza preferințele. Dacă doriți să faceți modificări suplimentare, puteți <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">da click aici</a> pentru a reafișa opțiunile de gestionare a confidențialității.`,
+            timeoutTitle: "Sesiunea dumneavoastră a expirat",
+            timeoutText: "Timpul pentru confirmarea selecției a expirat. Vă rugăm să rescanați codul QR de pe televizorul dvs. pentru a continua și a seta preferințele de confidențialitate."
+        },
+        ru: {
+            thankYou: `Спасибо за ваш выбор. Пожалуйста, вернитесь к вашему телевизору и нажмите кнопку перезагрузки CMP, чтобы завершить настройку ваших предпочтений. Если вы хотите внести дополнительные изменения, вы можете <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">нажать здесь</a>, чтобы снова открыть параметры управления конфиденциальностью.`,
+            timeoutTitle: "Ваша сессия истекла",
+            timeoutText: "Время для подтверждения вашего выбора истекло. Пожалуйста, снова отсканируйте QR-код на вашем телевизоре, чтобы продолжить и установить ваши настройки конфиденциальности."
+        },
+        "sr-cyrl": {
+            thankYou: `Хвала вам на избору. Вратите се на свој телевизор и притисните дугме за поновно учитавање CMP-а како бисте довршили своја подешавања. Ако желите да унесете додатне промене, можете <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">кликнути овде</a> да поново прикажете опције управљања приватношћу.`,
+            timeoutTitle: "Ваша сесија је истекла",
+            timeoutText: "Време за потврду вашег избора је истекло. Поново скенирајте QR код на свом телевизору да бисте наставили и подесили своје преференције приватности."
+        },
+        "sr-latn": {
+            thankYou: `Hvala vam na izboru. Vratite se na svoj televizor i pritisnite dugme za ponovno učitavanje CMP-a kako biste dovršili svoja podešavanja. Ako želite da unesete dodatne promene, možete <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknuti ovde</a> da ponovo prikažete opcije upravljanja privatnošću.`,
+            timeoutTitle: "Vaša sesija je istekla",
+            timeoutText: "Vreme za potvrdu vašeg izbora je isteklo. Ponovo skenirajte QR kod na svom televizoru da biste nastavili i podesili svoje preferencije privatnosti."
+        },
+        sk: {
+            thankYou: `Ďakujeme za váš výber. Vráťte sa, prosím, k svojmu televízoru a stlačte tlačidlo na opätovné načítanie CMP, aby ste dokončili nastavenia. Ak chcete vykonať ďalšie zmeny, môžete <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknúť sem</a> a znovu zobraziť možnosti správy ochrany osobných údajov.`,
+            timeoutTitle: "Vaše sedenie vypršalo",
+            timeoutText: "Čas na potvrdenie vášho výberu vypršal. Naskenujte znova QR kód na televízore a pokračujte v nastavení preferencií ochrany osobných údajov."
+        },
+        sl: {
+            thankYou: `Hvala za vašo izbiro. Vrnite se na svoj televizor in pritisnite gumb za ponovno nalaganje CMP, da dokončate nastavitve. Če želite narediti dodatne spremembe, lahko <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">kliknete tukaj</a> za ponovni prikaz možnosti za upravljanje zasebnosti.`,
+            timeoutTitle: "Vaša seja je potekla",
+            timeoutText: "Čas za potrditev vaše izbire je potekel. Ponovno skenirajte kodo QR na vašem televizorju za nadaljevanje in nastavitev zasebnostnih nastavitev."
+        },
+        es: {
+            thankYou: `Gracias por su elección. Por favor, regrese a su televisor y presione el botón de recarga de CMP para finalizar sus preferencias. Si desea realizar más cambios, puede <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hacer clic aquí</a> para volver a mostrar las opciones de gestión de privacidad.`,
+            timeoutTitle: "Su sesión ha expirado",
+            timeoutText: "El tiempo para confirmar su selección ha expirado. Por favor, escanee nuevamente el código QR en su televisor para continuar y establecer sus preferencias de privacidad."
+        },
+        sw: {
+            thankYou: `Asante kwa kuchagua. Tafadhali rudi kwenye televisheni yako na bonyeza kitufe cha kupakia upya CMP ili kukamilisha mapendeleo yako. Ikiwa ungependa kufanya mabadiliko zaidi, unaweza <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">bonyeza hapa</a> kuonyesha tena chaguzi za usimamizi wa faragha.`,
+            timeoutTitle: "Kipindi chako kimeisha",
+            timeoutText: "Muda wa kuthibitisha chaguo lako umeisha. Tafadhali skani tena msimbo wa QR kwenye televisheni yako ili kuendelea na kuweka mapendeleo yako ya faragha."
+        },
+        sv: {
+            thankYou: `Tack för ditt val. Gå tillbaka till din TV och tryck på knappen för att ladda om CMP för att slutföra dina inställningar. Om du vill göra fler ändringar kan du <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">klicka här</a> för att visa sekretessinställningarna igen.`,
+            timeoutTitle: "Din session har gått ut",
+            timeoutText: "Tiden för att bekräfta ditt val har gått ut. Skanna QR-koden på din TV igen för att fortsätta och ange dina sekretessinställningar."
+        },
+        tl: {
+            thankYou: `Salamat sa iyong pagpili. Mangyaring bumalik sa iyong TV at pindutin ang reload CMP button upang tapusin ang iyong mga kagustuhan. Kung nais mong gumawa ng karagdagang pagbabago, maaari mong <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">i-click dito</a> upang muling ipakita ang mga opsyon sa pamamahala ng privacy.`,
+            timeoutTitle: "Nag-expire na ang iyong session",
+            timeoutText: "Wala ka nang oras upang kumpirmahin ang iyong pinili. Pakiscan muli ang QR code sa iyong TV upang magpatuloy at itakda ang iyong mga kagustuhan sa privacy."
+        },
+        th: {
+            thankYou: `ขอบคุณสำหรับการเลือกของคุณ กรุณากลับไปที่ทีวีของคุณและกดปุ่มโหลด CMP อีกครั้งเพื่อยืนยันการตั้งค่าของคุณ หากคุณต้องการเปลี่ยนแปลงเพิ่มเติม คุณสามารถ <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">คลิกที่นี่</a> เพื่อแสดงตัวเลือกการจัดการความเป็นส่วนตัวอีกครั้ง`,
+            timeoutTitle: "เซสชันของคุณหมดอายุแล้ว",
+            timeoutText: "หมดเวลาในการยืนยันตัวเลือกของคุณ กรุณาสแกนรหัส QR บนทีวีของคุณอีกครั้งเพื่อดำเนินการต่อและตั้งค่าความเป็นส่วนตัวของคุณ"
+        },
+        uk: {
+            thankYou: `Дякуємо за ваш вибір. Будь ласка, поверніться до телевізора та натисніть кнопку перезавантаження CMP, щоб завершити налаштування. Якщо ви хочете внести додаткові зміни, ви можете <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">натиснути тут</a>, щоб знову відобразити параметри керування конфіденційністю.`,
+            timeoutTitle: "Ваш сеанс завершено",
+            timeoutText: "Час для підтвердження вашого вибору минув. Будь ласка, відскануйте QR-код на телевізорі ще раз, щоб продовжити та встановити налаштування конфіденційності."
+        },
+        vi: {
+            thankYou: `Cảm ơn bạn đã lựa chọn. Vui lòng quay lại TV và nhấn nút tải lại CMP để hoàn tất tùy chọn của bạn. Nếu bạn muốn thay đổi thêm, bạn có thể <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">nhấp vào đây</a> để hiển thị lại các tùy chọn quản lý quyền riêng tư.`,
+            timeoutTitle: "Phiên của bạn đã hết hạn",
+            timeoutText: "Thời gian để xác nhận lựa chọn của bạn đã hết. Vui lòng quét lại mã QR trên TV để tiếp tục và thiết lập tùy chọn quyền riêng tư của bạn."
+        },
+        cy: {
+            thankYou: `Diolch am eich dewis. Ewch yn ôl i'ch teledu a gwasgwch y botwm ail-lwytho CMP i orffen eich dewisiadau. Os hoffech wneud newidiadau pellach, gallwch <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">clicio yma</a> i ailddangos yr opsiynau rheoli preifatrwydd.`,
+            timeoutTitle: "Mae eich sesiwn wedi dod i ben",
+            timeoutText: "Mae'r amser i gadarnhau eich dewis wedi dod i ben. Sganiwch y cod QR ar eich teledu unwaith eto i barhau a gosod eich dewisiadau preifatrwydd."
+        },
+        tr: {
+            thankYou: `Seçiminiz için teşekkür ederiz. Lütfen televizyonunuza dönün ve tercihlerinizi tamamlamak için CMP'yi yeniden yükle düğmesine basın. Daha fazla değişiklik yapmak isterseniz, gizlilik yönetimi seçeneklerini yeniden göstermek için <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">buraya tıklayabilirsiniz</a>.`,
+            timeoutTitle: "Oturumunuz sona erdi",
+            timeoutText: "Seçiminizi onaylamak için ayrılan süre doldu. Lütfen devam etmek ve gizlilik tercihlerinizi ayarlamak için televizyonunuzdaki QR kodunu tekrar tarayın."
+        }
+        // Weitere Sprachen können hier hinzugefügt werden
+    };
+    
+    const i18n = translations[consentLanguage] || translations["en"];
+
+    function localizeUI() {
+        const thankYouDiv = document.getElementById("thank_you");
+        if (thankYouDiv) {
+            thankYouDiv.innerHTML = i18n.thankYou;
+        }
+        const timeoutDiv = document.getElementById("timeout");
+        if (timeoutDiv) {
+            timeoutDiv.innerHTML = `
+            <h2>${i18n.timeoutTitle}</h2>
+            ${i18n.timeoutText}
+          `;
+        }
+    }
+
+    window._sp_ = {
+        config: {
+            accountId: accountId,
+            propertyHref: propertyHref,
+            baseEndpoint: "https://cdn.privacy-mgmt.com",
+            authId: authId,
+            targetingParams: { mode: "nomessage" },
+            consentLanguage: consentLanguage,
+            gdpr: {},
+            events: {
+                onPrivacyManagerAction: function(pmData) {
+                    pmActionActionTaken = true;
+                },
+                onConsentReady: function(consentUUID, euconsent) {
+                    localizeUI();
+                    if (timeout) {
+                        document.getElementById("timeout").style.display = "block";
+                    } else {
+                        if (!pmActionActionTaken) {
+                            _sp_.gdpr.loadPrivacyManagerModal(pmId);
+                        } else {
+                            document.getElementById("thank_you").style.display = "block";
+                        }
+                    }
+                }
+            }
+        }
+    };
     </script>
     <script src="https://cdn.privacy-mgmt.com/unified/wrapperMessagingWithoutDetection.js" async></script>
-  </head>
-  <body>
-    <div
-      id="thank_you"
-      style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;"
-    >
-      Thank you for your choice. Please return to your TV and press the reload CMP button to finalize your preferences.
-      If you'd like to make further changes, you can
-      <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">click here</a>
-      to resurface the privacy management options.
-    </div>
+</head>
 
-    <div id="timeout" style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;">
-    <h2>Ihre Sitzung ist abgelaufen</h2>
-    Die Zeit zur Bestätigung Ihrer Auswahl ist abgelaufen.
-    Bitte scannen Sie den QR-Code auf Ihrem Fernseher erneut, um fortzufahren und Ihre Datenschutz-Einstellungen vorzunehmen.
-    </div>
-  </body>
+<body>
+    <div id="thank_you" style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;"></div>
+    <div id="timeout" style="position: relative; text-align: center; vertical-align: middle; height: 100vh; padding-top: 40vh; display: none;"></div>
+</body>
+
 </html>

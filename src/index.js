@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.0";
+var scriptVersion = "3.0.1";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -149,6 +149,12 @@ function sp_init(config) {
     isJSONp = _sp_.config.isJSONp;
     proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");
 
+    accountId = _sp_.config.accountId;
+    consentLanguage = _sp_.config.consentLanguage || "EN";
+    isSPA = _sp_.config.isSPA;
+    isJSONp = _sp_.config.isJSONp;
+    proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");
+
     if (isJSONp) {
       if (typeof proxyEndpoint === "undefined") {
         onError("004", "jsonPProxyEndpoint is undefined");
@@ -164,6 +170,7 @@ function sp_init(config) {
 
     propertyHref = _sp_.config.propertyHref;
     propertyId = _sp_.config.propertyId;
+    targetingParams = _sp_.config.targetingParams;
 
     dateCreated = getCookieValue("consentDate_" + propertyId);
     euConsentString = getItem("euconsent-v2_" + propertyId);
@@ -224,17 +231,38 @@ function sp_init(config) {
     }
   }
 
-  window._sp_ = window._sp_ || {};
-  window._sp_.init = init;
+  baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
+  exposeGlobals = _sp_.config.exposeGlobals;
+  disableLocalStorage = _sp_.config.disableLocalStorage;
+  cookieDomain = _sp_.config.cookieDomain;
+  secondScreenTimeOut = _sp_.config.secondScreenTimeOut;
 
-  if (_sp_.config) {
-    init(_sp_.config);
-  } else {
-    console.log("No Global Config found – waiting for sp_init(config)...");
+  propertyHref = _sp_.config.propertyHref;
+  propertyId = _sp_.config.propertyId;
+
+  dateCreated = getCookieValue("consentDate_" + propertyId);
+  euConsentString = getItem("euconsent-v2_" + propertyId);
+
+  consentStatus = getItem("consentStatus_" + propertyId) || null;
+  localState = getItem("localState_" + propertyId);
+  metaData = getItem("metaData_" + propertyId);
+  vendorGrants = getItem("vendorGrants_" + propertyId);
+  nonKeyedLocalState = getItem("nonKeyedLocalState_" + propertyId);
+
+  acceptedCategories = getItem("acceptedCategories_" + propertyId);
+  acceptedVendors = getItem("acceptedVendors_" + propertyId);
+  legIntCategories = getItem("legIntCategories_" + propertyId);
+  legIntVendors = getItem("legIntVendors_" + propertyId);
+
+  if (!config) {
+    onError("005", "No Configuration Found");
+    return;
   }
 
   function extendSpObject() {
-    var executeMessagingFunc = function () {
+    var executeMessagingFunc = function (targeting) {
+      if (targeting) targetingParams = targeting;
+      console.log(targetingParams);
       hideElement(pmDiv);
       hideElement(messageDiv);
       getMessages();
@@ -242,6 +270,7 @@ function sp_init(config) {
     };
 
     var loadPrivacyManagerModalFunc = function () {
+      updateQrUrl(getQrCodeUrl());
       showElement(pmDiv);
       hideElement(messageDiv);
     };
@@ -581,7 +610,7 @@ function sp_init(config) {
           gdpr: {
             consentStatus: consentStatus,
             hasLocalData: hasLocalData,
-            targetingParams: {},
+            targetingParams: targetingParams,
           },
         },
         clientMMSOrigin: baseEndpoint,
@@ -1127,14 +1156,14 @@ function sp_init(config) {
 
   function createPostRequest(url) {
     var req = new XMLHttpRequest();
-    req.open("POST", url, false);
+    req.open("POST", url, true);
     req.setRequestHeader("accept", "*/*");
     req.setRequestHeader("accept-language", "de,en;q=0.9");
     req.setRequestHeader("content-type", "application/json");
     return req;
   }
 
-  function getQrCodeUrl(expiry) {
+  function getQrCodeUrl() {
     let additionalParams = "";
 
     // Prüfen, ob secondScreenTimeOut definiert ist und einen gültigen Wert hat
@@ -1167,9 +1196,7 @@ function sp_init(config) {
           accountId +
           "&pmid=" +
           pmId +
-          additionalParams +
-          "&expiry=" +
-          expiry
+          additionalParams
       )
     );
   }
@@ -1394,6 +1421,7 @@ function sp_init(config) {
   }
 
   function handleMessageDataForJsonP(data) {
+    console.log("handleMessageDataForJsonPiscalled");
     messageCategoryData = data;
     buildMessage();
   }
