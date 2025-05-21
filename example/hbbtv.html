@@ -114,18 +114,20 @@
  
 
     <script type="text/javascript">
-        _ssp_ = { 
+        _sp_ = { 
             config: {
                 accountId: 22,
                 propertyId: 37811,
                 propertyHref: "http://ott.es3",
-                //proxyEndpoint : "http://consent-proxy-prod.redbutton.de/",
+                //baseEndpoint: 'http://proxy.dev-24.de',
+                proxyEndpoint : "http://localhost:3000",
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "DE",
                 // authId: "1234-5678-9083-3452", // optional 
                 isSPA : true, 
                 isJSONp : false, 
+         
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
