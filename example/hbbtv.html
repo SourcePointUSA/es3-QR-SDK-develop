@@ -114,20 +114,18 @@
  
 
     <script type="text/javascript">
-        _sp_ = { 
+        _ssp_ = { 
             config: {
                 accountId: 22,
                 propertyId: 37811,
                 propertyHref: "http://ott.es3",
-                //baseEndpoint: 'http://proxy.dev-24.de',
-                proxyEndpoint : "http://localhost:3000",
+                //proxyEndpoint : "http://consent-proxy-prod.redbutton.de/",
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "DE",
                 // authId: "1234-5678-9083-3452", // optional 
                 isSPA : true, 
                 isJSONp : false, 
-         
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
@@ -192,6 +190,6 @@
         <script src="nativeMessaging.js" type="text/javascript"> </script>  
         <script type="text/javascript">
 
-        //sp_init(_ssp_.config)</script>
+        sp_init(_ssp_.config)</script>
  </body>
 </html>

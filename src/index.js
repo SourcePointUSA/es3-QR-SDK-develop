@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.1";
+var scriptVersion = "3.0.2";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -109,7 +109,6 @@ function sp_init(config) {
 	 	
     function init(config) {
     	_sp_.config = config;
-
         config = config || (_sp_ && _sp_.config);
        	window._sp_.config.events = window._sp_.config.events || {};
        	_sp_.version = scriptVersion;
@@ -119,13 +118,18 @@ function sp_init(config) {
 		consentLanguage = _sp_.config.consentLanguage || "EN";
 		isSPA = _sp_.config.isSPA;
 		isJSONp = _sp_.config.isJSONp;
-		proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");;
+
+
+		
 
 		if(isJSONp){
+			proxyEndpoint = _sp_.config.proxyEndpoint;
 			if (typeof proxyEndpoint === "undefined" ){
 				onError("004", "jsonPProxyEndpoint is undefined")
 				return
 			}
+			proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");
+
 		}
 
 		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
@@ -159,7 +163,6 @@ function sp_init(config) {
         	onError("005", "No Configuration Found")
             return;
         }
-
 
 		consentUUID = getCookieValue("consentUUID");
 		sampledUser = getCookieValue("sp_su");
@@ -205,7 +208,6 @@ function sp_init(config) {
     function extendSpObject() {
     var executeMessagingFunc = function(targeting) {
     	if(targeting) targetingParams = targeting;
-    	console.log(targetingParams);
         hideElement(pmDiv);
         hideElement(messageDiv);
         getMessages();
@@ -1251,7 +1253,6 @@ function toQueryParams(obj, prefix) {
 	}
 
 	function handleMessageDataForJsonP(data){
-		console.log("handleMessageDataForJsonPiscalled")
 		messageCategoryData = data;
 		buildMessage();
 	}
