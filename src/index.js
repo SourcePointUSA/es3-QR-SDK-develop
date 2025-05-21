@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.2";
+var scriptVersion = "3.0.3";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -108,8 +108,10 @@ function sp_init(config) {
 	var messageElementsAdded = false; 
 	 	
     function init(config) {
+
     	_sp_.config = config;
         config = config || (_sp_ && _sp_.config);
+        triggerEvent("initReceivedData",[config]);
        	window._sp_.config.events = window._sp_.config.events || {};
        	_sp_.version = scriptVersion;
 
@@ -269,6 +271,13 @@ function sp_init(config) {
         deleteItem("legIntVendors_" + propertyId);
         deleteItem("legIntCategories_" + propertyId);
         deleteCookie("sp_su");
+		hideElement(pmDiv);
+        hideElement(messageDiv);
+
+        var  consentUUID, sampledUser, authId,  
+	dateCreated, euConsentString, 
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants = null;
+
         return true;
     };
 
@@ -305,6 +314,8 @@ function sp_init(config) {
 	    window.clearUserData = clearUserDataFunc;
 	    window.updateConsentStatus = updateConsentStatusFunc;
 	}   
+
+	triggerEvent("spObjectReady");
 
   
 }
@@ -739,7 +750,8 @@ function sp_init(config) {
 		    var req = createPostRequest(url);
 		   
 		    req.onreadystatechange = function() {
-		        if (req.readyState === 4 && req.status === 200) {		        	
+	        	if (req.readyState !== 4) return;
+    			if (req.status === 200) {	        	
 		            var res = JSON.parse(req.responseText);
 
 		            storeConsentResponse(
@@ -800,7 +812,8 @@ function sp_init(config) {
 	    	var req = createPostRequest(url);
 	    	
 	    	req.onreadystatechange = function() {
-	        	if (req.readyState === 4 && req.status === 200) {
+	        	if (req.readyState !== 4) return;
+    			if (req.status === 200) {
 	            	var res = JSON.parse(req.responseText);
 	            	storeConsentResponse(
 	            		res.consentStatus, 
@@ -863,7 +876,8 @@ function sp_init(config) {
 	        var url = baseEndpoint + endpoint + "?hasCsp=true&env=prod&ch=" + cb + "&scriptVersion=" + scriptVersion + "&scriptType=" + scriptType;
 	        var req = createPostRequest(url);
 	        req.onreadystatechange = function() {
-	            if (req.readyState === 4 && req.status === 200) {
+	            if (req.readyState !== 4) return;
+    			if (req.status === 200) {
 	                var res = JSON.parse(req.responseText);
 	                storeConsentResponse(
 	                	consentdata.gdpr.consentStatus, 
@@ -877,7 +891,8 @@ function sp_init(config) {
 				    	consentdata.gdpr.legIntCategories
 				    );
 	            } else {
-	                onError('error:', req.responseText);
+	            	console.log("onreadystatechange error")
+	                onError('error:', req);
 	            }
 	        };
 	        req.send(JSON.stringify(data));
@@ -1203,7 +1218,8 @@ function toQueryParams(obj, prefix) {
 				var fullUrl = baseEndpoint + '/wrapper/v2/pv-data?hasCsp=true&env=prod&ch='+cb+'&scriptVersion='+scriptVersion+'&scriptType='+scriptType;
 				var req = createPostRequest(fullUrl);
 				req.onreadystatechange = function () {
-					if (req.readyState === 4 && req.status === 200) {
+					if (req.readyState !== 4) return;
+    				if (req.status === 200) {
 						console.log("PV-Daten send:", req.responseText);
 					} else if (req.readyState === 4) {
 						onError("PV-ERROR:" + req.status, req.responseText);

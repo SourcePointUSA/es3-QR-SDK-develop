@@ -119,13 +119,13 @@
                 accountId: 22,
                 propertyId: 37811,
                 propertyHref: "http://ott.es3",
-                //proxyEndpoint : "http://consent-proxy-prod.redbutton.de/",
+                proxyEndpoint : "http://consent-proxy-prod.redbutton.de/",
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "DE",
                 // authId: "1234-5678-9083-3452", // optional 
                 isSPA : true, 
-                isJSONp : false, 
+                isJSONp : true, 
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
@@ -183,6 +183,14 @@
                     onError : function(errorCode, message){
                         console.error("OnError: ",errorCode, message);
                     },
+                    initReceivedData : function(config){
+                        console.log("initReceivedData");
+                        console.log(config);
+                    },
+                    spObjectReady : function(){
+                        console.log("spObjectReady");
+            
+                    }
                 }
             }
         }
