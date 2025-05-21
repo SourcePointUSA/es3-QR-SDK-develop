@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.3";
+var scriptVersion = "3.0.4";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -274,9 +274,20 @@ function sp_init(config) {
 		hideElement(pmDiv);
         hideElement(messageDiv);
 
-        var  consentUUID, sampledUser, authId,  
-	dateCreated, euConsentString, 
-	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants = null;
+	    consentDate = null;
+	    consentUUID  = null 
+	    sampledUser= null;
+	    authId= null;  
+		dateCreated= null;
+		euConsentString= null;
+		consentStatus= null;
+		acceptedCategories= null;
+		legIntCategories= null;
+		legIntVendors= null;
+		acceptedVendors= null;
+		nonKeyedLocalState= null;
+		vendorGrants= null;
+		localState = null;
 
         return true;
     };
@@ -530,7 +541,7 @@ function sp_init(config) {
 
 
 	function shouldCallMessagesEndpoint(){
-		var shouldCall = false;
+		var shouldCall = false
 
 		if ((consentStatus === null) || (!consentStatus.consentedAll)) {
 			return true
@@ -891,7 +902,6 @@ function sp_init(config) {
 				    	consentdata.gdpr.legIntCategories
 				    );
 	            } else {
-	            	console.log("onreadystatechange error")
 	                onError('error:', req);
 	            }
 	        };
@@ -1096,7 +1106,7 @@ function sp_init(config) {
 		    // Template and containers
 		    var stackTemplate = document.getElementById("stack_template");
 		    if (!stackTemplate) {
-		        console.error("Template with ID 'stack_template' not found.");
+		        onError("099", "Template with ID 'stack_template' not found.");
 		        return;
 		    }
 		    var templateHTML = stackTemplate.innerHTML;
