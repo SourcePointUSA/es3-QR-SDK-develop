@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.4";
+var scriptVersion = "3.0.5";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -70,6 +70,7 @@ function sp_init(config) {
 
 (function(){
 
+
 	window.handleMetaDataForJsonP = handleMetaDataForJsonP;
 	window.handleMessageDataForJsonP = handleMessageDataForJsonP;
 	window.handleGetMessagesForJsonP = handleGetMessagesForJsonP;
@@ -96,11 +97,16 @@ function sp_init(config) {
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
 	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData;
 
+	var isMetaDataAvailable = false,
+    isSpObjectReady = false,
+    isReadyToExectute = false;
+
+
+
 	var hasLocalData = false;
 	var	granularStatus = null;
 	var	consentAllRef = null;
 	var cb = Math.floor(Math.random() * 1000000);
-
 
 	var messageId = null;
 	var messageMetaData = null; 
@@ -108,21 +114,18 @@ function sp_init(config) {
 	var messageElementsAdded = false; 
 	 	
     function init(config) {
-
     	_sp_.config = config;
         config = config || (_sp_ && _sp_.config);
         triggerEvent("initReceivedData",[config]);
-       	window._sp_.config.events = window._sp_.config.events || {};
+       	_sp_.config.events = _sp_.config.events || {};
        	_sp_.version = scriptVersion;
+
 
 
        	accountId = _sp_.config.accountId;
 		consentLanguage = _sp_.config.consentLanguage || "EN";
 		isSPA = _sp_.config.isSPA;
 		isJSONp = _sp_.config.isJSONp;
-
-
-		
 
 		if(isJSONp){
 			proxyEndpoint = _sp_.config.proxyEndpoint;
@@ -144,7 +147,6 @@ function sp_init(config) {
 		propertyId = _sp_.config.propertyId;
 		targetingParams = _sp_.config.targetingParams;
 
-
 	 	dateCreated = getCookieValue("consentDate_"+propertyId);
 	 	euConsentString = getItem("euconsent-v2_"+propertyId);
 
@@ -154,17 +156,17 @@ function sp_init(config) {
 		vendorGrants = getItem("vendorGrants_"+propertyId);
 		nonKeyedLocalState = getItem("nonKeyedLocalState_"+propertyId);
 
-
 		acceptedCategories = getItem("acceptedCategories_"+propertyId);
 	    acceptedVendors = getItem("acceptedVendors_"+propertyId);
 		legIntCategories = getItem("legIntCategories_"+propertyId);
 		legIntVendors = getItem("legIntVendors_"+propertyId);
        
-
         if (!config) {
         	onError("005", "No Configuration Found")
             return;
         }
+
+        getMetaData();
 
 		consentUUID = getCookieValue("consentUUID");
 		sampledUser = getCookieValue("sp_su");
@@ -180,7 +182,7 @@ function sp_init(config) {
 	        setCookie("authId", authId, 365);
 	    } 	
 
-		getMetaData();
+
 
 		messageDiv = _sp_.config.messageDiv;
 		pmDiv = _sp_.config.pmDiv;
@@ -196,6 +198,8 @@ function sp_init(config) {
 	    if(!messageElementsAdded){
 	   		getMessageData();
 	    }
+
+	    isReadyToExecute()
     }
 
     window._sp_ = window._sp_ || {};
@@ -208,128 +212,127 @@ function sp_init(config) {
     }
 
     function extendSpObject() {
-    var executeMessagingFunc = function(targeting) {
-    	if(targeting) targetingParams = targeting;
-        hideElement(pmDiv);
-        hideElement(messageDiv);
-        getMessages();
-        console.log("Messaging executed!");
-    };
+	    var executeMessagingFunc = function(targeting) {
+	    	if(targeting) targetingParams = targeting;
+	        hideElement(pmDiv);
+	        hideElement(messageDiv);
+	        getMessages();
+	        onInfo("Messaging executed!");
+	    };
 
-    var loadPrivacyManagerModalFunc = function() {
-    	updateQrUrl(getQrCodeUrl());
-        showElement(pmDiv);
-        hideElement(messageDiv);
-    };
+	    var loadPrivacyManagerModalFunc = function() {
+	    	updateQrUrl(getQrCodeUrl());
+	        showElement(pmDiv);
+	        hideElement(messageDiv);
+	    };
 
-    var acceptAllFunc = function() {
-        hideElement(pmDiv);
-        hideElement(messageDiv);
-        acceptAll();
-    };
+	    var acceptAllFunc = function() {
+	        hideElement(pmDiv);
+	        hideElement(messageDiv);
+	        acceptAll();
+	    };
 
-    var continueFunc = function() {
-        hideElement(pmDiv);
-        hideElement(messageDiv);
-        liOnly();
-    };
+	    var continueFunc = function() {
+	        hideElement(pmDiv);
+	        hideElement(messageDiv);
+	        liOnly();
+	    };
 
-    var rejectFunc = function() {
-        hideElement(pmDiv);
-        hideElement(messageDiv);
-        rejectAll();
-    };
+	    var rejectFunc = function() {
+	        hideElement(pmDiv);
+	        hideElement(messageDiv);
+	        rejectAll();
+	    };
 
-    var consentStatusFunc = function() {
-        return consentStatus;
-    };
+	    var consentStatusFunc = function() {
+	        return consentStatus;
+	    };
 
-    var getTcStringFunc = function() {
-        return euConsentString;
-    };
+	    var getTcStringFunc = function() {
+	        return euConsentString;
+	    };
 
-    var getQrCodeUrlFunc = function() {
-        return getQrCodeUrl();
-    };
+	    var getQrCodeUrlFunc = function() {
+	        return getQrCodeUrl();
+	    };
 
-    var getMessageDataFunc = function() {
-        return messageCategoryData;
-    };
+	    var getMessageDataFunc = function() {
+	        return messageCategoryData;
+	    };
 
-    var clearUserDataFunc = function() {
-        deleteCookie("authId");
-        deleteCookie("consentUUID");
-        deleteItem("metaData_" + propertyId);
-        deleteCookie("consentDate_" + propertyId);
-        deleteItem("consentStatus_" + propertyId);
-        deleteItem("euconsent-v2_" + propertyId);
-        deleteItem("localState_" + propertyId);
-        deleteItem("nonKeyedLocalState_" + propertyId);
-        deleteItem("vendorGrants_" + propertyId);
-        deleteItem("acceptedVendors_" + propertyId);
-        deleteItem("acceptedCategories_" + propertyId);
-        deleteItem("legIntVendors_" + propertyId);
-        deleteItem("legIntCategories_" + propertyId);
-        deleteCookie("sp_su");
-		hideElement(pmDiv);
-        hideElement(messageDiv);
+	    var clearUserDataFunc = function() {
+	        deleteCookie("authId");
+	        deleteCookie("consentUUID");
+	        deleteItem("metaData_" + propertyId);
+	        deleteCookie("consentDate_" + propertyId);
+	        deleteItem("consentStatus_" + propertyId);
+	        deleteItem("euconsent-v2_" + propertyId);
+	        deleteItem("localState_" + propertyId);
+	        deleteItem("nonKeyedLocalState_" + propertyId);
+	        deleteItem("vendorGrants_" + propertyId);
+	        deleteItem("acceptedVendors_" + propertyId);
+	        deleteItem("acceptedCategories_" + propertyId);
+	        deleteItem("legIntVendors_" + propertyId);
+	        deleteItem("legIntCategories_" + propertyId);
+	        deleteCookie("sp_su");
+			hideElement(pmDiv);
+	        hideElement(messageDiv);
 
-	    consentDate = null;
-	    consentUUID  = null 
-	    sampledUser= null;
-	    authId= null;  
-		dateCreated= null;
-		euConsentString= null;
-		consentStatus= null;
-		acceptedCategories= null;
-		legIntCategories= null;
-		legIntVendors= null;
-		acceptedVendors= null;
-		nonKeyedLocalState= null;
-		vendorGrants= null;
-		localState = null;
+		    consentDate = null;
+		    consentUUID  = null 
+		    sampledUser= null;
+		    authId= null;  
+			dateCreated= null;
+			euConsentString= null;
+			consentStatus= null;
+			acceptedCategories= null;
+			legIntCategories= null;
+			legIntVendors= null;
+			acceptedVendors= null;
+			nonKeyedLocalState= null;
+			vendorGrants= null;
+			localState = null;
 
-        return true;
-    };
+	        return true;
+	    };
 
-    var updateConsentStatusFunc = function() {
-        hideElement(pmDiv);
-        hideElement(messageDiv);
-        getConsentStatus("true");
-        getMessages();
-    };
-  
-    _sp_.executeMessaging = executeMessagingFunc;
-    _sp_.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
-    _sp_.acceptAll = acceptAllFunc;
-    _sp_.continue = continueFunc;
-    _sp_.reject = rejectFunc;
-    _sp_.consentStatus = consentStatusFunc;
-    _sp_.getTcString = getTcStringFunc;
-    _sp_.getQrCodeUrl = getQrCodeUrlFunc;
-    _sp_.getMessageData = getMessageDataFunc;
-    _sp_.clearUserData = clearUserDataFunc;
-    _sp_.updateConsentStatus = updateConsentStatusFunc;
+	    var updateConsentStatusFunc = function() {
+	        hideElement(pmDiv);
+	        hideElement(messageDiv);
+	        getConsentStatus("true");
+	        getMessages();
+	    };
+	  
+	    _sp_.executeMessaging = executeMessagingFunc;
+	    _sp_.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
+	    _sp_.acceptAll = acceptAllFunc;
+	    _sp_.continue = continueFunc;
+	    _sp_.reject = rejectFunc;
+	    _sp_.consentStatus = consentStatusFunc;
+	    _sp_.getTcString = getTcStringFunc;
+	    _sp_.getQrCodeUrl = getQrCodeUrlFunc;
+	    _sp_.getMessageData = getMessageDataFunc;
+	    _sp_.clearUserData = clearUserDataFunc;
+	    _sp_.updateConsentStatus = updateConsentStatusFunc;
 
 
-	if(exposeGlobals === true){
-		window.executeMessaging = executeMessagingFunc;
-	    window.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
-	    window.acceptAll = acceptAllFunc;
-	    window.spContinue = continueFunc; 
-	    window.reject = rejectFunc;
-	    window.consentStatus = consentStatusFunc;
-	    window.getTcString = getTcStringFunc;
-	    window.getQrCodeUrl = getQrCodeUrlFunc;
-	    window.getMessageData = getMessageDataFunc;
-	    window.clearUserData = clearUserDataFunc;
-	    window.updateConsentStatus = updateConsentStatusFunc;
-	}   
+		if(exposeGlobals === true){
+			window.executeMessaging = executeMessagingFunc;
+		    window.loadPrivacyManagerModal = loadPrivacyManagerModalFunc;
+		    window.acceptAll = acceptAllFunc;
+		    window.spContinue = continueFunc; 
+		    window.reject = rejectFunc;
+		    window.consentStatus = consentStatusFunc;
+		    window.getTcString = getTcStringFunc;
+		    window.getQrCodeUrl = getQrCodeUrlFunc;
+		    window.getMessageData = getMessageDataFunc;
+		    window.clearUserData = clearUserDataFunc;
+		    window.updateConsentStatus = updateConsentStatusFunc;
+		}   
 
-	triggerEvent("spObjectReady");
-
-  
-}
+		triggerEvent("spObjectReady");
+		isSpObjectReady = true;
+	}
 
 	
 	function onConsentReady(){
@@ -341,6 +344,7 @@ function sp_init(config) {
 	}
 
 	function onMetaDataReceived(){
+		isMetaDataAvailable = true;
 		triggerEvent('onMetaDataReceived', [metaData]);
 	}
 
@@ -360,21 +364,21 @@ function sp_init(config) {
 		triggerEvent('secondLayerShown');
 	}
 
-
 	function firstLayerClosed(){
 		triggerEvent('firstLayerClosed');
 	}
-
 
 	function secondLayerClosed(){
 		triggerEvent('secondLayerClosed');
 	}
 
-
 	function onError(errorCode, errorText, errorData){
 		triggerEvent('onError' , [errorCode, errorText, errorData]);
 	}
 
+	function onInfo( infoText, infoData){
+		triggerEvent('onInfo' , [infoText, infoData]);
+	}
 
 	function showElement(elementId) {
 	    var element = document.getElementById(elementId); 
@@ -400,7 +404,6 @@ function sp_init(config) {
 	        }
 	    }
 	}
-
 	 
 	function httpGet(theUrl) {
 	    var xmlHttp = new XMLHttpRequest();
@@ -520,7 +523,6 @@ function sp_init(config) {
 	    }
 
  	    document.cookie = name + "=" + encodeURIComponent(value) + expires +  domain + "; path=/";
-
 	}
 
 	function checkMessageJson(response) {
@@ -546,7 +548,6 @@ function sp_init(config) {
 		if ((consentStatus === null) || (!consentStatus.consentedAll)) {
 			return true
 		}
-
 		
 		if (dateCreated !== null) {
 		    if (compareDates(metaData.gdpr.legalBasisChangeDate, dateCreated) === 1) {
@@ -1170,30 +1171,29 @@ function sp_init(config) {
 		}
 	}
 
-function toQueryParams(obj, prefix) {
-    const str = [];
+	function toQueryParams(obj, prefix) {
+	    const str = [];
 
-    for (const key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
+	    for (const key in obj) {
+	        if (!obj.hasOwnProperty(key)) continue;
 
-        const value = obj[key];
-        const k = prefix ? `${prefix}[${key}]` : key;
+	        const value = obj[key];
+	        const k = prefix ? `${prefix}[${key}]` : key;
 
-        if (value !== null && typeof value === 'object') {
-            if (Array.isArray(value)) {
-                value.forEach((val, index) => {
-                    str.push(toQueryParams(val, `${k}[${index}]`));
-                });
-            } else {
-                str.push(toQueryParams(value, k));
-            }
-        } else {
-            str.push(`${encodeURIComponent(k)}=${encodeURIComponent(value)}`);
-        }
-    }
-
-    return str.join('&');
-}
+	        if (value !== null && typeof value === 'object') {
+	            if (Array.isArray(value)) {
+	                value.forEach((val, index) => {
+	                    str.push(toQueryParams(val, `${k}[${index}]`));
+	                });
+	            } else {
+	                str.push(toQueryParams(value, k));
+	            }
+	        } else {
+	            str.push(`${encodeURIComponent(k)}=${encodeURIComponent(value)}`);
+	        }
+	    }
+	    return str.join('&');
+	}
 
 	function sendReportingData() {
 		sampleUser(metaData.gdpr.sampleRate);
@@ -1221,7 +1221,6 @@ function toQueryParams(obj, prefix) {
 				data.gdpr.prtnUUID = messageMetaData.prtnUUID;
 			}
 
-
 			if (isJSONp) {
 				useJsonpPostRequest("/wrapper/v2/pv-data", data, "handlePvResponse")
 			} else {
@@ -1230,7 +1229,7 @@ function toQueryParams(obj, prefix) {
 				req.onreadystatechange = function () {
 					if (req.readyState !== 4) return;
     				if (req.status === 200) {
-						console.log("PV-Daten send:", req.responseText);
+						onInfo("PV-Daten send:", req.responseText);
 					} else if (req.readyState === 4) {
 						onError("PV-ERROR:" + req.status, req.responseText);
 					}
@@ -1241,6 +1240,7 @@ function toQueryParams(obj, prefix) {
 	}	
 
 	function getMetaData(){
+  
 	    var params = {
 	      hasCsp: 'true',
 	      accountId: accountId,
@@ -1254,7 +1254,7 @@ function toQueryParams(obj, prefix) {
 	    };
 
 	    if(isJSONp){
-	    	var baseUrl = proxyEndpoint + '/jsonp/wrapper/v2/meta-data';
+ 	    	var baseUrl = proxyEndpoint + '/jsonp/wrapper/v2/meta-data';
 			var res = jsonpGet(buildUrl(baseUrl, params), "handleMetaDataForJsonP");	
 		}else{
 			var baseUrl = baseEndpoint + '/wrapper/v2/meta-data';
@@ -1271,8 +1271,7 @@ function toQueryParams(obj, prefix) {
 	}
 
 	function handleMetaDataForJsonP(data){
-		gdprApplies = data.gdpr.applies;
- 
+ 		gdprApplies = data.gdpr.applies;
         metaData = data;
         setItem("metaData_" + propertyId, metaData, 365);
         onMetaDataReceived(); // Event triggern
@@ -1300,20 +1299,17 @@ function toQueryParams(obj, prefix) {
 	function handleGetConsentStatusForJsonP(data){
 	    if(typeof(data.consentStatusData.gdpr) !== undefined){
 	    	hasLocalData = true;
-
-	    storeConsentResponse(
-	    	data.consentStatusData.gdpr.consentStatus, 
-	    	data.consentStatusData.gdpr.uuid, 
-	    	data.consentStatusData.gdpr.dateCreated, 
-	    	data.consentStatusData.gdpr.euconsent, 
-	    	data.consentStatusData.gdpr.grants, 
-	    	data.consentStatusData.gdpr.acceptedCategories, 
-	    	data.consentStatusData.gdpr.acceptedVendors, 
-	    	data.consentStatusData.gdpr.legIntVendors, 
-	    	data.consentStatusData.gdpr.legIntCategories 
-		);
-
-
+		    storeConsentResponse(
+		    	data.consentStatusData.gdpr.consentStatus, 
+		    	data.consentStatusData.gdpr.uuid, 
+		    	data.consentStatusData.gdpr.dateCreated, 
+		    	data.consentStatusData.gdpr.euconsent, 
+		    	data.consentStatusData.gdpr.grants, 
+		    	data.consentStatusData.gdpr.acceptedCategories, 
+		    	data.consentStatusData.gdpr.acceptedVendors, 
+		    	data.consentStatusData.gdpr.legIntVendors, 
+		    	data.consentStatusData.gdpr.legIntCategories 
+			);
  	    }
 	}
 
@@ -1383,5 +1379,25 @@ function toQueryParams(obj, prefix) {
 		);	    	
 	}
 
+	function isReadyToExecute({timeout = 5000, interval = 200, startTime = Date.now()} = {}) {
+	    if (isMetaDataAvailable && isSpObjectReady) {
+	        triggerEvent("readyToExecute");
+	        isReadyToExectute = true;
+	        return true;
+	    }
+
+	    if (Date.now() - startTime >= timeout) {
+	        if (typeof onError === "function") {
+	            onError("Timeout in isReadyToExecute");
+	        }
+	        return false;
+	    }
+	    isReadyToExectute = false;
+	    setTimeout(() => {
+	        isReadyToExecute({timeout, interval, startTime});
+	    }, interval);
+
+	    return false;
+	}
+
 })();
- 

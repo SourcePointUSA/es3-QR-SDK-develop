@@ -136,7 +136,6 @@
                 secondScreenTimeOut: 3000,
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
                 pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
-                //pmUrl: "https://native.message/pm.html",
                 events: {
                     onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
                         console.log("onconsentReady")
@@ -189,8 +188,15 @@
                     },
                     spObjectReady : function(){
                         console.log("spObjectReady");
-            
-                    }
+                    },
+                    readyToExecute:function(){
+                        console.log("readyToExecute");
+                    },
+                    onInfo: function( infoText, infoData){
+              
+                        console.log("OnInfo:", infoText, infoData);
+                    },
+                    
                 }
             }
         }
