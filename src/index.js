@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.5";
+var scriptVersion = "3.0.6";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -95,7 +95,7 @@ function sp_init(config) {
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
-	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData;
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate;
 
 	var isMetaDataAvailable = false,
     isSpObjectReady = false,
@@ -124,6 +124,7 @@ function sp_init(config) {
 
        	accountId = _sp_.config.accountId;
 		consentLanguage = _sp_.config.consentLanguage || "EN";
+		expirationInDays = _sp_.config.expirationInDays || 365;
 		isSPA = _sp_.config.isSPA;
 		isJSONp = _sp_.config.isJSONp;
 
@@ -174,15 +175,13 @@ function sp_init(config) {
 
 		if (consentUUID == null) {
 	        consentUUID = generateUUID();
-	        setCookie("consentUUID", consentUUID, 365);
+	        setCookie("consentUUID", consentUUID, expirationInDays);
 	    } 
 
 	    if (authId == null) {
 	        authId = generateUUID();
-	        setCookie("authId", authId, 365);
+	        setCookie("authId", authId, expirationInDays);
 	    } 	
-
-
 
 		messageDiv = _sp_.config.messageDiv;
 		pmDiv = _sp_.config.pmDiv;
@@ -612,9 +611,9 @@ function sp_init(config) {
 					var res = JSON.parse(httpGet(fullURL));
 
 				    localState = res.localState;
-				    setItem("localState_" + propertyId, JSON.parse(res.localState), 365);
+				    setItem("localState_" + propertyId, JSON.parse(res.localState), expirationInDays);
 				    nonKeyedLocalState = res.nonKeyedLocalState;
-				    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), 365);
+				    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), expirationInDays);
 
 				    if (checkMessageJson(res)) {
 				        showElement(messageDiv);
@@ -915,17 +914,17 @@ function sp_init(config) {
 	function setItem(key, value) {
 	    if (value === null || value === undefined || value === "" ||
 	        (typeof value === "object" && Object.keys(value).length === 0)) {
-	        return; // 🚫 nichts speichern
+	        return;
 	    }
 
 
 	    if (typeof window.localStorage == "undefined" || disableLocalStorage) {
-	        setCookie(key, JSON.stringify(value), 365);
+	        setCookie(key, JSON.stringify(value), expirationInDays);
 	    } else {
 	        try {
 	            window.localStorage.setItem(key, JSON.stringify(value));
 	        } catch (e) {
-	            setCookie(key, JSON.stringify(value), 365);
+	            setCookie(key, JSON.stringify(value), expirationInDays);
 	        }
 	    }
 	}
@@ -978,22 +977,22 @@ function sp_init(config) {
 
 	function storeConsentResponse(conStatus, uuid, cDate, euconsent, vGrants, purposes, vendors, legIntV, legIntP){	  
 	    consentStatus = conStatus;
-	    setItem("consentStatus_"+propertyId, conStatus,365);
+	    setItem("consentStatus_"+propertyId, conStatus,expirationInDays);
 	    consentUUID = uuid;
-		setCookie("consentUUID", uuid, 365);
+		setCookie("consentUUID", uuid, expirationInDays);
 	    consentDate = cDate;
-		setCookie("consentDate_"+propertyId, cDate, 365);   	
+		setCookie("consentDate_"+propertyId, cDate, expirationInDays);   	
 	   	euConsentString = euconsent;
-	    setItem("euconsent-v2_"+propertyId, euconsent, 365);
-		setItem("vendorGrants_"+propertyId,vGrants,365);
+	    setItem("euconsent-v2_"+propertyId, euconsent, expirationInDays);
+		setItem("vendorGrants_"+propertyId,vGrants,expirationInDays);
 	    vendorGrants = vGrants;
-		setItem("acceptedCategories_"+propertyId,purposes ,365);
+		setItem("acceptedCategories_"+propertyId,purposes ,expirationInDays);
 	   	acceptedCategories = purposes;
-	   	setItem("acceptedVendors_" + propertyId,vendors ,365);
+	   	setItem("acceptedVendors_" + propertyId,vendors ,expirationInDays);
 	   	acceptedVendors = vendors;
-	   	setItem("legIntCategories_"+propertyId, legIntP ,365);
+	   	setItem("legIntCategories_"+propertyId, legIntP ,expirationInDays);
 	   	legIntCategories = legIntP;
-	   	setItem("legIntVendors_"+propertyId,legIntV ,365);
+	   	setItem("legIntVendors_"+propertyId,legIntV ,expirationInDays);
 	   	legIntVendors = legIntV;
 	   	onConsentStatusReceived();
 	   	onConsentReady();	
@@ -1157,7 +1156,7 @@ function sp_init(config) {
 		if(!sampledUser){
 			var randomValue = Math.random();
 			sampledUser = randomValue < sampleRate;
-			setCookie("sp_su", JSON.stringify(sampledUser), 365);
+			setCookie("sp_su", JSON.stringify(sampledUser), expirationInDays);
 		}
 
 		return sampledUser
@@ -1266,14 +1265,14 @@ function sp_init(config) {
 				gdprApplies = metaData.gdpr.applies;
 				onMetaDataReceived();
 			}
-		    setItem("metaData_"+propertyId, metaData,365);
+		    setItem("metaData_"+propertyId, metaData,expirationInDays);
 		}
 	}
 
 	function handleMetaDataForJsonP(data){
  		gdprApplies = data.gdpr.applies;
         metaData = data;
-        setItem("metaData_" + propertyId, metaData, 365);
+        setItem("metaData_" + propertyId, metaData, expirationInDays);
         onMetaDataReceived(); // Event triggern
 	}
 
@@ -1284,9 +1283,9 @@ function sp_init(config) {
 
 	function handleGetMessagesForJsonP(data){
 		localState = data.localState;
-	    setItem("localState_" + propertyId, JSON.parse(data.localState), 365);
+	    setItem("localState_" + propertyId, JSON.parse(data.localState), expirationInDays);
 	    nonKeyedLocalState = data.nonKeyedLocalState;
-	    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(data.nonKeyedLocalState), 365);
+	    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(data.nonKeyedLocalState), expirationInDays);
 
 	    if (checkMessageJson(data)) {
 	        showElement(messageDiv);

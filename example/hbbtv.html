@@ -13,7 +13,7 @@
 
 </head>
 <body>
-<body onload="start();">
+<body onload="//start();">
  <div>
         <object type="application/oipfApplicationManager" id="applicationManager"> </object>
     </div>
@@ -130,6 +130,7 @@
                 qrId: "qr",
                 pmId: 1196474,
                 buildMessageComponents : true,
+                expirationInDays: 180,
                 exposeGlobals : true, 
                 disableLocalStorage : true, 
                 //cookieDomain: '.message',
@@ -191,9 +192,9 @@
                     },
                     readyToExecute:function(){
                         console.log("readyToExecute");
+                        _sp_.executeMessaging()
                     },
                     onInfo: function( infoText, infoData){
-              
                         console.log("OnInfo:", infoText, infoData);
                     },
                     
