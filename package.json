@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm run transpile && npm run minify",
     "transpile": "babel src --out-dir dist",
-    "minify": "terser dist/index.js --compress --mangle --output example/nativeMessaging.js"
+    "minify": "terser dist/index.js --compress --mangle --output example/nativeMessaging.js",
+    "start": "php -S 0.0.0.0:8000"
   },
   "keywords": [],
   "author": "",

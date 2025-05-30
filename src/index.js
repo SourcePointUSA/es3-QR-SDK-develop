@@ -296,10 +296,10 @@ function sp_init(config) {
 	    };
 
 	    var updateConsentStatusFunc = function() {
-	        hideElement(pmDiv);
-	        hideElement(messageDiv);
+	        // hideElement(pmDiv);
+	        // hideElement(messageDiv);
 	        getConsentStatus("true");
-	        getMessages();
+	        // getMessages();
 	    };
 	  
 	    _sp_.executeMessaging = executeMessagingFunc;
