@@ -308,6 +308,7 @@ function sp_init(config) {
       deleteItem("legIntCategories_" + propertyId);
       deleteCookie("sp_su");
       deleteCookie("consent-sync-expiry");
+      deleteCookie("consent-version");
       hideElement(pmDiv);
       hideElement(messageDiv);
 
