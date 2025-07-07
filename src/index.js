@@ -254,8 +254,8 @@ function sp_init(config) {
 
     var loadPrivacyManagerModalFunc = function () {
       updateQrUrl(getQrCodeUrl());
-      showElement(pmDiv);
       hideElement(messageDiv);
+      showElement(pmDiv);
     };
 
     var acceptAllFunc = function () {
