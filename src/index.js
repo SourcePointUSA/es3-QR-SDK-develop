@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.0.6";
+var scriptVersion = "3.1.0";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -60,7 +60,7 @@ if (!Object.keys) {
 
 function sp_init(config) {
     window._sp_ = window._sp_ || {};
-    _sp_.config = config; // Konfiguration speichern
+    _sp_.config = config; 
     if (typeof _sp_.init === 'function') {
         _sp_.init(config);
     } else {
@@ -69,7 +69,6 @@ function sp_init(config) {
 }
 
 (function(){
-
 
 	window.handleMetaDataForJsonP = handleMetaDataForJsonP;
 	window.handleMessageDataForJsonP = handleMessageDataForJsonP;
@@ -89,13 +88,14 @@ function sp_init(config) {
 	var triggerEvent = function(eventName, args) {
 	    var event = window._sp_.config.events[eventName];
 	    if (typeof event === 'function') {
-	        event.apply(null, args || []); // Event mit Parametern ausführen
+	        event.apply(null, args || []);
 	    }
 	};
 
+
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
-	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate;
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate, TCFEventStatus, addtlConsent;
 
 	var isMetaDataAvailable = false,
     isSpObjectReady = false,
@@ -112,6 +112,7 @@ function sp_init(config) {
 	var messageMetaData = null; 
 	var localState = null;
 	var messageElementsAdded = false; 
+
 	 	
     function init(config) {
     	_sp_.config = config;
@@ -138,11 +139,20 @@ function sp_init(config) {
 
 		}
 
+
+
 		baseEndpoint = _sp_.config.baseEndpoint.replace(/\/+$/, "");
 		exposeGlobals = _sp_.config.exposeGlobals;
 		disableLocalStorage = _sp_.config.disableLocalStorage;
 		cookieDomain = _sp_.config.cookieDomain;
 		secondScreenTimeOut = _sp_.config.secondScreenTimeOut;
+
+		tcfEnabled = _sp_.config.tcfEnabled;
+		  
+	    if(tcfEnabled && typeof __tcfapi === 'undefined') {
+	       onError("777", "TCFenabled but files are missing")
+	    }
+
 
 		propertyHref = _sp_.config.propertyHref;
 		propertyId = _sp_.config.propertyId;
@@ -207,7 +217,7 @@ function sp_init(config) {
     if (_sp_.config) {
         init(_sp_.config);
     } else {
-        console.log("No Global Config found – waiting for sp_init(config)...");
+        onInfo("No Global Config found – waiting for sp_init(config)...");
     }
 
     function extendSpObject() {
@@ -334,8 +344,24 @@ function sp_init(config) {
 	}
 
 	
-	function onConsentReady(){
-		triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, acceptedCategories]);
+	function onConsentReady(skipTcfEvent){
+	    triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, acceptedCategories]);
+	    
+    	if(!skipTcfEvent && tcfEnabled && typeof __tcfapi !== 'undefined') {
+	        __tcfapi(
+	            'emitEvent',
+	            2,
+	            function(response, success) {
+	                onInfo('[TCF] onConsentReady - emitting tcloaded:', success);
+	            },
+	            {
+	                eventStatus: 'tcloaded',  
+	                cmpStatus: 'loaded',
+	                tcString: euConsentString || '',
+	                addtlConsent : addtlConsent || ''
+	            }
+	        );
+	    }
 	}
 
 	function onMessageComposed(){
@@ -365,6 +391,7 @@ function sp_init(config) {
 
 	function firstLayerClosed(){
 		triggerEvent('firstLayerClosed');
+ 
 	}
 
 	function secondLayerClosed(){
@@ -383,8 +410,29 @@ function sp_init(config) {
 	    var element = document.getElementById(elementId); 
 	    if (element) {
 	        element.style.display = 'block'; 
-	       	if(elementId == pmDiv) secondLayerShown();
-	        if(elementId == messageDiv) firstLayerShown();
+	        
+	        if(elementId == pmDiv) {
+	            secondLayerShown();
+	            if(tcfEnabled && typeof __tcfapi !== 'undefined'){
+	                __tcfapi(
+	                    'emitEvent',
+	                    2,
+	                    function(response, success) {
+	                        onInfo('[TCF] PM shown - cmpuishown emitted:', success);
+	                    },
+	                    {
+	                        eventStatus: 'cmpuishown',
+	                        cmpStatus: 'visible',
+	                        tcString: euConsentString || '',
+	                        addtlConsent: addtlConsent
+	                    }
+	                );
+	            }
+	        }
+	        
+	        if(elementId == messageDiv) {
+	            firstLayerShown();
+	        }
 	    }
 	}
 
@@ -402,13 +450,6 @@ function sp_init(config) {
 	            firstLayerClosed();
 	        }
 	    }
-	}
-	 
-	function httpGet(theUrl) {
-	    var xmlHttp = new XMLHttpRequest();
-	    xmlHttp.open("GET", theUrl, false);
-	    xmlHttp.send(null);
-	    return xmlHttp.responseText;
 	}
 
 	function httpGet(theUrl) {
@@ -440,7 +481,6 @@ function sp_init(config) {
 	            timedOut = true;
 	            window[callbackName] = function () {};
 	            head.removeChild(script);
-	            // Du kannst hier ein globales onError aufrufen oder ein weiteres Event feuern
 	        }, timeout);
 	    }
 
@@ -451,7 +491,7 @@ function sp_init(config) {
 	        if (timeoutId) clearTimeout(timeoutId);
 	        window[callbackName] = function () {};
 	        head.removeChild(script);
-	        onError("009", "Script-Error while processing JSONP-Request for " + callbackName);
+	        onError("009", "Script-Error while processing JSONP-Request for " + script.src);
 	    };
 
 	    head.appendChild(script);
@@ -616,8 +656,23 @@ function sp_init(config) {
 				    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), expirationInDays);
 
 				    if (checkMessageJson(res)) {
-				        showElement(messageDiv);
-				    }
+		                showElement(messageDiv);
+		                if(tcfEnabled && typeof __tcfapi !== 'undefined'){
+		                    __tcfapi(
+		                        'emitEvent',
+		                        2,
+		                        function(response, success) {
+		                            onInfo('TCF cmpuishown emitted:', success);
+		                        },
+		                        {
+		                            eventStatus: 'cmpuishown',
+		                            cmpStatus: 'loaded',
+		                            tcString: euConsentString || '', 
+		                            addtlConsent: addtlConsent
+		                        }
+		                    );
+		                }
+		            }
 				    else{
 		    			onConsentReady()
 		    		}
@@ -714,7 +769,7 @@ function sp_init(config) {
 	        accountId: accountId,
 	        env: 'prod',
 	        includeCustomVendorsRes: 'true',
-	        metadata: JSON.stringify(metaData), // URL-encoded JSON
+	        metadata: JSON.stringify(metaData),  
 	        propertyId: propertyId,
 	        withSiteActions: 'true',
 	        ch: cb,
@@ -995,7 +1050,22 @@ function sp_init(config) {
 	   	setItem("legIntVendors_"+propertyId,legIntV ,expirationInDays);
 	   	legIntVendors = legIntV;
 	   	onConsentStatusReceived();
-	   	onConsentReady();	
+	    if(tcfEnabled && typeof __tcfapi !== 'undefined'){
+	        __tcfapi(
+	            'emitEvent',
+	            2,
+	            function(response, success) {
+	                onInfo('TCF storeConsentResponse useractioncomplete emitted:', success);
+	            },
+	            {
+	                eventStatus: 'useractioncomplete',
+	                cmpStatus: 'loaded',
+	                tcString: euconsent, 
+	                addtlConsent: addtlConsent  
+	            }
+	        );
+	    }
+	   	onConsentReady(true);	
 	}
 
 	function getConsentStatus(forced){
@@ -1053,14 +1123,8 @@ function sp_init(config) {
 
 	function getQrCodeUrl() {
 		let additionalParams = "";
-
-		// Prüfen, ob secondScreenTimeOut definiert ist und einen gültigen Wert hat
 		if (typeof secondScreenTimeOut !== "undefined" && secondScreenTimeOut !== null) {
-
-			// Aktuelles Datum mit Uhrzeit im ISO-Format
 			const timestamp = new Date().toISOString();
-
-			// Parameter ergänzen
 			additionalParams += "&timestamp=" + encodeURIComponent(timestamp);
 			additionalParams += "&second_screen_timeout=" + encodeURIComponent(secondScreenTimeOut);
 		}
@@ -1103,7 +1167,6 @@ function sp_init(config) {
 		        iabVendorCountElements[i].innerHTML = data.iabVendorCount;
 		    }
 
-		    // Template and containers
 		    var stackTemplate = document.getElementById("stack_template");
 		    if (!stackTemplate) {
 		        onError("099", "Template with ID 'stack_template' not found.");
@@ -1114,14 +1177,12 @@ function sp_init(config) {
 		    var stacksContainers = document.getElementsByClassName("sp_stacks");
 		    var purposesContainers = document.getElementsByClassName("sp_purposes");
 
-		    // Use DocumentFragment for batch updates
 		    var stacksFragment = document.createDocumentFragment();
 		    var purposesFragment = document.createDocumentFragment();
 
 		    for (var j = 0; j < data.categories.length; j++) {
 		        var category = data.categories[j];
 
-		        // Populate template
 		        var newHTML = templateHTML;
 		        newHTML = newHTML.replace("{name}", category.name || "")
 		                         .replace("{description}", category.description || "")
@@ -1273,7 +1334,7 @@ function sp_init(config) {
  		gdprApplies = data.gdpr.applies;
         metaData = data;
         setItem("metaData_" + propertyId, metaData, expirationInDays);
-        onMetaDataReceived(); // Event triggern
+        onMetaDataReceived();
 	}
 
 	function handleMessageDataForJsonP(data){
@@ -1282,6 +1343,12 @@ function sp_init(config) {
 	}
 
 	function handleGetMessagesForJsonP(data){
+		addtlConsent = data.campaigns[0].addtlConsent;
+		euConsentString = data.campaigns[0].euconsent;
+		setItem("euconsent-v2_"+propertyId, euConsentString, expirationInDays);
+
+
+
 		localState = data.localState;
 	    setItem("localState_" + propertyId, JSON.parse(data.localState), expirationInDays);
 	    nonKeyedLocalState = data.nonKeyedLocalState;
@@ -1289,6 +1356,21 @@ function sp_init(config) {
 
 	    if (checkMessageJson(data)) {
 	        showElement(messageDiv);
+	        if(tcfEnabled && typeof __tcfapi !== 'undefined'){
+	            __tcfapi(
+	                'emitEvent',
+	                2,
+	                function(response, success) {
+	                    onInfo('TCF cmpuishown emitted (JSONP):', success);
+	                },
+	                {
+	                    eventStatus: 'cmpuishown',
+	                    cmpStatus: 'loaded',
+	                    tcString: euConsentString || '',
+	                    addtlConsent : addtlConsent
+	                }
+	            );
+	        }             
 	    }
 	    else{
 			onConsentReady()
@@ -1397,6 +1479,35 @@ function sp_init(config) {
 	    }, interval);
 
 	    return false;
+	}
+
+	function emitCurrentTCFStatus() {
+	    if(!tcfEnabled || typeof __tcfapi === 'undefined') return;
+	    
+	    var eventStatus = 'tcloaded';
+	    
+	    if(messageDiv && document.getElementById(messageDiv) && 
+	       document.getElementById(messageDiv).style.display !== 'none') {
+	        eventStatus = 'cmpuishown';
+	    }
+	    else if(pmDiv && document.getElementById(pmDiv) && 
+	            document.getElementById(pmDiv).style.display !== 'none') {
+	        eventStatus = 'cmpuishown';
+	    }
+	    
+	    __tcfapi(
+	        'emitEvent',
+	        2,
+	        function(response, success) {
+	            onInfo('Current TCF status emitted (emitCurrentTCFStatus) :', eventStatus, success);
+	        },
+	        {
+	            eventStatus: eventStatus,
+	            cmpStatus: 'loaded',
+	            tcString: euConsentString || '',
+	            addtlConsent: addtlConsent
+	        }
+	    );
 	}
 
 })();

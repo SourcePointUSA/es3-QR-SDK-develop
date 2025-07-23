@@ -16,6 +16,7 @@ The Sourcepoint QR Code SDK is a lightweight JavaScript library that allows your
 - [Global exposure of CMP methods](#global-exposure-of-cmp-methods)
 - [Event callbacks](#event-callbacks)
 - [Dynamic Template Setup](#dynamic-template-setup)
+- [Enable TCF Support](#enable-tcf-support)
 - [Support devices that require HTTP](#support-devices-that-require-http)
 - [Support devices that require JSONP](#support-devices-that-require-jsonp)
 
@@ -322,6 +323,14 @@ events: {
   onError:function(errorCode, message){
       console.log("OnError" , message);
   },
+  readyToExecute: function() {
+    console.log("📡 Ready to Execute - Starting messaging...");
+    console.log('📡 Registering TCF Listener...');
+  },
+  onInfo: function(text, data) {
+      console.log("✓ oninfo");
+      console.log(text, data)
+  },
 }
 ```
 
@@ -358,6 +367,11 @@ The SDK supports dynamic UI generation via HTML templates. Follow these steps:
    <div class="sp_stacks"></div>
    <div class="sp_purposes"></div>
    ```
+
+## Enable TCFAPI Support
+1. Set  ```tcfEnabled: true``` in the config
+2. add the content of tcfstub.js in the <head> section of the application
+3. include tcfBridge.js after you load the nativeMessaging.js
 
 ## Support devices that require HTTP
 

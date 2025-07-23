@@ -43,23 +43,6 @@
     const consentLanguage = safeGetParameter("consentlanguage", "en", "specialChars").toLowerCase();
     let timeout = false;
 
-    // Timeout-Logik
-    if (timeout_timestamp && secondScreenTimeOut !== null) {
-        let timestampDate = new Date(timeout_timestamp);
-        if (!isNaN(timestampDate.getTime())) {
-            let expiryTime = timestampDate.getTime() + secondScreenTimeOut;
-            let currentTime = new Date().getTime();
-            if (currentTime < expiryTime) {
-                let delay = expiryTime - currentTime;
-                setTimeout(() => {
-                    _sp_.destroyMessages();
-                    document.getElementById("timeout").style.display = "block";
-                }, delay);
-            } else {
-                timeout = true;
-            }
-        }
-    }
 
     var pmActionActionTaken = false;
 
@@ -150,7 +133,7 @@
             timeoutText: "O tempo para confirmar a túa selección expirou. Escanea de novo o código QR na túa TV para continuar e configurar as túas preferencias de privacidade."
         },
         de: {
-            thankYou: `Vielen Dank für Ihre Auswahl. Bitte kehren Sie zu Ihrem Fernseher zurück und drücken Sie die "CMP neu laden"-Taste, um Ihre Einstellungen abzuschließen. Wenn Sie weitere Änderungen vornehmen möchten, können Sie <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hier klicken</a>, um die Datenschutzoptionen erneut anzuzeigen.`,
+            thankYou: `Vielen Dank für Ihre Auswahl. Wenn Sie weitere Änderungen vornehmen möchten, können Sie <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">hier klicken</a>, um die Datenschutzoptionen erneut anzuzeigen.`,
             timeoutTitle: "Ihre Sitzung ist abgelaufen",
             timeoutText: "Die Zeit zur Bestätigung Ihrer Auswahl ist abgelaufen. Bitte scannen Sie den QR-Code auf Ihrem Fernseher erneut, um fortzufahren und Ihre Datenschutz-Einstellungen vorzunehmen."
         },
@@ -185,7 +168,7 @@
             timeoutText: "Waktu untuk mengonfirmasi pilihan Anda telah habis. Silakan pindai kembali kode QR di TV Anda untuk melanjutkan dan mengatur preferensi privasi Anda."
         },
         it: {
-            thankYou: `Grazie per la tua scelta. Torna al tuo televisore e premi il pulsante per ricaricare CMP al fine di completare le tue preferenze. Se desideri apportare ulteriori modifiche, puoi <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">fare clic qui</a> per visualizzare nuovamente le opzioni di gestione della privacy.`,
+            thankYou: `Grazie per la tua scelta. Torna al tuo televisore e premi il pulsante 'Aggiorna' per ricaricare la CMP al fine di completare le tue preferenze. Se desideri apportare ulteriori modifiche, puoi <a onclick="_sp_.gdpr.loadPrivacyManagerModal(pmId)" style="font-weight: bold; text-decoration: underline;">fare clic qui</a>  per visualizzare nuovamente le opzioni di gestione della privacy.`,
             timeoutTitle: "La tua sessione è scaduta",
             timeoutText: "Il tempo per confermare la tua selezione è scaduto. Scansiona nuovamente il codice QR sul tuo televisore per continuare e impostare le tue preferenze sulla privacy."
         },
@@ -366,8 +349,29 @@
             }
         }
     };
+
+    // Timeout-Logik
+    if (timeout_timestamp && secondScreenTimeOut !== null) {
+        let timestampDate = new Date(timeout_timestamp);
+        if (!isNaN(timestampDate.getTime())) {
+            let expiryTime = timestampDate.getTime() + secondScreenTimeOut;
+            let currentTime = new Date().getTime();
+            if (currentTime < expiryTime) {
+                let delay = expiryTime - currentTime;
+                setTimeout(() => {
+                    _sp_.destroyMessaging();
+                    document.getElementById("timeout").style.display = "block";
+                }, delay);
+            } else {
+                timeout = true;
+            }
+        }
+    }
+
+
     </script>
     <script src="https://cdn.privacy-mgmt.com/unified/wrapperMessagingWithoutDetection.js" async></script>
+
 </head>
 
 <body>

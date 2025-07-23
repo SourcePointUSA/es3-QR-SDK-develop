@@ -6,27 +6,27 @@
     <script type="text/javascript" src="./js/rc-interaction.js"></script>
     <link rel="stylesheet" href="./css/rc-interaction.css" />
 
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GDPR Banner</title>
-
+    
+    <!-- TCF Stub als erstes -->
+    <script type="text/javascript">
+        !function(){"use strict";var e;e=[],window.__tcfapi=function(a,c,n,t){e.push({command:a,version:c,callback:n,parameter:t})},window.__tcfapi.pushQueue=function(a){for(;e.length;){var c=e.shift();try{a(c.command,c.version,c.callback,c.parameter)}catch(e){console.warn("[tcfapi-stub] Error processing the queue:",e)}}}}();
+    </script>
 </head>
 <body>
-<body onload="//start();">
- <div>
+    <div>
         <object type="application/oipfApplicationManager" id="applicationManager"> </object>
     </div>
-    <!-- we shall define a safe area for the main scene -->
+    
+    <!-- Safe area content -->
     <div class="safe_area" id="app_area">
-        <!-- title -->
         <div class="title_text">RC interaction demo</div>
-        <!-- status -->
         <div class="status_text">Navigation button: <span id="navigation_field"></span></div>
         <div class="status_text">Playback control button: <span id="playback_field"></span></div>
         <div class="status_text">Numeric button: <span id="numeric_field"></span></div>
         <div class="status_text" id="prevent_field"></div>
-        <!-- bottom legend -->
         <div class="bottom_legend">
             <div class="legend_cell">
                 <div class="legend_button_red"></div>
@@ -49,16 +49,15 @@
     <div class="red_button_style" id="red_button_notification_field">Press the red button on the RC to start!</div>
     <div id="countdown"></div>
 
-
+    <!-- Template -->
     <div id="stack_template" style="display: none;">
         <button class="accordion">{name}</button>
         <div class="panel">
-            <p>
-                {description}
-            </p>
+            <p>{description}</p>
         </div>
     </div>
 
+    <!-- Native Message -->
     <div id="native_message">
         <div class="gdpr-banner">
             <div class="gdpr-logo">
@@ -69,7 +68,7 @@
                 <p>
                     We and our <span class="all_vendor_count"></span> partners (<span class="iab_vendor_count"></span> IAB) process your personal data using cookies and similar technologies to provide our services, 
                     personalize content, measure and improve user experiences, and deliver personalized ads. Click 
-                    <strong>“Accept All”</strong> to consent or <strong>“Manage Preferences”</strong> to manage your cookie preferences. 
+                    <strong>"Accept All"</strong> to consent or <strong>"Manage Preferences"</strong> to manage your cookie preferences. 
                     For more details, see our <a href="/cookie-policy">Cookie Policy</a>.
                 </p>
                
@@ -84,6 +83,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Privacy Manager -->
     <div id="pm">
         <div class="gdpr-banner">
             <div class="gdpr-logo">
@@ -91,7 +92,7 @@
             </div>
             <div class="gdpr-text">
                 <h2>Your Privacy Settings</h2>
-                <p> We and our <span class="all_vendor_count"></span> partners (<span class="iab_vendor_count"></span> IAB) process your personal data using cookies and similar technologies to provide our services, 
+                <p>We and our <span class="all_vendor_count"></span> partners (<span class="iab_vendor_count"></span> IAB) process your personal data using cookies and similar technologies to provide our services, 
                     personalize content, measure and improve user experiences, and deliver personalized ads.</p>
                 <div class="sp_stacks"></div>
                 <div class="sp_purposes"></div>
@@ -111,10 +112,11 @@
             </div>
         </div>
     </div>
- 
 
+    <!-- Konfiguration mit TCF Listener Registration -->
     <script type="text/javascript">
-        _ssp_ = { 
+        // Globale Config - wird automatisch von nativeMessaging.js verarbeitet
+        window._sp_ = { 
             config: {
                 accountId: 22,
                 propertyId: 37811,
@@ -123,88 +125,82 @@
                 baseEndpoint: 'https://cmp.tcfv2.de',
                 messageDiv: "native_message",
                 consentLanguage : "DE",
-                // authId: "1234-5678-9083-3452", // optional 
                 isSPA : true, 
                 isJSONp : true, 
                 pmDiv: "pm",
                 qrId: "qr",
                 pmId: 1196474,
+                tcfEnabled: true,
                 buildMessageComponents : true,
-                expirationInDays: 180,
                 exposeGlobals : true, 
                 disableLocalStorage : true, 
-                //cookieDomain: '.message',
                 secondScreenTimeOut: 3000,
                 qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
                 pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
                 events: {
-                    onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
-                        console.log("onconsentReady")
-                         console.log(consentUUID, euconsent, vendorGrants, consentStatus, purposes);
-                    },
-                    onMessageComposed:function(){
-                        console.log("onMessageComposed");
-                        const accordions = document.querySelectorAll(".accordion");
-                        accordions.forEach(accordion => {
-                            accordion.addEventListener("click", () => {
-                                accordion.classList.toggle("active");
-                                const panel = accordion.nextElementSibling;
-                                if (panel.style.display === "block") {
-                                    panel.style.display = "none";
-                                } else {
-                                    panel.style.display = "block";
-                                }
-                            });
-                        });
-                    },
-                    onMetaDataReceived:function(metaData){
-                        console.log("onMetaDataReceived", metaData)
+                   onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
+                    console.log("OnConsentReady")
+                  },                 
+                  onMessageComposed:function(){
+                    console.log("onMessageComposed");
+                    const accordions = document.querySelectorAll(".accordion");
+                    accordions.forEach(accordion => {
+                      accordion.addEventListener("click", () => {
+                        accordion.classList.toggle("active");
+                        const panel = accordion.nextElementSibling;
+                        if (panel.style.display === "block") {
+                            panel.style.display = "none";
+                        } else {
+                            panel.style.display = "block";
+                        }
+                      });
+                    });
+                  },
+                  onMetaDataReceived:function(metaData){
+                      console.log("onMetaDataReceived", metaData)
+                  },
+                  onConsentStatusReceived:function(consentStatus){
+                      console.log("onConsentStatusReceived", consentStatus)
 
-                    },                    
-                    onConsentStatusReceived:function(consentStatus){
-                        console.log("onConsentStatusReceived", consentStatus)
-
-                    },
-                    onMessageReceivedData:function(messageMetaData){
-                        console.log("omMessageReceivedData", messageMetaData)
-                    },
-                    firstLayerShown:function(){
-                        console.log("firstLayerShown")
-                    },
-                    secondLayerShown:function(){
-                        console.log("secondLayerShown");
-                    },
-                    firstLayerclosed:function(){
-                        console.log("firstLayerClosed callback");
-                    },
-                    secondLayerClosed:function(){
-                        console.log("secondLayerClosed");
-                    },
-                    onError : function(errorCode, message){
-                        console.error("OnError: ",errorCode, message);
-                    },
-                    initReceivedData : function(config){
-                        console.log("initReceivedData");
-                        console.log(config);
-                    },
-                    spObjectReady : function(){
-                        console.log("spObjectReady");
-                    },
-                    readyToExecute:function(){
-                        console.log("readyToExecute");
-                        _sp_.executeMessaging()
-                    },
-                    onInfo: function( infoText, infoData){
-                        console.log("OnInfo:", infoText, infoData);
+                  },
+                  onMessageReceivedData:function(messageMetaData){
+                      console.log("omMessageReceivedData", messageMetaData)
+                  },
+                  firstLayerShown:function(){
+                      console.log("firstLayerShown")
+                  },
+                  secondLayerShown:function(){
+                      console.log("secondLayerShown");
+                  },
+                  firstLayerclosed:function(){
+                      console.log("firstLayerClosed callback");
+                  },
+                  secondLayerClosed:function(){
+                      console.log("secondLayerClosed");
+                  },
+                  onError:function(errorCode, message){
+                      console.log("OnError" ,errorCode, message);
+                  },
+                    onInfo: function(text, data) {
+                        console.log("✓ oninfo");
+                        console.log(text, data)
+                   
+                        
+                        
                     },
                     
                 }
             }
-        }
-    </script>
-        <script src="nativeMessaging.js" type="text/javascript"> </script>  
-        <script type="text/javascript">
+        };
 
-        sp_init(_ssp_.config)</script>
- </body>
-</html>
+
+    </script>
+    
+    <!-- Scripts in korrekter Reihenfolge laden -->
+    <script src="nativeMessaging.js" type="text/javascript"></script>  
+    <script src="tcfBridge.js" type="module"></script>
+    
+    <!-- TCF Listener sofort nach dem Laden registrieren -->
+
+</body>
+</html> 
