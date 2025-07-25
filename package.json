@@ -1,6 +1,6 @@
 {
   "name": "es3-qr-sdk",
-  "version": "3.0.6",
+  "version": "3.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,5 +17,8 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "terser": "^5.36.0"
+  },
+  "dependencies": {
+    "@iabtcf/core": "^1.5.6"
   }
 }

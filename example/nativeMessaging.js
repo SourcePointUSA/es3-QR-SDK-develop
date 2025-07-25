@@ -1,1 +1,1199 @@
-function _typeof(e){return _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},_typeof(e)}var env="prod",scriptVersion="3.0.6",scriptType="nativeqr";window.JSON||(window.JSON={stringify:function(e){var n=_typeof(e);if("object"!=n||null===e)return"string"==n&&(e='"'+e+'"'),String(e);var t,o,a=[],s=e&&e.constructor==Array;for(t in e)"string"==(n=_typeof(o=e[t]))?o='"'+o+'"':"object"==n&&null!==o&&(o=JSON.stringify(o)),a.push((s?"":'"'+t+'":')+String(o));return(s?"[":"{")+String(a)+(s?"]":"}")}}),JSON.parse=function(e){try{return new Function("return "+e)()}catch(e){return onError("001","JSON.parse: ungültiges JSON-Format"),null}};var isArray=function(e){return"[object Array]"===Object.prototype.toString.call(e)};function sp_init(e){window._sp_=window._sp_||{},_sp_.config=e,"function"==typeof _sp_.init?_sp_.init(e):onError("003","No init method found")}Object.keys||(Object.keys=function(e){e!==Object(e)&&onError("002","Object.keys called on a non-object");var n,t=[];for(n in e)Object.prototype.hasOwnProperty.call(e,n)&&t.push(n);return t}),function(){window.handleMetaDataForJsonP=function(e){f=e.gdpr.applies,re("metaData_"+s,C=e,expirationInDays),B()},window.handleMessageDataForJsonP=function(e){T=e,fe()},window.handleGetMessagesForJsonP=function(e){M=e.localState,re("localState_"+s,JSON.parse(e.localState),expirationInDays),w=e.nonKeyedLocalState,re("nonKeyedLocalState_"+s,JSON.parse(e.nonKeyedLocalState),expirationInDays),Z(e)?G(g):q()},window.handleGetConsentStatusForJsonP=function(e){void 0!==_typeof(e.consentStatusData.gdpr)&&(b=!0,le(e.consentStatusData.gdpr.consentStatus,e.consentStatusData.gdpr.uuid,e.consentStatusData.gdpr.dateCreated,e.consentStatusData.gdpr.euconsent,e.consentStatusData.gdpr.grants,e.consentStatusData.gdpr.acceptedCategories,e.consentStatusData.gdpr.acceptedVendors,e.consentStatusData.gdpr.legIntVendors,e.consentStatusData.gdpr.legIntCategories))},window.handlePvResponse=function(e){return!0},window.handleAcceptAllResponse=function(e){e&&e.gdpr?se(e):F("Invalid response in handleAcceptAllResponse")},window.handleJsonpAcceptAllCall=function(e){e?le(m,e.uuid,e.dateCreated,_,D,v,h,I,S):F("Invalid response in handleJsonpAcceptAllCall")},window.handleLiOnlyResponse=function(e){oe(e)},window.handleLiOnlyCall=function(e){le(e.consentStatus,e.uuid,e.dateCreated,e.euconsent,e.grants,e.acceptedCategories,e.acceptedVendors,e.legIntVendors,e.legIntCategories)},window.handleRejectAllResponse=function(e){ae(e)},window.handleRejectAllCall=function(e){le(e.consentStatus,e.uuid,e.dateCreated,e.euconsent,e.grants,e.acceptedCategories,e.acceptedVendors,e.legIntVendors,e.legIntCategories)};var e,n,t,o,a,s,r,i,c,p,d,l,u,g,f,y,_,m,v,S,I,h,w,D,C,R,O,x,T,V=function(e,n){var t=window._sp_.config.events[e];"function"==typeof t&&t.apply(null,n||[])},J=!1,N=!1,b=!1,A=null,E=null,j=Math.floor(1e6*Math.random()),L=null,U=null,M=null,P=!1;function k(J){if(_sp_.config=J,J=J||_sp_&&_sp_.config,V("initReceivedData",[J]),_sp_.config.events=_sp_.config.events||{},_sp_.version=scriptVersion,a=_sp_.config.accountId,i=_sp_.config.consentLanguage||"EN",expirationInDays=_sp_.config.expirationInDays||365,c=_sp_.config.isSPA,p=_sp_.config.isJSONp){if(proxyEndpoint=_sp_.config.proxyEndpoint,"undefined"==typeof proxyEndpoint)return void F("004","jsonPProxyEndpoint is undefined");proxyEndpoint=_sp_.config.proxyEndpoint.replace(/\/+$/,"")}e=_sp_.config.baseEndpoint.replace(/\/+$/,""),R=_sp_.config.exposeGlobals,disableLocalStorage=_sp_.config.disableLocalStorage,O=_sp_.config.cookieDomain,x=_sp_.config.secondScreenTimeOut,r=_sp_.config.propertyHref,s=_sp_.config.propertyId,targetingParams=_sp_.config.targetingParams,d=ce("consentDate_"+s),_=ie("euconsent-v2_"+s),m=ie("consentStatus_"+s)||null,M=ie("localState_"+s),C=ie("metaData_"+s),D=ie("vendorGrants_"+s),w=ie("nonKeyedLocalState_"+s),v=ie("acceptedCategories_"+s),h=ie("acceptedVendors_"+s),S=ie("legIntCategories_"+s),I=ie("legIntVendors_"+s),J?(!function(){var n={hasCsp:"true",accountId:a,env:"prod",metadata:'{"gdpr":{}}',propertyId:s,scriptVersion:scriptVersion,scriptType:scriptType};if(p)var t=Q(z(o=proxyEndpoint+"/jsonp/wrapper/v2/meta-data",n),"handleMetaDataForJsonP");else{var o=e+"/wrapper/v2/meta-data";void 0===(t=JSON.parse(X(z(o,n))))?F("010","MetaDataCall failed"):(f=(C=t).gdpr.applies,B()),re("metaData_"+s,C,expirationInDays)}}(),n=ce("consentUUID"),t=ce("sp_su"),o=ce("authId")||_sp_.config.authId,null==n&&Y("consentUUID",n=W(),expirationInDays),null==o&&Y("authId",o=W(),expirationInDays),g=_sp_.config.messageDiv,l=_sp_.config.pmDiv,u="undefined"!=typeof _sp_&&_sp_.config&&_sp_.config.pmId?_sp_.config.pmId:1196474,y=!("undefined"==typeof _sp_||!_sp_.config||!0!==_sp_.config.buildMessageComponents),function(){var i=function(o){o&&(targetingParams=o),K(l),K(g),function(){if(function(){var e=!1;if(null===m||!m.consentedAll)return!0;null!==d&&(1===$(C.gdpr.legalBasisChangeDate,d)&&(m.legalBasisChanges=!0,e=!0),1===$(C.gdpr.additionsChangeDate,d)&&(m.vendorListAdditions=!0,e=!0));return e}()){var o={accountId:a,campaignEnv:"prod",campaigns:{gdpr:{consentStatus:m,hasLocalData:b,targetingParams:targetingParams}},clientMMSOrigin:e,hasCSP:!0,includeData:{localState:{type:"string"},actions:{type:"RecordString"},cookies:{type:"RecordString"}},propertyHref:r,propertyId:s},i=(p?proxyEndpoint+"/jsonp":e)+"/wrapper/v2/messages"+"?hasCsp=true&env=prod"+"&body="+ee(o)+"&localState="+ee(M)+"&metadata="+ee(C)+"&nonKeyedLocalState="+ee(w)+"&ch="+j+"&scriptVersion="+scriptVersion+"&scriptType="+scriptType;if(p)var c=Q(i,"handleGetMessagesForJsonP");else{c=JSON.parse(X(i));M=c.localState,re("localState_"+s,JSON.parse(c.localState),expirationInDays),w=c.nonKeyedLocalState,re("nonKeyedLocalState_"+s,JSON.parse(c.nonKeyedLocalState),expirationInDays),Z(c)?G(g):q()}}else q();!function(){if(function(e){if(!t){var n=Math.random();t=n<e,Y("sp_su",JSON.stringify(t),expirationInDays)}}(C.gdpr.sampleRate),"true"===t){var o={gdpr:{applies:!0,consentStatus:m,accountId:a,euconsent:_,mmsDomain:e,propertyId:s,siteId:s,pubData:{},uuid:n,sampleRate:C.gdpr.sampleRate,withSiteActions:!0}};if(U&&(o.gdpr.categoryId=U.categoryId,o.gdpr.subCategoryId=U.subCategoryId,o.gdpr.msgId=U.messageId,o.gdpr.prtnUUID=U.prtnUUID),p)ne("/wrapper/v2/pv-data",o,"handlePvResponse");else{var r=ue(e+"/wrapper/v2/pv-data?hasCsp=true&env=prod&ch="+j+"&scriptVersion="+scriptVersion+"&scriptType="+scriptType);r.onreadystatechange=function(){4===r.readyState&&(200===r.status?H("PV-Daten send:",r.responseText):4===r.readyState&&F("PV-ERROR:"+r.status,r.responseText))},r.send(JSON.stringify(o))}}}()}(),H("Messaging executed!")},c=function(){te(ge()),K(g),G(l)},u=function(){K(l),K(g),function(){var n="/wrapper/v2/choice/consent-all",t=p?proxyEndpoint+"/jsonp"+n:e+n,r=_e({hasCsp:"true",authId:o,accountId:a,env:"prod",includeCustomVendorsRes:"true",metadata:JSON.stringify(C),propertyId:s,withSiteActions:"true",ch:j,scriptVersion:scriptVersion,scriptType:scriptType}),i=t+"?"+r;if(p)Q(i,"handleAcceptAllResponse");else{var c=X(i);se(JSON.parse(c))}}()},f=function(){K(l),K(g),p?Q(proxyEndpoint+"/jsonp/consent/tcfv2/consent/v3/"+s+"/li-only","handleLiOnlyResponse"):oe(JSON.parse(X(e+"/consent/tcfv2/consent/v3/"+s+"/li-only")))},y=function(){K(l),K(g),function(){var n="/wrapper/v2/choice/reject-all",t=p?proxyEndpoint+"/jsonp"+n:e+n,r=_e({hasCsp:"true",authId:o,accountId:a,env:"prod",includeCustomVendorsRes:"true",metadata:JSON.stringify(C),propertyId:s,withSiteActions:"true",ch:j,scriptVersion:scriptVersion,scriptType:scriptType}),i=t+"?"+r;if(p)Q(i,"handleRejectAllResponse");else{var c=X(t+"?"+r);ae(JSON.parse(c))}}()},O=function(){return m},x=function(){return _},J=function(){return ge()},A=function(){return T},E=function(){return pe("authId"),pe("consentUUID"),de("metaData_"+s),pe("consentDate_"+s),de("consentStatus_"+s),de("euconsent-v2_"+s),de("localState_"+s),de("nonKeyedLocalState_"+s),de("vendorGrants_"+s),de("acceptedVendors_"+s),de("acceptedCategories_"+s),de("legIntVendors_"+s),de("legIntCategories_"+s),pe("sp_su"),pe("consent-sync-expiry"),pe("consent-version"),K(l),K(g),consentDate=null,n=null,t=null,o=null,d=null,_=null,m=null,v=null,S=null,I=null,h=null,w=null,D=null,M=null,!0},L=function(){!function(n){if(null!==m&&!n&&m.consentedAll)return;var t=(p?proxyEndpoint+"/jsonp":e)+"/wrapper/v2/consent-status",r={hasCsp:"true",accountId:a,env:"prod",localState:M,nonKeyedLocalState:w,metadata:JSON.stringify(C),propertyId:s,withSiteActions:"true",authId:o,ch:j,scriptVersion:scriptVersion,scriptType:scriptType};if(p)Q(z(t,r),"handleGetConsentStatusForJsonP");else{var i=JSON.parse(X(z(t,r)));void 0!==_typeof(i.consentStatusData.gdpr)&&(b=!0,le(i.consentStatusData.gdpr.consentStatus,i.consentStatusData.gdpr.consentUUID,i.consentStatusData.gdpr.dateCreated,i.consentStatusData.gdpr.euconsent,i.consentStatusData.gdpr.grants,i.consentStatusData.gdpr.acceptedVendors,i.consentStatusData.gdpr.legIntVendors,i.consentStatusData.gdpr.legIntCategories))}}("true")};_sp_.executeMessaging=i,_sp_.loadPrivacyManagerModal=c,_sp_.acceptAll=u,_sp_.continue=f,_sp_.reject=y,_sp_.consentStatus=O,_sp_.getTcString=x,_sp_.getQrCodeUrl=J,_sp_.getMessageData=A,_sp_.clearUserData=E,_sp_.updateConsentStatus=L,!0===R&&(window.executeMessaging=i,window.loadPrivacyManagerModal=c,window.acceptAll=u,window.spContinue=f,window.reject=y,window.consentStatus=O,window.getTcString=x,window.getQrCodeUrl=J,window.getMessageData=A,window.clearUserData=E,window.updateConsentStatus=L);V("spObjectReady"),N=!0}(),c||_sp_.executeMessaging(),P||function(){if(p){Q(proxyEndpoint+"/jsonp/consent/tcfv2/vendor-list/categories?siteId="+s+"&consentLanguage="+i,"handleMessageDataForJsonP")}else T=JSON.parse(X(e+"/consent/tcfv2/vendor-list/categories?siteId="+s+"&consentLanguage="+i)),fe()}(),me()):F("005","No Configuration Found")}function q(){V("onConsentReady",[n,_,D,m,v])}function B(){J=!0,V("onMetaDataReceived",[C])}function F(e,n,t){V("onError",[e,n,t])}function H(e,n){V("onInfo",[e,n])}function G(e){var n=document.getElementById(e);n&&(n.style.display="block",e==l&&V("secondLayerShown"),e==g&&V("firstLayerShown"))}function K(e){var n=document.getElementById(e);if(n){var t="none"!==n.style.display&&null!==n.offsetParent;n.style.display="none",e===l&&t&&V("secondLayerClosed"),e===g&&t&&V("firstLayerClosed")}}function X(e){var n=new XMLHttpRequest;return n.open("GET",e,!1),n.send(null),n.responseText}function X(e){try{var n=new XMLHttpRequest;return n.open("GET",e,!1),n.send(null),200===n.status?n.responseText:(F(n.status,n.statusText),null)}catch(e){return F("404","Request failed:",e),null}}function Q(e,n,t){var o,a=document.createElement("script"),s=document.getElementsByTagName("head")[0]||document.body;t&&(o=setTimeout((function(){window[n]=function(){},s.removeChild(a)}),t));var r=e.indexOf("?")>=0?"&":"?";a.src=e+r+"callback="+n,a.onerror=function(){o&&clearTimeout(o),window[n]=function(){},s.removeChild(a),F("009","Script-Error while processing JSONP-Request for "+n)},s.appendChild(a)}function $(e,n){var t="object"===_typeof(e)&&e instanceof Date?e:new Date(e),o="object"===_typeof(n)&&n instanceof Date?n:new Date(n),a=t.getTime(),s=o.getTime();return a<s?-1:a>s?1:0}function z(e,n){var t=e+"?",o=[];for(var a in n)n.hasOwnProperty(a)&&o.push(encodeURIComponent(a)+"="+encodeURIComponent(n[a]));return t+o.join("&")}function W(){for(var e,n="0123456789abcdef".split(""),t=[],o=Math.random,a=0;a<36;a++)8===a||13===a||18===a||23===a?t[a]="-":14===a?t[a]="4":(e=0|16*o(),t[a]=n[19===a?3&e|8:e]);return t.join("")}function Y(e,n,t){var o="";if(t){var a=new Date;a.setTime(a.getTime()+24*t*60*60*1e3),o="; expires="+a.toUTCString(),domain=void 0!==O?"; domain="+O:""}document.cookie=e+"="+encodeURIComponent(n)+o+domain+"; path=/"}function Z(e){if(e.campaigns&&Array.isArray(e.campaigns))for(var n=0;n<e.campaigns.length;n++){var t=e.campaigns[n];if(t.message&&t.message.message_json)return U=t.messageMetaData,L=t.messageMetaData.messageId,V("onMessageReceivedData",[U]),t.message.message_json}return!1}function ee(e){return"string"==typeof e?encodeURIComponent(e):encodeURIComponent(JSON.stringify(e))}function ne(e,n,t){var o=proxyEndpoint+"/post"+e,a={hasCsp:!0,env:env,ch:j,scriptVersion:scriptVersion,scriptType:scriptType};Q(o+"?body="+encodeURIComponent(JSON.stringify(n))+"&"+_e(a),t)}function te(e){if(_sp_.config.qrId){var n=document.getElementById(_sp_.config.qrId);if(n){var t=(new Date).getTime(),o=-1===e.indexOf("?")?"?":"&";n.src=e+o+"t="+t}else F("010","qr ID is missing in config")}}function oe(t){var r={accountId:a,applies:f,authId:o,messageId:L,mmsDomain:e,propertyId:s,pubData:{},includeData:{actions:{type:"RecordString"},customVendorsResponse:{type:"RecordString"}},uuid:n,sampleRate:C.gdpr.sampleRate,sendPVData:ye(),pmSaveAndExitVariables:t};if(p)ne("/wrapper/v2/choice/gdpr/1",r,"handleLiOnlyCall");else{var i=ue(e+"/wrapper/v2/choice/gdpr/1?hasCsp=true&env=prod&ch="+j+"&scriptVersion="+scriptVersion+"&scriptType="+scriptType);i.onreadystatechange=function(){if(4===i.readyState)if(200===i.status){var e=JSON.parse(i.responseText);le(e.consentStatus,e.uuid,e.dateCreated,e.euconsent,e.grants,e.categories,e.vendors,e.legIntVendors,e.legIntCategories)}else F(i.status,i.responseText)},i.send(JSON.stringify(r))}}function ae(t){A=t.gdpr.consentStatus.granularStatus,E=t.gdpr.consentAllRef,f=t.gdpr.gdprApplies,_=t.gdpr.euconsent,v=t.gdpr.categories,m=t.gdpr.consentStatus,D=t.gdpr.grants,h=t.gdpr.vendors,I=t.gdpr.legIntVendors,S=t.gdpr.legIntCategories;var r={accountId:a,applies:f,authId:o,messageId:L,mmsDomain:e,propertyId:s,pubData:{},includeData:{actions:{type:"RecordString"},customVendorsResponse:{type:"RecordString"}},uuid:n,sampleRate:C.gdpr.sampleRate,sendPVData:ye()},i="/wrapper/v2/choice/gdpr/13";if(p)ne(i,r,"handleRejectAllCall");else{var c=ue(e+i+"?hasCsp=true&env=prod&ch="+j+"&scriptVersion="+scriptVersion+"&scriptType="+scriptType);c.onreadystatechange=function(){if(4===c.readyState)if(200===c.status){var e=JSON.parse(c.responseText);le(e.consentStatus,e.uuid,e.dateCreated,e.euconsent,e.grants,e.categories,e.vendors,e.legIntVendors,e.legIntCategories)}else F("error:",c.responseText)},c.send(JSON.stringify(r))}}function se(t){A=t.gdpr.consentStatus.granularStatus,E=t.gdpr.consentAllRef,f=t.gdpr.gdprApplies,_=t.gdpr.euconsent,v=t.gdpr.categories,m=t.gdpr.consentStatus,D=t.gdpr.grants,h=t.gdpr.vendors,I=t.gdpr.legIntVendors,S=t.gdpr.legIntCategories;var r="/wrapper/v2/choice/gdpr/11",i={accountId:a,applies:f,authId:o,messageId:L,mmsDomain:e,propertyId:s,pubData:{},includeData:{actions:{type:"RecordString"},customVendorsResponse:{type:"RecordString"}},uuid:n,sampleRate:C.gdpr.sampleRate,sendPVData:ye(),consentAllRef:E,granularStatus:A,vendorListId:t.gdpr.vendorListId};if(p)ne(r,i,"handleJsonpAcceptAllCall");else{var c=ue(e+r+"?hasCsp=true&env=prod&ch="+j+"&scriptVersion="+scriptVersion+"&scriptType="+scriptType);c.onreadystatechange=function(){if(4===c.readyState)if(200===c.status){var e=JSON.parse(c.responseText);le(t.gdpr.consentStatus,e.uuid,e.dateCreated,_,t.gdpr.grants,t.gdpr.categories,t.gdpr.vendors,t.gdpr.legIntVendors,t.gdpr.legIntCategories)}else F("error:",c)},c.send(JSON.stringify(i))}}function re(e,n){if(null!=n&&""!==n&&("object"!==_typeof(n)||0!==Object.keys(n).length))if(void 0===window.localStorage||disableLocalStorage)Y(e,JSON.stringify(n),expirationInDays);else try{window.localStorage.setItem(e,JSON.stringify(n))}catch(t){Y(e,JSON.stringify(n),expirationInDays)}}function ie(e){if(void 0===window.localStorage||disableLocalStorage)return JSON.parse(decodeURIComponent(ce(e)));try{return JSON.parse(window.localStorage.getItem(e))}catch(n){return JSON.parse(decodeURIComponent(ce(e)))}}function ce(e){for(var n=document.cookie.split(";"),t=0;t<n.length;t++){var o=n[t].trim();if(0===o.indexOf(e+"="))return decodeURIComponent(o.substring((e+"=").length,o.length))}return null}function pe(e){var n="";void 0!==O&&(n="; domain="+O),document.cookie=e+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC"+n+"; path=/;"}function de(e){if(void 0===window.localStorage||disableLocalStorage)pe(e);else try{window.localStorage.removeItem(e)}catch(n){pe(e)}}function le(e,t,o,a,r,i,c,p,d){m=e,re("consentStatus_"+s,e,expirationInDays),n=t,Y("consentUUID",t,expirationInDays),consentDate=o,Y("consentDate_"+s,o,expirationInDays),_=a,re("euconsent-v2_"+s,a,expirationInDays),re("vendorGrants_"+s,r,expirationInDays),D=r,re("acceptedCategories_"+s,i,expirationInDays),v=i,re("acceptedVendors_"+s,c,expirationInDays),h=c,re("legIntCategories_"+s,d,expirationInDays),S=d,re("legIntVendors_"+s,p,expirationInDays),I=p,V("onConsentStatusReceived",[m]),q()}function ue(e){var n=new XMLHttpRequest;return n.open("POST",e,!0),n.setRequestHeader("accept","*/*"),n.setRequestHeader("accept-language","de,en;q=0.9"),n.setRequestHeader("content-type","application/json"),n}function ge(){var e="";if(null!=x){var n=(new Date).toISOString();e+="&timestamp="+encodeURIComponent(n),e+="&second_screen_timeout="+encodeURIComponent(x)}return _sp_.config.qrUrl+encodeURIComponent(_sp_.config.pmUrl+"?authid="+o+"&consentlanguage="+i+"&propertyid="+s+"&propertyhref="+r+"&accountid="+a+"&pmid="+u+e)}function fe(){if(y){var e=T;te(ge());for(var n=document.getElementsByClassName("all_vendor_count"),t=0;t<n.length;t++)n[t].innerHTML=e.allVendorCount;var o=document.getElementsByClassName("iab_vendor_count");for(t=0;t<o.length;t++)o[t].innerHTML=e.iabVendorCount;var a=document.getElementById("stack_template");if(!a)return void F("099","Template with ID 'stack_template' not found.");for(var s=a.innerHTML,r=document.getElementsByClassName("sp_stacks"),i=document.getElementsByClassName("sp_purposes"),c=document.createDocumentFragment(),p=document.createDocumentFragment(),d=0;d<e.categories.length;d++){var l=e.categories[d],u=s;u=u.replace("{name}",l.name||"").replace("{description}",l.description||"");var g=document.createElement("div");for(g.innerHTML=u;g.firstChild;)"IAB_STACK"===l.type?c.appendChild(g.firstChild):"IAB_PURPOSE"===l.type&&p.appendChild(g.firstChild)}for(var f=0;f<r.length;f++)r[f].appendChild(c.cloneNode(!0));for(f=0;f<i.length;f++)i[f].appendChild(p.cloneNode(!0));P=!0,V("onMessageComposed")}}function ye(){return"true"===t}function _e(e,n){var t=[],o=function(){if(!e.hasOwnProperty(a))return 1;var o=e[a],s=n?"".concat(n,"[").concat(a,"]"):a;null!==o&&"object"===_typeof(o)?Array.isArray(o)?o.forEach((function(e,n){t.push(_e(e,"".concat(s,"[").concat(n,"]")))})):t.push(_e(o,s)):t.push("".concat(encodeURIComponent(s),"=").concat(encodeURIComponent(o)))};for(var a in e)o();return t.join("&")}function me(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=e.timeout,t=void 0===n?5e3:n,o=e.interval,a=void 0===o?200:o,s=e.startTime,r=void 0===s?Date.now():s;return J&&N?(V("readyToExecute"),!0):Date.now()-r>=t?(F("Timeout in isReadyToExecute"),!1):(setTimeout((function(){me({timeout:t,interval:a,startTime:r})}),a),!1)}window._sp_=window._sp_||{},window._sp_.init=k,_sp_.config?k(_sp_.config):console.log("No Global Config found – waiting for sp_init(config)...")}();
+function _typeof(e) {
+  return (
+    (_typeof =
+      "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+        ? function (e) {
+            return typeof e;
+          }
+        : function (e) {
+            return e &&
+              "function" == typeof Symbol &&
+              e.constructor === Symbol &&
+              e !== Symbol.prototype
+              ? "symbol"
+              : typeof e;
+          }),
+    _typeof(e)
+  );
+}
+var env = "prod",
+  scriptVersion = "3.1.0",
+  scriptType = "nativeqr";
+window.JSON ||
+  (window.JSON = {
+    stringify: function (e) {
+      var t = _typeof(e);
+      if ("object" != t || null === e)
+        return "string" == t && (e = '"' + e + '"'), String(e);
+      var n,
+        o,
+        a = [],
+        s = e && e.constructor == Array;
+      for (n in e)
+        "string" == (t = _typeof((o = e[n])))
+          ? (o = '"' + o + '"')
+          : "object" == t && null !== o && (o = JSON.stringify(o)),
+          a.push((s ? "" : '"' + n + '":') + String(o));
+      return (s ? "[" : "{") + String(a) + (s ? "]" : "}");
+    },
+  }),
+  (JSON.parse = function (e) {
+    try {
+      return new Function("return " + e)();
+    } catch (e) {
+      return onError("001", "JSON.parse: ungültiges JSON-Format"), null;
+    }
+  });
+var isArray = function (e) {
+  return "[object Array]" === Object.prototype.toString.call(e);
+};
+function sp_init(e) {
+  (window._sp_ = window._sp_ || {}),
+    (_sp_.config = e),
+    "function" == typeof _sp_.init
+      ? _sp_.init(e)
+      : onError("003", "No init method found");
+}
+Object.keys ||
+  (Object.keys = function (e) {
+    e !== Object(e) && onError("002", "Object.keys called on a non-object");
+    var t,
+      n = [];
+    for (t in e) Object.prototype.hasOwnProperty.call(e, t) && n.push(t);
+    return n;
+  }),
+  (function () {
+    (window.handleMetaDataForJsonP = function (e) {
+      (f = e.gdpr.applies), ce("metaData_" + s, (D = e), expirationInDays), B();
+    }),
+      (window.handleMessageDataForJsonP = function (e) {
+        (b = e), _e();
+      }),
+      (window.handleGetMessagesForJsonP = function (e) {
+        (x = e.campaigns[0].addtlConsent),
+          (_ = e.campaigns[0].euconsent),
+          ce("euconsent-v2_" + s, _, expirationInDays),
+          (P = e.localState),
+          ce("localState_" + s, JSON.parse(e.localState), expirationInDays),
+          (w = e.nonKeyedLocalState),
+          ce(
+            "nonKeyedLocalState_" + s,
+            JSON.parse(e.nonKeyedLocalState),
+            expirationInDays
+          ),
+          ee(e)
+            ? (G(g),
+              tcfEnabled &&
+                "undefined" != typeof __tcfapi &&
+                __tcfapi(
+                  "emitEvent",
+                  2,
+                  function (e, t) {
+                    K("TCF cmpuishown emitted (JSONP):", t);
+                  },
+                  {
+                    eventStatus: "cmpuishown",
+                    cmpStatus: "loaded",
+                    tcString: _ || "",
+                    addtlConsent: x,
+                  }
+                ))
+            : q();
+      }),
+      (window.handleGetConsentStatusForJsonP = function (e) {
+        void 0 !== _typeof(e.consentStatusData.gdpr) &&
+          ((N = !0),
+          ge(
+            e.consentStatusData.gdpr.consentStatus,
+            e.consentStatusData.gdpr.uuid,
+            e.consentStatusData.gdpr.dateCreated,
+            e.consentStatusData.gdpr.euconsent,
+            e.consentStatusData.gdpr.grants,
+            e.consentStatusData.gdpr.acceptedCategories,
+            e.consentStatusData.gdpr.acceptedVendors,
+            e.consentStatusData.gdpr.legIntVendors,
+            e.consentStatusData.gdpr.legIntCategories
+          ));
+      }),
+      (window.handlePvResponse = function (e) {
+        return !0;
+      }),
+      (window.handleAcceptAllResponse = function (e) {
+        e && e.gdpr ? ie(e) : H("Invalid response in handleAcceptAllResponse");
+      }),
+      (window.handleJsonpAcceptAllCall = function (e) {
+        e
+          ? ge(m, e.uuid, e.dateCreated, _, C, S, h, I, v)
+          : H("Invalid response in handleJsonpAcceptAllCall");
+      }),
+      (window.handleLiOnlyResponse = function (e) {
+        se(e);
+      }),
+      (window.handleLiOnlyCall = function (e) {
+        ge(
+          e.consentStatus,
+          e.uuid,
+          e.dateCreated,
+          e.euconsent,
+          e.grants,
+          e.acceptedCategories,
+          e.acceptedVendors,
+          e.legIntVendors,
+          e.legIntCategories
+        );
+      }),
+      (window.handleRejectAllResponse = function (e) {
+        re(e);
+      }),
+      (window.handleRejectAllCall = function (e) {
+        ge(
+          e.consentStatus,
+          e.uuid,
+          e.dateCreated,
+          e.euconsent,
+          e.grants,
+          e.acceptedCategories,
+          e.acceptedVendors,
+          e.legIntVendors,
+          e.legIntCategories
+        );
+      });
+    var e,
+      t,
+      n,
+      o,
+      a,
+      s,
+      r,
+      i,
+      c,
+      p,
+      d,
+      u,
+      l,
+      g,
+      f,
+      y,
+      _,
+      m,
+      S,
+      v,
+      I,
+      h,
+      w,
+      C,
+      D,
+      R,
+      T,
+      O,
+      b,
+      x,
+      V = function (e, t) {
+        var n = window._sp_.config.events[e];
+        "function" == typeof n && n.apply(null, t || []);
+      },
+      E = !1,
+      J = !1,
+      N = !1,
+      A = null,
+      j = null,
+      U = Math.floor(1e6 * Math.random()),
+      L = null,
+      M = null,
+      P = null,
+      F = !1;
+    function k(x) {
+      if (
+        ((_sp_.config = x),
+        (x = x || (_sp_ && _sp_.config)),
+        V("initReceivedData", [x]),
+        (_sp_.config.events = _sp_.config.events || {}),
+        (_sp_.version = scriptVersion),
+        (a = _sp_.config.accountId),
+        (i = _sp_.config.consentLanguage || "EN"),
+        (expirationInDays = _sp_.config.expirationInDays || 365),
+        (c = _sp_.config.isSPA),
+        (p = _sp_.config.isJSONp))
+      ) {
+        if (
+          ((proxyEndpoint = _sp_.config.proxyEndpoint),
+          "undefined" == typeof proxyEndpoint)
+        )
+          return void H("004", "jsonPProxyEndpoint is undefined");
+        proxyEndpoint = _sp_.config.proxyEndpoint.replace(/\/+$/, "");
+      }
+      (e = _sp_.config.baseEndpoint.replace(/\/+$/, "")),
+        (R = _sp_.config.exposeGlobals),
+        (disableLocalStorage = _sp_.config.disableLocalStorage),
+        (T = _sp_.config.cookieDomain),
+        (O = _sp_.config.secondScreenTimeOut),
+        (tcfEnabled = _sp_.config.tcfEnabled),
+        tcfEnabled &&
+          "undefined" == typeof __tcfapi &&
+          H("777", "TCFenabled but files are missing"),
+        (r = _sp_.config.propertyHref),
+        (s = _sp_.config.propertyId),
+        (targetingParams = _sp_.config.targetingParams),
+        (d = de("consentDate_" + s)),
+        (_ = pe("euconsent-v2_" + s)),
+        (m = pe("consentStatus_" + s) || null),
+        (P = pe("localState_" + s)),
+        (D = pe("metaData_" + s)),
+        (C = pe("vendorGrants_" + s)),
+        (w = pe("nonKeyedLocalState_" + s)),
+        (S = pe("acceptedCategories_" + s)),
+        (h = pe("acceptedVendors_" + s)),
+        (v = pe("legIntCategories_" + s)),
+        (I = pe("legIntVendors_" + s)),
+        x
+          ? (!(function () {
+              var t = {
+                hasCsp: "true",
+                accountId: a,
+                env: "prod",
+                metadata: '{"gdpr":{}}',
+                propertyId: s,
+                scriptVersion: scriptVersion,
+                scriptType: scriptType,
+              };
+              if (p)
+                var n = $(
+                  W((o = proxyEndpoint + "/jsonp/wrapper/v2/meta-data"), t),
+                  "handleMetaDataForJsonP"
+                );
+              else {
+                var o = e + "/wrapper/v2/meta-data";
+                void 0 === (n = JSON.parse(X(W(o, t))))
+                  ? H("010", "MetaDataCall failed")
+                  : ((f = (D = n).gdpr.applies), B()),
+                  ce("metaData_" + s, D, expirationInDays);
+              }
+            })(),
+            (t = de("consentUUID")),
+            (n = de("sp_su")),
+            (o = de("authId") || _sp_.config.authId),
+            null == t && Z("consentUUID", (t = Y()), expirationInDays),
+            null == o && Z("authId", (o = Y()), expirationInDays),
+            (g = _sp_.config.messageDiv),
+            (u = _sp_.config.pmDiv),
+            (l =
+              "undefined" != typeof _sp_ && _sp_.config && _sp_.config.pmId
+                ? _sp_.config.pmId
+                : 1196474),
+            (y = !(
+              "undefined" == typeof _sp_ ||
+              !_sp_.config ||
+              !0 !== _sp_.config.buildMessageComponents
+            )),
+            (function () {
+              var r = function (e) {
+                  e && (targetingParams = e),
+                    Q(u),
+                    Q(g),
+                    te(),
+                    K("Messaging executed!");
+                },
+                i = function () {
+                  ae(ye()), G(u), Q(g);
+                },
+                c = function () {
+                  Q(u),
+                    Q(g),
+                    (function () {
+                      var t = "/wrapper/v2/choice/consent-all",
+                        n = p ? proxyEndpoint + "/jsonp" + t : e + t,
+                        r = Se({
+                          hasCsp: "true",
+                          authId: o,
+                          accountId: a,
+                          env: "prod",
+                          includeCustomVendorsRes: "true",
+                          metadata: JSON.stringify(D),
+                          propertyId: s,
+                          withSiteActions: "true",
+                          ch: U,
+                          scriptVersion: scriptVersion,
+                          scriptType: scriptType,
+                        }),
+                        i = n + "?" + r;
+                      if (p) $(i, "handleAcceptAllResponse");
+                      else {
+                        var c = X(i);
+                        ie(JSON.parse(c));
+                      }
+                    })();
+                },
+                l = function () {
+                  Q(u),
+                    Q(g),
+                    p
+                      ? $(
+                          proxyEndpoint +
+                            "/jsonp/consent/tcfv2/consent/v3/" +
+                            s +
+                            "/li-only",
+                          "handleLiOnlyResponse"
+                        )
+                      : se(
+                          JSON.parse(
+                            X(e + "/consent/tcfv2/consent/v3/" + s + "/li-only")
+                          )
+                        );
+                },
+                f = function () {
+                  Q(u),
+                    Q(g),
+                    (function () {
+                      var t = "/wrapper/v2/choice/reject-all",
+                        n = p ? proxyEndpoint + "/jsonp" + t : e + t,
+                        r = Se({
+                          hasCsp: "true",
+                          authId: o,
+                          accountId: a,
+                          env: "prod",
+                          includeCustomVendorsRes: "true",
+                          metadata: JSON.stringify(D),
+                          propertyId: s,
+                          withSiteActions: "true",
+                          ch: U,
+                          scriptVersion: scriptVersion,
+                          scriptType: scriptType,
+                        }),
+                        i = n + "?" + r;
+                      if (p) $(i, "handleRejectAllResponse");
+                      else {
+                        var c = X(n + "?" + r);
+                        re(JSON.parse(c));
+                      }
+                    })();
+                },
+                y = function () {
+                  return m;
+                },
+                T = function () {
+                  return _;
+                },
+                O = function () {
+                  return ye();
+                },
+                x = function () {
+                  return b;
+                },
+                E = function () {
+                  return (
+                    ue("authId"),
+                    ue("consentUUID"),
+                    le("metaData_" + s),
+                    ue("consentDate_" + s),
+                    le("consentStatus_" + s),
+                    le("euconsent-v2_" + s),
+                    le("localState_" + s),
+                    le("nonKeyedLocalState_" + s),
+                    le("vendorGrants_" + s),
+                    le("acceptedVendors_" + s),
+                    le("acceptedCategories_" + s),
+                    le("legIntVendors_" + s),
+                    le("legIntCategories_" + s),
+                    ue("sp_su"),
+                    Q(u),
+                    Q(g),
+                    (consentDate = null),
+                    (t = null),
+                    (n = null),
+                    (o = null),
+                    (d = null),
+                    (_ = null),
+                    (m = null),
+                    (S = null),
+                    (v = null),
+                    (I = null),
+                    (h = null),
+                    (w = null),
+                    (C = null),
+                    (P = null),
+                    !0
+                  );
+                },
+                A = function () {
+                  Q(u),
+                    Q(g),
+                    (function (t) {
+                      if (null !== m && !t && m.consentedAll) return;
+                      var n =
+                          (p ? proxyEndpoint + "/jsonp" : e) +
+                          "/wrapper/v2/consent-status",
+                        r = {
+                          hasCsp: "true",
+                          accountId: a,
+                          env: "prod",
+                          localState: P,
+                          nonKeyedLocalState: w,
+                          metadata: JSON.stringify(D),
+                          propertyId: s,
+                          withSiteActions: "true",
+                          authId: o,
+                          ch: U,
+                          scriptVersion: scriptVersion,
+                          scriptType: scriptType,
+                        };
+                      if (p) $(W(n, r), "handleGetConsentStatusForJsonP");
+                      else {
+                        var i = JSON.parse(X(W(n, r)));
+                        void 0 !== _typeof(i.consentStatusData.gdpr) &&
+                          ((N = !0),
+                          ge(
+                            i.consentStatusData.gdpr.consentStatus,
+                            i.consentStatusData.gdpr.consentUUID,
+                            i.consentStatusData.gdpr.dateCreated,
+                            i.consentStatusData.gdpr.euconsent,
+                            i.consentStatusData.gdpr.grants,
+                            i.consentStatusData.gdpr.acceptedVendors,
+                            i.consentStatusData.gdpr.legIntVendors,
+                            i.consentStatusData.gdpr.legIntCategories
+                          ));
+                      }
+                    })("true"),
+                    te();
+                };
+              (_sp_.executeMessaging = r),
+                (_sp_.loadPrivacyManagerModal = i),
+                (_sp_.acceptAll = c),
+                (_sp_.continue = l),
+                (_sp_.reject = f),
+                (_sp_.consentStatus = y),
+                (_sp_.getTcString = T),
+                (_sp_.getQrCodeUrl = O),
+                (_sp_.getMessageData = x),
+                (_sp_.clearUserData = E),
+                (_sp_.updateConsentStatus = A),
+                !0 === R &&
+                  ((window.executeMessaging = r),
+                  (window.loadPrivacyManagerModal = i),
+                  (window.acceptAll = c),
+                  (window.spContinue = l),
+                  (window.reject = f),
+                  (window.consentStatus = y),
+                  (window.getTcString = T),
+                  (window.getQrCodeUrl = O),
+                  (window.getMessageData = x),
+                  (window.clearUserData = E),
+                  (window.updateConsentStatus = A));
+              V("spObjectReady"), (J = !0);
+            })(),
+            c || _sp_.executeMessaging(),
+            F ||
+              (function () {
+                if (p) {
+                  $(
+                    proxyEndpoint +
+                      "/jsonp/consent/tcfv2/vendor-list/categories?siteId=" +
+                      s +
+                      "&consentLanguage=" +
+                      i,
+                    "handleMessageDataForJsonP"
+                  );
+                } else
+                  (b = JSON.parse(
+                    X(
+                      e +
+                        "/consent/tcfv2/vendor-list/categories?siteId=" +
+                        s +
+                        "&consentLanguage=" +
+                        i
+                    )
+                  )),
+                    _e();
+              })(),
+            ve())
+          : H("005", "No Configuration Found");
+    }
+    function q(e) {
+      V("onConsentReady", [t, _, C, m, S]),
+        !e &&
+          tcfEnabled &&
+          "undefined" != typeof __tcfapi &&
+          __tcfapi(
+            "emitEvent",
+            2,
+            function (e, t) {
+              K("[TCF] onConsentReady - emitting tcloaded:", t);
+            },
+            {
+              eventStatus: "tcloaded",
+              cmpStatus: "loaded",
+              tcString: _ || "",
+              addtlConsent: x || "",
+            }
+          );
+    }
+    function B() {
+      (E = !0), V("onMetaDataReceived", [D]);
+    }
+    function H(e, t, n) {
+      V("onError", [e, t, n]);
+    }
+    function K(e, t) {
+      V("onInfo", [e, t]);
+    }
+    function G(e) {
+      var t = document.getElementById(e);
+      t &&
+        ((t.style.display = "block"),
+        e == u &&
+          (V("secondLayerShown"),
+          tcfEnabled &&
+            "undefined" != typeof __tcfapi &&
+            __tcfapi(
+              "emitEvent",
+              2,
+              function (e, t) {
+                K("[TCF] PM shown - cmpuishown emitted:", t);
+              },
+              {
+                eventStatus: "cmpuishown",
+                cmpStatus: "visible",
+                tcString: _ || "",
+                addtlConsent: x,
+              }
+            )),
+        e == g && V("firstLayerShown"));
+    }
+    function Q(e) {
+      var t = document.getElementById(e);
+      if (t) {
+        var n = "none" !== t.style.display && null !== t.offsetParent;
+        (t.style.display = "none"),
+          e === u && n && V("secondLayerClosed"),
+          e === g && n && V("firstLayerClosed");
+      }
+    }
+    function X(e) {
+      try {
+        var t = new XMLHttpRequest();
+        return (
+          t.open("GET", e, !1),
+          t.send(null),
+          200 === t.status ? t.responseText : (H(t.status, t.statusText), null)
+        );
+      } catch (e) {
+        return H("404", "Request failed:", e), null;
+      }
+    }
+    function $(e, t, n) {
+      var o,
+        a = document.createElement("script"),
+        s = document.getElementsByTagName("head")[0] || document.body;
+      n &&
+        (o = setTimeout(function () {
+          (window[t] = function () {}), s.removeChild(a);
+        }, n));
+      var r = e.indexOf("?") >= 0 ? "&" : "?";
+      (a.src = e + r + "callback=" + t),
+        (a.onerror = function () {
+          o && clearTimeout(o),
+            (window[t] = function () {}),
+            s.removeChild(a),
+            H(
+              "009",
+              "Script-Error while processing JSONP-Request for " + a.src
+            );
+        }),
+        s.appendChild(a);
+    }
+    function z(e, t) {
+      var n = "object" === _typeof(e) && e instanceof Date ? e : new Date(e),
+        o = "object" === _typeof(t) && t instanceof Date ? t : new Date(t),
+        a = n.getTime(),
+        s = o.getTime();
+      return a < s ? -1 : a > s ? 1 : 0;
+    }
+    function W(e, t) {
+      var n = e + "?",
+        o = [];
+      for (var a in t)
+        t.hasOwnProperty(a) &&
+          o.push(encodeURIComponent(a) + "=" + encodeURIComponent(t[a]));
+      return n + o.join("&");
+    }
+    function Y() {
+      for (
+        var e, t = "0123456789abcdef".split(""), n = [], o = Math.random, a = 0;
+        a < 36;
+        a++
+      )
+        8 === a || 13 === a || 18 === a || 23 === a
+          ? (n[a] = "-")
+          : 14 === a
+          ? (n[a] = "4")
+          : ((e = 0 | (16 * o())), (n[a] = t[19 === a ? (3 & e) | 8 : e]));
+      return n.join("");
+    }
+    function Z(e, t, n) {
+      var o = "";
+      if (n) {
+        var a = new Date();
+        a.setTime(a.getTime() + 24 * n * 60 * 60 * 1e3),
+          (o = "; expires=" + a.toUTCString()),
+          (domain = void 0 !== T ? "; domain=" + T : "");
+      }
+      document.cookie =
+        e + "=" + encodeURIComponent(t) + o + domain + "; path=/";
+    }
+    function ee(e) {
+      if (e.campaigns && Array.isArray(e.campaigns))
+        for (var t = 0; t < e.campaigns.length; t++) {
+          var n = e.campaigns[t];
+          if (n.message && n.message.message_json)
+            return (
+              (M = n.messageMetaData),
+              (L = n.messageMetaData.messageId),
+              V("onMessageReceivedData", [M]),
+              n.message.message_json
+            );
+        }
+      return !1;
+    }
+    function te() {
+      if (
+        ((u = !1),
+        null === m ||
+          !m.consentedAll ||
+          (null !== d &&
+            (1 === z(D.gdpr.legalBasisChangeDate, d) &&
+              ((m.legalBasisChanges = !0), (u = !0)),
+            1 === z(D.gdpr.additionsChangeDate, d) &&
+              ((m.vendorListAdditions = !0), (u = !0))),
+          u))
+      ) {
+        var o = {
+            accountId: a,
+            campaignEnv: "prod",
+            campaigns: {
+              gdpr: {
+                consentStatus: m,
+                hasLocalData: N,
+                targetingParams: targetingParams,
+              },
+            },
+            clientMMSOrigin: e,
+            hasCSP: !0,
+            includeData: {
+              localState: { type: "string" },
+              actions: { type: "RecordString" },
+              cookies: { type: "RecordString" },
+            },
+            propertyHref: r,
+            propertyId: s,
+          },
+          i =
+            (p ? proxyEndpoint + "/jsonp" : e) +
+            "/wrapper/v2/messages?hasCsp=true&env=prod&body=" +
+            ne(o) +
+            "&localState=" +
+            ne(P) +
+            "&metadata=" +
+            ne(D) +
+            "&nonKeyedLocalState=" +
+            ne(w) +
+            "&ch=" +
+            U +
+            "&scriptVersion=" +
+            scriptVersion +
+            "&scriptType=" +
+            scriptType;
+        if (p) var c = $(i, "handleGetMessagesForJsonP");
+        else {
+          c = JSON.parse(X(i));
+          (P = c.localState),
+            ce("localState_" + s, JSON.parse(c.localState), expirationInDays),
+            (w = c.nonKeyedLocalState),
+            ce(
+              "nonKeyedLocalState_" + s,
+              JSON.parse(c.nonKeyedLocalState),
+              expirationInDays
+            ),
+            ee(c)
+              ? (G(g),
+                tcfEnabled &&
+                  "undefined" != typeof __tcfapi &&
+                  __tcfapi(
+                    "emitEvent",
+                    2,
+                    function (e, t) {
+                      K("TCF cmpuishown emitted:", t);
+                    },
+                    {
+                      eventStatus: "cmpuishown",
+                      cmpStatus: "loaded",
+                      tcString: _ || "",
+                      addtlConsent: x,
+                    }
+                  ))
+              : q();
+        }
+      } else q();
+      var u;
+      !(function () {
+        if (
+          ((function (e) {
+            if (!n) {
+              var t = Math.random();
+              (n = t < e), Z("sp_su", JSON.stringify(n), expirationInDays);
+            }
+          })(D.gdpr.sampleRate),
+          "true" === n)
+        ) {
+          var o = {
+            gdpr: {
+              applies: !0,
+              consentStatus: m,
+              accountId: a,
+              euconsent: _,
+              mmsDomain: e,
+              propertyId: s,
+              siteId: s,
+              pubData: {},
+              uuid: t,
+              sampleRate: D.gdpr.sampleRate,
+              withSiteActions: !0,
+            },
+          };
+          if (
+            (M &&
+              ((o.gdpr.categoryId = M.categoryId),
+              (o.gdpr.subCategoryId = M.subCategoryId),
+              (o.gdpr.msgId = M.messageId),
+              (o.gdpr.prtnUUID = M.prtnUUID)),
+            p)
+          )
+            oe("/wrapper/v2/pv-data", o, "handlePvResponse");
+          else {
+            var r = fe(
+              e +
+                "/wrapper/v2/pv-data?hasCsp=true&env=prod&ch=" +
+                U +
+                "&scriptVersion=" +
+                scriptVersion +
+                "&scriptType=" +
+                scriptType
+            );
+            (r.onreadystatechange = function () {
+              4 === r.readyState &&
+                (200 === r.status
+                  ? K("PV-Daten send:", r.responseText)
+                  : 4 === r.readyState &&
+                    H("PV-ERROR:" + r.status, r.responseText));
+            }),
+              r.send(JSON.stringify(o));
+          }
+        }
+      })();
+    }
+    function ne(e) {
+      return "string" == typeof e
+        ? encodeURIComponent(e)
+        : encodeURIComponent(JSON.stringify(e));
+    }
+    function oe(e, t, n) {
+      var o = proxyEndpoint + "/post" + e,
+        a = {
+          hasCsp: !0,
+          env: env,
+          ch: U,
+          scriptVersion: scriptVersion,
+          scriptType: scriptType,
+        };
+      $(o + "?body=" + encodeURIComponent(JSON.stringify(t)) + "&" + Se(a), n);
+    }
+    function ae(e) {
+      if (_sp_.config.qrId) {
+        var t = document.getElementById(_sp_.config.qrId);
+        if (t) {
+          var n = new Date().getTime(),
+            o = -1 === e.indexOf("?") ? "?" : "&";
+          t.src = e + o + "t=" + n;
+        } else H("010", "qr ID is missing in config");
+      }
+    }
+    function se(n) {
+      var r = {
+        accountId: a,
+        applies: f,
+        authId: o,
+        messageId: L,
+        mmsDomain: e,
+        propertyId: s,
+        pubData: {},
+        includeData: {
+          actions: { type: "RecordString" },
+          customVendorsResponse: { type: "RecordString" },
+        },
+        uuid: t,
+        sampleRate: D.gdpr.sampleRate,
+        sendPVData: me(),
+        pmSaveAndExitVariables: n,
+      };
+      if (p) oe("/wrapper/v2/choice/gdpr/1", r, "handleLiOnlyCall");
+      else {
+        var i = fe(
+          e +
+            "/wrapper/v2/choice/gdpr/1?hasCsp=true&env=prod&ch=" +
+            U +
+            "&scriptVersion=" +
+            scriptVersion +
+            "&scriptType=" +
+            scriptType
+        );
+        (i.onreadystatechange = function () {
+          if (4 === i.readyState)
+            if (200 === i.status) {
+              var e = JSON.parse(i.responseText);
+              ge(
+                e.consentStatus,
+                e.uuid,
+                e.dateCreated,
+                e.euconsent,
+                e.grants,
+                e.categories,
+                e.vendors,
+                e.legIntVendors,
+                e.legIntCategories
+              );
+            } else H(i.status, i.responseText);
+        }),
+          i.send(JSON.stringify(r));
+      }
+    }
+    function re(n) {
+      (A = n.gdpr.consentStatus.granularStatus),
+        (j = n.gdpr.consentAllRef),
+        (f = n.gdpr.gdprApplies),
+        (_ = n.gdpr.euconsent),
+        (S = n.gdpr.categories),
+        (m = n.gdpr.consentStatus),
+        (C = n.gdpr.grants),
+        (h = n.gdpr.vendors),
+        (I = n.gdpr.legIntVendors),
+        (v = n.gdpr.legIntCategories);
+      var r = {
+          accountId: a,
+          applies: f,
+          authId: o,
+          messageId: L,
+          mmsDomain: e,
+          propertyId: s,
+          pubData: {},
+          includeData: {
+            actions: { type: "RecordString" },
+            customVendorsResponse: { type: "RecordString" },
+          },
+          uuid: t,
+          sampleRate: D.gdpr.sampleRate,
+          sendPVData: me(),
+        },
+        i = "/wrapper/v2/choice/gdpr/13";
+      if (p) oe(i, r, "handleRejectAllCall");
+      else {
+        var c = fe(
+          e +
+            i +
+            "?hasCsp=true&env=prod&ch=" +
+            U +
+            "&scriptVersion=" +
+            scriptVersion +
+            "&scriptType=" +
+            scriptType
+        );
+        (c.onreadystatechange = function () {
+          if (4 === c.readyState)
+            if (200 === c.status) {
+              var e = JSON.parse(c.responseText);
+              ge(
+                e.consentStatus,
+                e.uuid,
+                e.dateCreated,
+                e.euconsent,
+                e.grants,
+                e.categories,
+                e.vendors,
+                e.legIntVendors,
+                e.legIntCategories
+              );
+            } else H("error:", c.responseText);
+        }),
+          c.send(JSON.stringify(r));
+      }
+    }
+    function ie(n) {
+      (A = n.gdpr.consentStatus.granularStatus),
+        (j = n.gdpr.consentAllRef),
+        (f = n.gdpr.gdprApplies),
+        (_ = n.gdpr.euconsent),
+        (S = n.gdpr.categories),
+        (m = n.gdpr.consentStatus),
+        (C = n.gdpr.grants),
+        (h = n.gdpr.vendors),
+        (I = n.gdpr.legIntVendors),
+        (v = n.gdpr.legIntCategories);
+      var r = "/wrapper/v2/choice/gdpr/11",
+        i = {
+          accountId: a,
+          applies: f,
+          authId: o,
+          messageId: L,
+          mmsDomain: e,
+          propertyId: s,
+          pubData: {},
+          includeData: {
+            actions: { type: "RecordString" },
+            customVendorsResponse: { type: "RecordString" },
+          },
+          uuid: t,
+          sampleRate: D.gdpr.sampleRate,
+          sendPVData: me(),
+          consentAllRef: j,
+          granularStatus: A,
+          vendorListId: n.gdpr.vendorListId,
+        };
+      if (p) oe(r, i, "handleJsonpAcceptAllCall");
+      else {
+        var c = fe(
+          e +
+            r +
+            "?hasCsp=true&env=prod&ch=" +
+            U +
+            "&scriptVersion=" +
+            scriptVersion +
+            "&scriptType=" +
+            scriptType
+        );
+        (c.onreadystatechange = function () {
+          if (4 === c.readyState)
+            if (200 === c.status) {
+              var e = JSON.parse(c.responseText);
+              ge(
+                n.gdpr.consentStatus,
+                e.uuid,
+                e.dateCreated,
+                _,
+                n.gdpr.grants,
+                n.gdpr.categories,
+                n.gdpr.vendors,
+                n.gdpr.legIntVendors,
+                n.gdpr.legIntCategories
+              );
+            } else H("error:", c);
+        }),
+          c.send(JSON.stringify(i));
+      }
+    }
+    function ce(e, t) {
+      if (
+        null != t &&
+        "" !== t &&
+        ("object" !== _typeof(t) || 0 !== Object.keys(t).length)
+      )
+        if (void 0 === window.localStorage || disableLocalStorage)
+          Z(e, JSON.stringify(t), expirationInDays);
+        else
+          try {
+            window.localStorage.setItem(e, JSON.stringify(t));
+          } catch (n) {
+            Z(e, JSON.stringify(t), expirationInDays);
+          }
+    }
+    function pe(e) {
+      if (void 0 === window.localStorage || disableLocalStorage)
+        return JSON.parse(decodeURIComponent(de(e)));
+      try {
+        return JSON.parse(window.localStorage.getItem(e));
+      } catch (t) {
+        return JSON.parse(decodeURIComponent(de(e)));
+      }
+    }
+    function de(e) {
+      for (var t = document.cookie.split(";"), n = 0; n < t.length; n++) {
+        var o = t[n].trim();
+        if (0 === o.indexOf(e + "="))
+          return decodeURIComponent(o.substring((e + "=").length, o.length));
+      }
+      return null;
+    }
+    function ue(e) {
+      var t = "";
+      void 0 !== T && (t = "; domain=" + T),
+        (document.cookie =
+          e + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC" + t + "; path=/;");
+    }
+    function le(e) {
+      if (void 0 === window.localStorage || disableLocalStorage) ue(e);
+      else
+        try {
+          window.localStorage.removeItem(e);
+        } catch (t) {
+          ue(e);
+        }
+    }
+    function ge(e, n, o, a, r, i, c, p, d) {
+      (m = e),
+        ce("consentStatus_" + s, e, expirationInDays),
+        (t = n),
+        Z("consentUUID", n, expirationInDays),
+        (consentDate = o),
+        Z("consentDate_" + s, o, expirationInDays),
+        (_ = a),
+        ce("euconsent-v2_" + s, a, expirationInDays),
+        ce("vendorGrants_" + s, r, expirationInDays),
+        (C = r),
+        ce("acceptedCategories_" + s, i, expirationInDays),
+        (S = i),
+        ce("acceptedVendors_" + s, c, expirationInDays),
+        (h = c),
+        ce("legIntCategories_" + s, d, expirationInDays),
+        (v = d),
+        ce("legIntVendors_" + s, p, expirationInDays),
+        (I = p),
+        V("onConsentStatusReceived", [m]),
+        tcfEnabled &&
+          "undefined" != typeof __tcfapi &&
+          __tcfapi(
+            "emitEvent",
+            2,
+            function (e, t) {
+              K("TCF storeConsentResponse useractioncomplete emitted:", t);
+            },
+            {
+              eventStatus: "useractioncomplete",
+              cmpStatus: "loaded",
+              tcString: a,
+              addtlConsent: x,
+            }
+          ),
+        q(!0);
+    }
+    function fe(e) {
+      var t = new XMLHttpRequest();
+      return (
+        t.open("POST", e, !0),
+        t.setRequestHeader("accept", "*/*"),
+        t.setRequestHeader("accept-language", "de,en;q=0.9"),
+        t.setRequestHeader("content-type", "application/json"),
+        t
+      );
+    }
+    function ye() {
+      var e = "";
+      if (null != O) {
+        var t = new Date().toISOString();
+        (e += "&timestamp=" + encodeURIComponent(t)),
+          (e += "&second_screen_timeout=" + encodeURIComponent(O));
+      }
+      return (
+        _sp_.config.qrUrl +
+        encodeURIComponent(
+          _sp_.config.pmUrl +
+            "?authid=" +
+            o +
+            "&consentlanguage=" +
+            i +
+            "&propertyid=" +
+            s +
+            "&propertyhref=" +
+            r +
+            "&accountid=" +
+            a +
+            "&pmid=" +
+            l +
+            e
+        )
+      );
+    }
+    function _e() {
+      if (y) {
+        var e = b;
+        ae(ye());
+        for (
+          var t = document.getElementsByClassName("all_vendor_count"), n = 0;
+          n < t.length;
+          n++
+        )
+          t[n].innerHTML = e.allVendorCount;
+        var o = document.getElementsByClassName("iab_vendor_count");
+        for (n = 0; n < o.length; n++) o[n].innerHTML = e.iabVendorCount;
+        var a = document.getElementById("stack_template");
+        if (!a)
+          return void H("099", "Template with ID 'stack_template' not found.");
+        for (
+          var s = a.innerHTML,
+            r = document.getElementsByClassName("sp_stacks"),
+            i = document.getElementsByClassName("sp_purposes"),
+            c = document.createDocumentFragment(),
+            p = document.createDocumentFragment(),
+            d = 0;
+          d < e.categories.length;
+          d++
+        ) {
+          var u = e.categories[d],
+            l = s;
+          l = l
+            .replace("{name}", u.name || "")
+            .replace("{description}", u.description || "");
+          var g = document.createElement("div");
+          for (g.innerHTML = l; g.firstChild; )
+            "IAB_STACK" === u.type
+              ? c.appendChild(g.firstChild)
+              : "IAB_PURPOSE" === u.type && p.appendChild(g.firstChild);
+        }
+        for (var f = 0; f < r.length; f++) r[f].appendChild(c.cloneNode(!0));
+        for (f = 0; f < i.length; f++) i[f].appendChild(p.cloneNode(!0));
+        (F = !0), V("onMessageComposed");
+      }
+    }
+    function me() {
+      return "true" === n;
+    }
+    function Se(e, t) {
+      var n = [],
+        o = function () {
+          if (!e.hasOwnProperty(a)) return 1;
+          var o = e[a],
+            s = t ? "".concat(t, "[").concat(a, "]") : a;
+          null !== o && "object" === _typeof(o)
+            ? Array.isArray(o)
+              ? o.forEach(function (e, t) {
+                  n.push(Se(e, "".concat(s, "[").concat(t, "]")));
+                })
+              : n.push(Se(o, s))
+            : n.push(
+                ""
+                  .concat(encodeURIComponent(s), "=")
+                  .concat(encodeURIComponent(o))
+              );
+        };
+      for (var a in e) o();
+      return n.join("&");
+    }
+    function ve() {
+      var e =
+          arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {},
+        t = e.timeout,
+        n = void 0 === t ? 5e3 : t,
+        o = e.interval,
+        a = void 0 === o ? 200 : o,
+        s = e.startTime,
+        r = void 0 === s ? Date.now() : s;
+      return E && J
+        ? (V("readyToExecute"), !0)
+        : Date.now() - r >= n
+        ? (H("Timeout in isReadyToExecute"), !1)
+        : (setTimeout(function () {
+            ve({ timeout: n, interval: a, startTime: r });
+          }, a),
+          !1);
+    }
+    (window._sp_ = window._sp_ || {}),
+      (window._sp_.init = k),
+      _sp_.config
+        ? k(_sp_.config)
+        : K("No Global Config found – waiting for sp_init(config)...");
+  })();
