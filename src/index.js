@@ -262,8 +262,8 @@ function sp_init(config) {
 
     var loadPrivacyManagerModalFunc = function () {
       updateQrUrl(getQrCodeUrl());
-      showElement(pmDiv);
       hideElement(messageDiv);
+      showElement(pmDiv);
     };
 
     var acceptAllFunc = function () {
@@ -315,6 +315,8 @@ function sp_init(config) {
       deleteItem("legIntVendors_" + propertyId);
       deleteItem("legIntCategories_" + propertyId);
       deleteCookie("sp_su");
+      deleteCookie("consent-sync-expiry");
+      deleteCookie("consent-version");
       hideElement(pmDiv);
       hideElement(messageDiv);
 
