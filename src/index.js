@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.1.0";
+var scriptVersion = "3.1.1";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -86,6 +86,11 @@ function sp_init(config) {
 	window.handleRejectAllCall = handleRejectAllCall;
 
 	var triggerEvent = function(eventName, args) {
+	    // Ensure the _sp_ object structure exists
+	    window._sp_ = window._sp_ || {};
+	    window._sp_.config = window._sp_.config || {};
+	    window._sp_.config.events = window._sp_.config.events || {};
+	    
 	    var event = window._sp_.config.events[eventName];
 	    if (typeof event === 'function') {
 	        event.apply(null, args || []);
