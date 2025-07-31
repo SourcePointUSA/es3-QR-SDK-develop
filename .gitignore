@@ -48,3 +48,4 @@ coverage/
 # Optional: ESLint and Prettier
 .eslintcache
 .prettiercache
+example/withinit.html
