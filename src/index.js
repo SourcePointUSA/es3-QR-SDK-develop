@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.1.1";
+var scriptVersion = "3.1.2";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -412,8 +412,10 @@ function sp_init(config) {
 	}
 
 	function showElement(elementId) {
-	    var element = document.getElementById(elementId); 
+ 	    var element = document.getElementById(elementId); 
+	    
 	    if (element) {
+ 
 	        element.style.display = 'block'; 
 	        
 	        if(elementId == pmDiv) {
@@ -570,13 +572,13 @@ function sp_init(config) {
 	}
 
 	function checkMessageJson(response) {
-	    if (response.campaigns && Array.isArray(response.campaigns)) {
+ 	    if (response.campaigns && Array.isArray(response.campaigns)) {
 	        for (var i = 0; i < response.campaigns.length; i++) {
 	            var campaign = response.campaigns[i];
 
 	            if (campaign.message && campaign.message.message_json) {
 	            	messageMetaData = campaign.messageMetaData
-	            	messageId = campaign.messageMetaData.messageId;
+ 	            	messageId = campaign.messageMetaData.messageId;
 	            	onMessageReceivedData();
 	                return campaign.message.message_json;
 	            }
@@ -652,6 +654,7 @@ function sp_init(config) {
 
 				if (isJSONp) {
 				    var res = jsonpGet(fullURL, "handleGetMessagesForJsonP");
+
 				}else{
 					var res = JSON.parse(httpGet(fullURL));
 
@@ -677,17 +680,18 @@ function sp_init(config) {
 		                        }
 		                    );
 		                }
+
 		            }
 				    else{
 		    			onConsentReady()
 		    		}
-
+		    		sendReportingData();
 				}
     		}else{
     			onConsentReady()
     		}
 
-		sendReportingData();
+			
 	}
 
 	function json2QueryParam(jsonObject){
@@ -1227,14 +1231,11 @@ function sp_init(config) {
 
 		return sampledUser
 	}
-
+	
 	function getSampleUser(){
-		if(sampledUser === "true"){  
-			return true
-		}else{
-			return false
-		}
+  		return sampledUser === true || sampledUser === "true";
 	}
+
 
 	function toQueryParams(obj, prefix) {
 	    const str = [];
@@ -1262,7 +1263,8 @@ function sp_init(config) {
 
 	function sendReportingData() {
 		sampleUser(metaData.gdpr.sampleRate);
-		if (sampledUser === "true") {
+ 
+ 		if (sampledUser === "true") {
 			var data = {
 				gdpr: {
 					applies: true,
@@ -1279,13 +1281,14 @@ function sp_init(config) {
 				}
 			};
 
+ 
 			if (messageMetaData) {
 				data.gdpr.categoryId = messageMetaData.categoryId;
 				data.gdpr.subCategoryId = messageMetaData.subCategoryId;
 				data.gdpr.msgId = messageMetaData.messageId;
 				data.gdpr.prtnUUID = messageMetaData.prtnUUID;
 			}
-
+  
 			if (isJSONp) {
 				useJsonpPostRequest("/wrapper/v2/pv-data", data, "handlePvResponse")
 			} else {
@@ -1351,9 +1354,6 @@ function sp_init(config) {
 		addtlConsent = data.campaigns[0].addtlConsent;
 		euConsentString = data.campaigns[0].euconsent;
 		setItem("euconsent-v2_"+propertyId, euConsentString, expirationInDays);
-
-
-
 		localState = data.localState;
 	    setItem("localState_" + propertyId, JSON.parse(data.localState), expirationInDays);
 	    nonKeyedLocalState = data.nonKeyedLocalState;
@@ -1380,6 +1380,7 @@ function sp_init(config) {
 	    else{
 			onConsentReady()
 		}
+		sendReportingData();
 	}
 
 	function handleGetConsentStatusForJsonP(data){
