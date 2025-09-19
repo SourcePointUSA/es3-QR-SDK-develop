@@ -100,7 +100,7 @@ function sp_init(config) {
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
-	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate, TCFEventStatus, addtlConsent;
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate, TCFEventStatus, addtlConsent, expirationInDays, disableLocalStorage, tcfEnabled, targetingParams, consentDate, domain;
 
 	var isMetaDataAvailable = false,
     isSpObjectReady = false,

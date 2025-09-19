@@ -1,2 +1,2 @@
-!function(){"use strict";var e;e=[],window.__tcfapi=function(a,c,n,t){e.push({command:a,version:c,callback:n,parameter:t})},window.__tcfapi.pushQueue=function(a){for(;e.length;){var c=e.shift();try{a(c.command,c.version,c.callback,c.parameter)}catch(e){console.warn("[tcfapi-stub] Fehler beim Abarbeiten der Queue:",e)}}}}();
+!function(){"use strict";var n;n=[],window.__tcfapi=function(c,e,o,a){n.push({command:c,version:e,callback:o,parameter:a})},window.__tcfapi.pushQueue=function(c){for(;n.length>0;){var e=n.shift();try{c(e.command,e.version,e.callback,e.parameter)}catch(n){"undefined"!=typeof console&&console.warn&&console.warn("[tcfapi-stub] Error processing queue:",n)}}}}();
 //# sourceMappingURL=tcfStub.js.map

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./css/rc-interaction.css" />
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDPR Banner</title>
+    
+    <!-- TCF Stub als erstes -->
+    <script type="text/javascript">
+!function(){"use strict";var n;n=[],window.__tcfapi=function(c,e,o,a){n.push({command:c,version:e,callback:o,parameter:a})},window.__tcfapi.pushQueue=function(c){for(;n.length>0;){var e=n.shift();try{c(e.command,e.version,e.callback,e.parameter)}catch(n){"undefined"!=typeof console&&console.warn&&console.warn("[tcfapi-stub] Error processing queue:",n)}}}}();
+//# sourceMappingURL=tcfStub.js.map
+    </script>
+</head>
+<body>
+
+
+     
+        
+  
+
+    <div class="red_button_style" id="red_button_notification_field">SOURCEPOINT QR NATIVE DEMO <br/>
+            <button onclick="_sp_.loadPrivacyManagerModal()">Load Privacy Manager</button>
+    <button onclick="_sp_.executeMessaging()">Execute Messaging</button>
+    <button onclick="_sp_.clearUserData()">Clear User Data</button>
+
+    
+
+</div>
+
+
+    <!-- Template -->
+    <div id="stack_template" style="display: none;">
+        <button class="accordion">{name}</button>
+        <div class="panel">
+            <p>{description}</p>
+        </div>
+    </div>
+
+    <!-- Native Message -->
+    <div id="native_message">
+        <div class="gdpr-banner">
+            <div class="gdpr-logo">
+                <img src="images/logo.png" alt="Transparent Logo">
+            </div>
+            <div class="gdpr-text">
+                <h2>We Value Your Privacy</h2>
+                <p>
+                    We and our <span class="all_vendor_count"></span> partners (<span class="iab_vendor_count"></span> IAB) process your personal data using cookies and similar technologies to provide our services, 
+                    personalize content, measure and improve user experiences, and deliver personalized ads. Click 
+                    <strong>"Accept All"</strong> to consent or <strong>"Manage Preferences"</strong> to manage your cookie preferences. 
+                    For more details, see our <a href="/cookie-policy">Cookie Policy</a>.
+                </p>
+               
+                <div class="sp_stacks"></div>
+                <div class="sp_purposes"></div>
+            </div>
+     
+            <div class="gdpr-buttons">
+                <button class="accept-all" id="firstfocus" onclick="_sp_.acceptAll();" tabindex="1">Accept All</button>
+                <button class="manage-preferences" onclick="_sp_.loadPrivacyManagerModal();" tabindex="2">Manage Preferences</button>
+                <button class="continue" onclick="_sp_.continue();" tabindex="3">Continue without Accepting</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Privacy Manager -->
+    <div id="pm">
+        <div class="gdpr-banner">
+            <div class="gdpr-logo">
+                <img src="images/logo.png" alt="Transparent Logo">
+            </div>
+            <div class="gdpr-text">
+                <h2>Your Privacy Settings</h2>
+                <p>We and our <span class="all_vendor_count"></span> partners (<span class="iab_vendor_count"></span> IAB) process your personal data using cookies and similar technologies to provide our services, 
+                    personalize content, measure and improve user experiences, and deliver personalized ads.</p>
+                <div class="sp_stacks"></div>
+                <div class="sp_purposes"></div>
+
+                <p>To customize your privacy settings, please scan the QR code below. This will allow you to manage your granular consent preferences, deciding which data processing activities you wish to approve or decline. We value your privacy and want to give you full control over your choices.</p>
+  
+                <div class="buttons_inline">
+                    <button class="accept-all" onclick="_sp_.acceptAll();" tabindex="1">Accept All</button>
+                    <button class="reject-all" onclick="_sp_.reject();" tabindex="2">Reject All</button>
+                    <button class="continue" onclick="_sp_.continue();" tabindex="3">Continue without Accepting</button>
+                </div>
+            </div>
+    
+            <div class="gdpr-buttons">
+                <img src="#" id="qr" alt="QR Code" /><br />
+                <button id="reload_pm" class="update-cmp" onclick="_sp_.updateConsentStatus();">Update CMP</button> 
+            </div>
+        </div>
+    </div>
+
+    <!-- Konfiguration mit TCF Listener Registration -->
+    <script type="text/javascript">
+        // Globale Config - wird automatisch von nativeMessaging.js verarbeitet
+        window._sp_ = { 
+            config: {
+                accountId: 22,
+                propertyId: 37811,
+                propertyHref: "http://ott.es3",
+                //proxyEndpoint : "http://consent-proxy-prod.redbutton.de/",
+                baseEndpoint: 'https://cmp.tcfv2.de',
+                messageDiv: "native_message",
+                consentLanguage : "DE",
+                isSPA : false, 
+                isJSONp : false, 
+                pmDiv: "pm",
+                qrId: "qr",
+                pmId: 1196474,
+                tcfEnabled: true,
+                buildMessageComponents : true,
+                exposeGlobals : true, 
+                disableLocalStorage : false, 
+                //secondScreenTimeOut: 3000,
+                qrUrl: "https://cdn.privacy-mgmt.com/wrapper/qrcode?text=",
+                pmUrl: "https://cdn.privacy-mgmt.com/ott/pm.html",
+                events: {
+                   onConsentReady: function( consentUUID, euconsent, vendorGrants, consentStatus, purposes) {
+                    console.log("OnConsentReady")
+                  },                 
+                  onMessageComposed:function(){
+                    console.log("onMessageComposed");
+                    const accordions = document.querySelectorAll(".accordion");
+                    accordions.forEach(accordion => {
+                      accordion.addEventListener("click", () => {
+                        accordion.classList.toggle("active");
+                        const panel = accordion.nextElementSibling;
+                        if (panel.style.display === "block") {
+                            panel.style.display = "none";
+                        } else {
+                            panel.style.display = "block";
+                        }
+                      });
+                    });
+                  },
+                  onMetaDataReceived:function(metaData){
+                      console.log("onMetaDataReceived", metaData)
+                  },
+                  onConsentStatusReceived:function(consentStatus){
+                      console.log("onConsentStatusReceived", consentStatus)
+
+                  },
+                  onMessageReceivedData:function(messageMetaData){
+                      console.log("omMessageReceivedData", messageMetaData)
+                  },
+                  firstLayerShown:function(){
+                      console.log("firstLayerShown")
+                  },
+                  secondLayerShown:function(){
+                      console.log("secondLayerShown");
+                  },
+                  firstLayerclosed:function(){
+                      console.log("firstLayerClosed callback");
+                  },
+                  secondLayerClosed:function(){
+                      console.log("secondLayerClosed");
+                  },
+                  onError:function(errorCode, message){
+                      console.log("OnError" ,errorCode, message);
+                  },
+                    onInfo: function(text, data) {
+                        console.log("✓ oninfo");
+                        console.log(text, data)
+                   
+                        
+                        
+                    },
+                    
+                }
+            }
+        };
+
+
+    </script>
+    
+    <!-- Scripts in korrekter Reihenfolge laden -->
+    <script src="nativeMessaging.js" type="text/javascript"></script>  
+    <script src="tcfBridge.js" type="module"></script>
+    
+    <!-- TCF Listener sofort nach dem Laden registrieren -->
+
+</body>
+</html> 

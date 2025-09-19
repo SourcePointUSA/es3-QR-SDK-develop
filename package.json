@@ -1,23 +1,50 @@
 {
   "name": "es3-qr-sdk",
-  "version": "3.1.1",
-  "description": "",
-  "main": "index.js",
+  "version": "3.1.2",
+  "description": "Sourcepoint TCF SDK for TV/OTT platforms with ES3 compatibility",
+  "main": "example/nativeMessaging.js",
   "scripts": {
-    "build": "npm run transpile && npm run minify",
-    "transpile": "babel src --out-dir dist",
-    "minify": "terser dist/index.js --compress --mangle --output example/nativeMessaging.js"
+    "build": "rollup -c rollup.config.unified.mjs",
+    "build:dev": "rollup -c rollup.config.unified.mjs --environment NODE_ENV:development",
+    "build:tcf": "rollup -c rollup.config.unified.mjs --filter tcf",
+    "build:main": "rollup -c rollup.config.unified.mjs --filter main",
+    "watch": "rollup -c rollup.config.unified.mjs --watch",
+    "clean": "rm -rf example/*.js example/*.js.map",
+    "test:syntax": "node -c example/nativeMessaging.js",
+    "prepare": "npm run build"
   },
-  "keywords": [],
+  "keywords": [
+    "tcf",
+    "sourcepoint",
+    "consent",
+    "tv",
+    "hbbtv",
+    "ott",
+    "es3"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.41.1",
     "terser": "^5.36.0"
   },
   "dependencies": {
     "@iabtcf/core": "^1.5.6"
-  }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "example/",
+    "src/",
+    "tcfapi/",
+    "README.md"
+  ]
 }
