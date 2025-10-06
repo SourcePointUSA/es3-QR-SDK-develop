@@ -1,5 +1,5 @@
 var env = "prod";
-var scriptVersion = "3.1.2";
+var scriptVersion = "3.2.0";
 var scriptType = "nativeqr";
 
 /*Polyfill for JSON*/
@@ -100,7 +100,7 @@ function sp_init(config) {
 
 	var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId,propertyHref,consentLanguage,isSPA, isJSONp, 
 	dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, 
-	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, jsonPProxyEndpoint, messageCategoryData, expirationDate, TCFEventStatus, addtlConsent, expirationInDays, disableLocalStorage, tcfEnabled, targetingParams, consentDate, domain;
+	consentStatus,acceptedCategories,legIntCategories,legIntVendors,acceptedVendors,nonKeyedLocalState,vendorGrants,metaData,exposeGlobals, cookieDomain, secondScreenTimeOut, proxyEndpoint, messageCategoryData, expirationDate, TCFEventStatus, addtlConsent, expirationInDays, disableLocalStorage, tcfEnabled, targetingParams, consentDate, domain;
 
 	var isMetaDataAvailable = false,
     isSpObjectReady = false,
@@ -352,22 +352,36 @@ function sp_init(config) {
 	function onConsentReady(skipTcfEvent){
 	    triggerEvent('onConsentReady', [consentUUID,euConsentString,vendorGrants,consentStatus, acceptedCategories]);
 	    
-    	if(!skipTcfEvent && tcfEnabled && typeof __tcfapi !== 'undefined') {
-	        __tcfapi(
-	            'emitEvent',
-	            2,
-	            function(response, success) {
-	                onInfo('[TCF] onConsentReady - emitting tcloaded:', success);
-	            },
-	            {
-	                eventStatus: 'tcloaded',  
-	                cmpStatus: 'loaded',
-	                tcString: euConsentString || '',
-	                addtlConsent : addtlConsent || ''
-	            }
-	        );
-	    }
-	}
+		if (!skipTcfEvent && tcfEnabled && typeof __tcfapi !== 'undefined') {
+		    var hasUI = false;
+		    try {
+		      var msgDiv = messageDiv && document.getElementById(messageDiv);
+		      var pmLayer = pmDiv && document.getElementById(pmDiv);
+		      hasUI =
+		        (msgDiv && msgDiv.style.display !== 'none') ||
+		        (pmLayer && pmLayer.style.display !== 'none');
+		    } catch (e) {}
+
+		    __tcfapi(
+		      'emitEvent',
+		      2,
+		      function (response, success) {
+		        onInfo(
+		          '[TCF] onConsentReady - emitting ' +
+		            (hasUI ? 'useractioncomplete' : 'tcloaded') +
+		            ':',
+		          success
+		        );
+		      },
+		      {
+		        eventStatus: hasUI ? 'useractioncomplete' : 'tcloaded',
+		        cmpStatus: 'loaded',
+		        tcString: euConsentString || '',
+		        addtlConsent: addtlConsent || ''
+		      }
+		    );
+		  }
+		}
 
 	function onMessageComposed(){
 		triggerEvent('onMessageComposed');
@@ -658,7 +672,17 @@ function sp_init(config) {
 				}else{
 					var res = JSON.parse(httpGet(fullURL));
 
-				    localState = res.localState;
+					if (res.campaigns && res.campaigns.length > 0) {
+					  for (var i = 0; i < res.campaigns.length; i++) {
+					    if (res.campaigns[i].euconsent) {
+					      euConsentString = res.campaigns[i].euconsent;
+					      setItem("euconsent-v2_" + propertyId, euConsentString, expirationInDays);
+					      break; // ersten Treffer nehmen
+					    }
+					  }
+					}
+									    
+					localState = res.localState;
 				    setItem("localState_" + propertyId, JSON.parse(res.localState), expirationInDays);
 				    nonKeyedLocalState = res.nonKeyedLocalState;
 				    setItem("nonKeyedLocalState_" + propertyId, JSON.parse(res.nonKeyedLocalState), expirationInDays);

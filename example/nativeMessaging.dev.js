@@ -2,7 +2,7 @@
 	'use strict';
 
 	var env = "prod";
-	var scriptVersion = "3.1.2";
+	var scriptVersion = "3.2.0";
 	var scriptType = "nativeqr";
 	if (!window.JSON) {
 	  window.JSON = {
@@ -71,7 +71,7 @@
 	      event.apply(null, args || []);
 	    }
 	  };
-	  var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, propertyHref, consentLanguage, isSPA, isJSONp, dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, consentStatus, acceptedCategories, legIntCategories, legIntVendors, acceptedVendors, nonKeyedLocalState, vendorGrants, metaData, exposeGlobals, cookieDomain, secondScreenTimeOut, messageCategoryData, addtlConsent, expirationInDays, disableLocalStorage, tcfEnabled, targetingParams, domain;
+	  var baseEndpoint, consentUUID, sampledUser, authId, accountId, propertyId, propertyHref, consentLanguage, isSPA, isJSONp, dateCreated, euConsentString, pmDiv, pmId, messageDiv, gdprApplies, buildMessageComponents, euConsentString, consentStatus, acceptedCategories, legIntCategories, legIntVendors, acceptedVendors, nonKeyedLocalState, vendorGrants, metaData, exposeGlobals, cookieDomain, secondScreenTimeOut, proxyEndpoint, messageCategoryData, addtlConsent, expirationInDays, disableLocalStorage, tcfEnabled, targetingParams, domain;
 	  var isMetaDataAvailable = false,
 	    isSpObjectReady = false;
 	  var hasLocalData = false;
@@ -268,10 +268,16 @@
 	  function onConsentReady(skipTcfEvent) {
 	    triggerEvent('onConsentReady', [consentUUID, euConsentString, vendorGrants, consentStatus, acceptedCategories]);
 	    if (!skipTcfEvent && tcfEnabled && typeof __tcfapi !== 'undefined') {
+	      var hasUI = false;
+	      try {
+	        var msgDiv = messageDiv && document.getElementById(messageDiv);
+	        var pmLayer = pmDiv && document.getElementById(pmDiv);
+	        hasUI = msgDiv && msgDiv.style.display !== 'none' || pmLayer && pmLayer.style.display !== 'none';
+	      } catch (e) {}
 	      __tcfapi('emitEvent', 2, function (response, success) {
-	        onInfo('[TCF] onConsentReady - emitting tcloaded:', success);
+	        onInfo('[TCF] onConsentReady - emitting ' + (hasUI ? 'useractioncomplete' : 'tcloaded') + ':', success);
 	      }, {
-	        eventStatus: 'tcloaded',
+	        eventStatus: hasUI ? 'useractioncomplete' : 'tcloaded',
 	        cmpStatus: 'loaded',
 	        tcString: euConsentString || '',
 	        addtlConsent: addtlConsent || ''
@@ -492,6 +498,15 @@
 	        var res = jsonpGet(fullURL, "handleGetMessagesForJsonP");
 	      } else {
 	        var res = JSON.parse(httpGet(fullURL));
+	        if (res.campaigns && res.campaigns.length > 0) {
+	          for (var i = 0; i < res.campaigns.length; i++) {
+	            if (res.campaigns[i].euconsent) {
+	              euConsentString = res.campaigns[i].euconsent;
+	              setItem("euconsent-v2_" + propertyId, euConsentString);
+	              break;
+	            }
+	          }
+	        }
 	        localState = res.localState;
 	        setItem("localState_" + propertyId, JSON.parse(res.localState));
 	        nonKeyedLocalState = res.nonKeyedLocalState;

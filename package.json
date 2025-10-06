@@ -1,6 +1,6 @@
 {
   "name": "es3-qr-sdk",
-  "version": "3.1.2",
+  "version": "3.2.0",
   "description": "Sourcepoint TCF SDK for TV/OTT platforms with ES3 compatibility",
   "main": "example/nativeMessaging.js",
   "scripts": {
@@ -26,17 +26,18 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.25.9",
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
+    "@babel/core": "^7.28.4",
+    "@babel/plugin-transform-member-expression-literals": "^7.27.1",
+    "@babel/plugin-transform-property-literals": "^7.27.1",
+    "@babel/plugin-transform-reserved-words": "^7.27.1",
+    "@babel/preset-env": "^7.28.3",
+    "@iabtcf/core": "^1.5.6",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup": "^4.41.1",
+    "rollup": "^4.51.0",
     "terser": "^5.36.0"
-  },
-  "dependencies": {
-    "@iabtcf/core": "^1.5.6"
   },
   "engines": {
     "node": ">=14.0.0"
