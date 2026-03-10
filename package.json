@@ -1,6 +1,6 @@
 {
   "name": "es3-qr-sdk",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Sourcepoint TCF SDK for TV/OTT platforms with ES3 compatibility",
   "main": "example/nativeMessaging.js",
   "scripts": {
