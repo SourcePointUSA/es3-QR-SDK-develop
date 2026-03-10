@@ -1288,7 +1288,7 @@ function sp_init(config) {
 	function sendReportingData() {
 		sampleUser(metaData.gdpr.sampleRate);
  
- 		if (sampledUser === "true") {
+ 		if (getSampleUser()) {
 			var data = {
 				gdpr: {
 					applies: true,
