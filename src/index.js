@@ -424,7 +424,11 @@ function sp_init(config) {
 
       clearPropertyScopedData(clearOptions);
       deleteCookie("consent-sync-expiry");
-      deleteCookie("consent-version");
+      // HBBTVREDB-5469: do NOT delete "consent-version" here. That cookie is
+      // owned by the redbutton app (tracks the banner version the user has
+      // consented to) and must survive clearUserData() — otherwise the BH-002
+      // re-detection guard is wiped on the very tick after we set it, leading
+      // to a runaway consent-lifecycle-version increment on the next reload.
       hideElement(pmDiv);
       hideElement(messageDiv);
 
