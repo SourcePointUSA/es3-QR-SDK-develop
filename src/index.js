@@ -292,41 +292,88 @@ function sp_init(config) {
       return messageCategoryData;
     };
 
-    var clearUserDataFunc = function () {
-      deleteCookie("authId");
-      deleteCookie("consentUUID");
-      deleteItem("metaData_" + propertyId);
-      deleteCookie("consentDate_" + propertyId);
-      deleteItem("consentStatus_" + propertyId);
-      deleteItem("euconsent-v2_" + propertyId);
-      deleteItem("localState_" + propertyId);
-      deleteItem("nonKeyedLocalState_" + propertyId);
-      deleteItem("vendorGrants_" + propertyId);
-      deleteItem("acceptedVendors_" + propertyId);
-      deleteItem("acceptedCategories_" + propertyId);
-      deleteItem("legIntVendors_" + propertyId);
-      deleteItem("legIntCategories_" + propertyId);
-      deleteCookie("sp_su");
+    var propertyScopedPrefixes = [
+      "metaData_", "consentDate_", "consentStatus_", "euconsent-v2_",
+      "addtl_consent_", "localState_", "nonKeyedLocalState_", "vendorGrants_",
+      "acceptedVendors_", "acceptedCategories_", "legIntVendors_", "legIntCategories_",
+    ];
+
+    var deleteStorageKeyEverywhere = function (key) {
+      deleteCookie(key);
+      if (typeof window.localStorage !== "undefined") {
+        try { window.localStorage.removeItem(key); } catch (e) { deleteCookie(key); }
+      }
+    };
+
+    var deletePropertyScopedDataForProperty = function (targetPropertyId) {
+      if (targetPropertyId === null || typeof targetPropertyId === "undefined") return;
+      for (var idx = 0; idx < propertyScopedPrefixes.length; idx++) {
+        deleteStorageKeyEverywhere(propertyScopedPrefixes[idx] + targetPropertyId);
+      }
+    };
+
+    var buildPropertyIdLookup = function (propertyIds) {
+      var lookup = {};
+      if (!isArray(propertyIds)) return lookup;
+      for (var idx = 0; idx < propertyIds.length; idx++) {
+        var parsedId = parseInt(propertyIds[idx], 10);
+        if (!isNaN(parsedId)) lookup[parsedId] = true;
+      }
+      return lookup;
+    };
+
+    var collectPropertyScopedKeys = function (propertyIds) {
+      var keys = {};
+      var allowAll = !isArray(propertyIds) || propertyIds.length === 0;
+      var propertyIdLookup = buildPropertyIdLookup(propertyIds);
+      var collectKey = function (key) {
+        if (!key) return;
+        for (var idx = 0; idx < propertyScopedPrefixes.length; idx++) {
+          var prefix = propertyScopedPrefixes[idx];
+          if (key.indexOf(prefix) !== 0) continue;
+          var suffixId = parseInt(key.substring(prefix.length), 10);
+          if (!isNaN(suffixId) && (allowAll || propertyIdLookup[suffixId])) keys[key] = true;
+          return;
+        }
+      };
+      if (typeof window.localStorage !== "undefined") {
+        try {
+          for (var idx = 0; idx < window.localStorage.length; idx++) collectKey(window.localStorage.key(idx));
+        } catch (e) {}
+      }
+      var allCookies = document.cookie.split(";");
+      for (var cookieIdx = 0; cookieIdx < allCookies.length; cookieIdx++) {
+        var cookieName = allCookies[cookieIdx].split("=")[0];
+        if (cookieName) collectKey(cookieName.trim());
+      }
+      return Object.keys(keys);
+    };
+
+    var clearPropertyScopedData = function (options) {
+      if (options && options.clearAllPropertyScopedData === true) {
+        var propertyScopedKeys = collectPropertyScopedKeys(options.propertyIds);
+        for (var idx = 0; idx < propertyScopedKeys.length; idx++) deleteStorageKeyEverywhere(propertyScopedKeys[idx]);
+        return;
+      }
+      deletePropertyScopedDataForProperty(propertyId);
+    };
+
+    var clearUserDataFunc = function (options) {
+      var clearOptions = options || {};
+      var includeAccountScoped = clearOptions.includeAccountScoped !== false;
+      if (includeAccountScoped) {
+        deleteCookie("authId");
+        deleteCookie("consentUUID");
+        deleteCookie("sp_su");
+      }
+      clearPropertyScopedData(clearOptions);
       deleteCookie("consent-sync-expiry");
-      deleteCookie("consent-version");
       hideElement(pmDiv);
       hideElement(messageDiv);
-
-      consentDate = null;
-      consentUUID = null;
-      sampledUser = null;
-      authId = null;
-      dateCreated = null;
-      euConsentString = null;
-      consentStatus = null;
-      acceptedCategories = null;
-      legIntCategories = null;
-      legIntVendors = null;
-      acceptedVendors = null;
-      nonKeyedLocalState = null;
-      vendorGrants = null;
-      localState = null;
-
+      consentDate = null; consentUUID = null; sampledUser = null; authId = null;
+      dateCreated = null; euConsentString = null; consentStatus = null;
+      acceptedCategories = null; legIntCategories = null; legIntVendors = null;
+      acceptedVendors = null; nonKeyedLocalState = null; vendorGrants = null; localState = null;
       return true;
     };
 
