@@ -34,7 +34,9 @@ JSON.parse = function (text) {
   try {
     return new Function("return " + text)();
   } catch (e) {
-    onError("001", "JSON.parse: ungültiges JSON-Format");
+    if (typeof onError === "function") {
+      onError("001", "JSON.parse: ungültiges JSON-Format");
+    }
     return null;
   }
 };
@@ -46,7 +48,9 @@ var isArray = function (arr) {
 if (!Object.keys) {
   Object.keys = function (obj) {
     if (obj !== Object(obj)) {
-      onError("002", "Object.keys called on a non-object");
+      if (typeof onError === "function") {
+        onError("002", "Object.keys called on a non-object");
+      }
     }
 
     var result = [],
